@@ -310,7 +310,8 @@
       $i$ & $-3$ & $-2$ & $-1$ & $0$ & $1$ & $2$ & $3$ \\ \hline
       $m_i$ & $0$ & $5$ & $8$ & $9$ & $8$ & $5$ & $0$
     \end{tabular}
-    \qquad From $0$ the walk needs $9$ steps on average to reach $\pm3$; from $\pm2$, only $5$.\\
+    \par\smallskip
+    From $0$ the walk needs $9$ steps on average to reach $\pm3$; from $\pm2$, only $5$.\\
     This is the $\sqrt n$ scaling of slide~\ref{fr:distSn} from the other side: distance $\sqrt n$ in $n$ steps, or $n$ steps for distance $\sqrt n$.
   \end{exampleblock}
 \end{frame}
@@ -903,7 +904,7 @@
       \words{Row $i$ of $\PP$ is the conditional pmf of $X_{n+1}$ given $X_n=i$: the ``restrict to the row'' picture of the two-dice table.}
       \begin{itemize}
         \item Row $i$, as a function $j\mapsto p(i,j)$, is $p_{X_{n+1}\mid X_n}(\,\cdot\mid i)$: non-negative, sums to $1$. Columns need not sum to anything.
-        \item $\E[f(X_{n+1})\mid X_n=i]=\sum_j p(i,j)f(j)$: the row average of $f$, as on slide~4 of that lecture.
+        \item $\E[f(X_{n+1})\mid X_n=i]=\sum_j p(i,j)f(j)$: the row average of $f$, exactly as $\E[X\mid Y=y]$ was the row average in the Conditional Expectation lecture.
       \end{itemize}
     \end{column}
     \begin{column}{0.38\textwidth}
