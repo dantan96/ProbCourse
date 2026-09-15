@@ -1,0 +1,982 @@
+% ---------------------------------------------------------------------------
+% Lecture: Conditional Expectation. Built on one picture: the two-dice table.
+% Rows are the events {Y=y}. Homework: quiz03.tex (problems in
+% quiz03-problems.tex, numbering as of 2026-09-16). In-slide exercises:
+% answers on the last three slides.
+%
+% Every number on these slides was checked with python3 (fractions/sympy);
+% scripts: scratchpad/check.py (first pass) and scratchpad/recheck.py
+% (revision after critique). Key values, all exact:
+%   E[X|Y=y]=y+3.5, E[X]=7, E[X^2|Y=y]=y^2+7y+91/6, E[X^2]=329/6, Var X=35/6
+%   E[XY]=329/12=27.4166.., Cov(X,Y)=Cov(X,Z)=35/12, E[X 1_{Y=6}]=57/36=19/12
+%   fair die: E=7/2, E[.^2]=91/6, Var=35/12
+%   E[Z|X=x]=x/2; two-stage point: E[X|Y=y]=y/2, E[X]=1/4, f_X=-ln x,
+%   E[X^2|Y=y]=y^2/3, E[X^2]=1/9, Var X=7/144, E[Y|X=x]=(1-x)/(-ln x)
+%   (=0.7213 at x=1/2)
+%   mirror (X uniform on [y,1]): E[X|Y=y]=(1+y)/2, f_X=-ln(1-x),
+%   E[Y|X=x]=1-x/(-ln(1-x)) (=0.279 at x=1/2)
+%   coins: E[H]=7/4, p_H(0)=63/384, p_H(1)=120/384, E[NH]=91/12,
+%   Cov(N,H)=35/24, Var N=35/12, slope 1/2
+%   N dice: E[S]=49/4, 6+...+6^6=55986 outcomes; die-coin game: E=1
+%   random walk: D=xi6+xi7+xi8 takes -3,-1,1,3 w.p. 1/8,3/8,3/8,1/8,
+%   E[D]=0, E[D^2]=9/4+3/4=3; E[S_8|S_5]=S_5, E[S_8^2|S_5]=S_5^2+3;
+%   given S_5=3, S_8 takes 0,2,4,6 w.p. 1/8,3/8,3/8,1/8 (mean 3, 2nd mom 12)
+%   peeking sum: E[S]=6 but mu E[N]=77/12; first-six total 21
+%   waiting: HH 6 (P(T=n)=F_{n-1}/2^n), HT 4, HHH 14, 66 42, die 6, E[T|T>3]=9
+%   gambler: E[R]=2, E[G]=0
+% ---------------------------------------------------------------------------
+\newcommand{\quiz}[1]{\hfill{\normalfont\small\color{soft}Quiz 3: #1}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+
+% Cell labels of the 6x6 table. #1 = y, #2 = z, #3 = mode:
+%   X -> y+z;  G -> y+3.5;  E -> 7;  Z -> z
+\newcommand{\dicecell}[3]{%
+  \pgfmathtruncatemacro{\s}{#1+#2}\pgfmathsetmacro{\g}{#1+3.5}%
+  \if#3X\node at (#2,-#1) {\s};\fi
+  \if#3G\node at (#2,-#1) {\g};\fi
+  \if#3E\node at (#2,-#1) {7};\fi
+  \if#3Z\node at (#2,-#1) {#2};\fi}
+% Grid lines on the cell boundaries (cells are centred on integer coordinates).
+\newcommand{\dicegrid}{\draw[soft,shift={(0.5,0.5)}] (0,-1) grid[step=1] (6,-7);}
+
+% The 6x6 table. #1 (optional): cell size in cm. #2: row to highlight (0 = none).
+% #3: cell label mode as in \dicecell.
+\newcommand{\dicetable}[3][0.46]{%
+  \begin{tikzpicture}[x=#1cm,y=#1cm,font=\scriptsize]
+    \foreach \y in {1,...,6}{
+      \ifnum#2=\y \fill[shade] (0.5,-\y+0.5) rectangle (6.5,-\y-0.5);\fi
+      \foreach \z in {1,...,6}{\dicecell{\y}{\z}{#3}}}
+    \dicegrid
+    \foreach \y in {1,...,6}{\node[left,soft] at (0.4,-\y) {$y{=}\y$};}
+    \foreach \z in {1,...,6}{\node[soft] at (\z,-0.15) {$\z$};}
+    \node[left,soft] at (0.4,-0.15) {$z{=}$};
+  \end{tikzpicture}}
+
+% The table without labels. #1 (optional): cell size. #2: mode.
+\newcommand{\minitable}[2][0.42]{%
+  \begin{tikzpicture}[x=#1cm,y=#1cm,font=\scriptsize]
+    \foreach \y in {1,...,6}{\foreach \z in {1,...,6}{\dicecell{\y}{\z}{#2}}}
+    \dicegrid
+  \end{tikzpicture}}
+
+% The X table with each row's average written to its right.
+\newcommand{\rowavgtable}[1][0.4]{%
+  \begin{tikzpicture}[x=#1cm,y=#1cm,font=\scriptsize]
+    \foreach \y in {1,...,6}{
+      \pgfmathsetmacro{\g}{\y+3.5}
+      \foreach \z in {1,...,6}{\dicecell{\y}{\z}{X}}
+      \node[right,accent] at (6.6,-\y) {$\to\g$};
+    }
+    \dicegrid
+    \foreach \y in {1,...,6}{\node[left,soft] at (0.4,-\y) {$y{=}\y$};}
+  \end{tikzpicture}}
+
+\begin{frame}{Conditional Expectation}
+  \small
+  One picture carries the whole lecture: the table of outcomes of two dice, $Y$ the first, $Z$ the second, $X=Y+Z$. The rows of the table are the events $\{Y=y\}$.
+  \bigskip
+  \renewcommand{\arraystretch}{1.8}
+  \begin{tabular}{@{}r@{\ \ }>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{8.6cm}@{}}
+    1. & \textbf{Given a value:} $\E[X\mid Y=y]$ & The average of $X$ along row $y$. A number for each $y$, hence a function of $y$. \\
+    2. & \textbf{Law of total expectation} & The average of the row averages, weighted by row probabilities, is the overall average. \\
+    3. & \textbf{Given the variable:} $\E[X\mid Y]$ & Paint every row with its own average: a new random variable. \\
+    4. & \textbf{Properties} & Tower, taking out what is known, independence. Each is a one-glance fact about rows. \\
+    5. & \textbf{Two applications} & Random sums, and waiting times: hard head-on, one line by conditioning. \\
+  \end{tabular}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Three Problems We Cannot Yet Do}
+  \small
+  Each asks for an expected value. With the tools so far, the only route is to find the distribution of the quantity first.
+  \begin{block}{Problem A: a random number of coins}
+    Roll a die, getting $N$. Toss $N$ fair coins; $H$ is the number of heads. Find $\E[H]$.\\
+    Head-on: $p_H(h)=\sum_{n=\max(h,1)}^{6}\tfrac16\binom nh2^{-n}$ for $h=0,\dots,6$, seven sums, then $\sum_h h\,p_H(h)$.
+  \end{block}
+  \begin{block}{Problem B: an insurer's payout}
+    An insurer receives $N$ claims in a year, $\E[N]=20$, each of mean size $\pounds1500$, sizes independent of the count. Find the expected total payout $S=X_1+\dots+X_N$.\\
+    Head-on: the distribution of $S$ mixes, over $n$, the $n$-fold convolution of the claim-size distribution, and neither distribution was given.
+  \end{block}
+  \begin{block}{Problem C: waiting for HH}
+    Toss a fair coin until two heads in a row appear; $T$ is the number of tosses used. Find $\E[T]$.\\
+    Head-on: $\Prob(T=n)=F_{n-1}/2^n$ with $F_1,F_2,F_3,\dots=1,1,2,3,5,\dots$ the Fibonacci numbers, then $\sum_n n\,\Prob(T=n)$.
+  \end{block}
+  All three are solved by conditioning on the first stage: slides~\ref{coins}, \ref{insurer}, \ref{hh}.
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{The Table}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      Two fair dice: $(\Omega,\F,\Prob)$ with $\Omega=\{1,\dots,6\}^2$, $\F$ all subsets of $\Omega$, and $\Prob(\{\omega\})=\tfrac1{36}$ for each outcome $\omega=(y,z)$.
+      \begin{itemize}
+        \item $Y\colon\Omega\to\{1,\dots,6\}$, $Y(\omega)=y$, the first die: the \textbf{row}.
+        \item $Z\colon\Omega\to\{1,\dots,6\}$, $Z(\omega)=z$, the second die: the \textbf{column}.
+        \item $X\colon\Omega\to\{2,\dots,12\}$, $X(\omega)=y+z$, the sum: the \textbf{number in the cell}.
+      \end{itemize}
+      \smallskip
+      Shorthand, used throughout: $\{Y=y\}:=\ev{Y(\omega)=y}$ and $\Prob(Y=y):=\Prob(\{Y=y\})$; likewise $\{X\in A\}$, $\Prob(X\le x)$, $\Prob(X=x,Y=y)$.\par
+      \smallskip
+      Every random variable on this $\Omega$ writes a number in each of the $36$ cells; every event is a set of cells, with probability the number of cells over $36$.
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      $X(\omega)=y+z$\par\medskip
+      \dicetable[0.46]{0}{X}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Conditioning on $Y=y$ Is Restricting to a Row}
+  \small
+  \label{condpmf}%
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      The event $\{Y=4\}$ is the fourth row: six cells, probability $\tfrac6{36}=\tfrac16$.
+      Given $Y=4$, the outcome lies in that row, and each of its six cells has conditional probability
+      \[
+        \Prob(\{\omega\}\mid Y=4)=\frac{\Prob(\{\omega\}\cap\{Y=4\})}{\Prob(Y=4)}=\frac{1/36}{1/6}=\frac16 .
+      \]
+      So, given $Y=4$, $X$ takes each of the values $5,6,\dots,10$ with probability $\tfrac16$: the distribution of the numbers in row $4$.
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \centering
+      row $4$ is the event $\{Y=4\}$\par\medskip
+      \dicetable[0.4]{4}{X}
+    \end{column}
+  \end{columns}
+  \begin{block}{Definition (conditional pmf)}
+    Let $S_Y=\{y : p_Y(y)>0\}$. The \textbf{conditional pmf of $X$ given $Y$} is
+    \[
+      p_{X\mid Y}\colon\R\times S_Y\to[0,1],\qquad p_{X\mid Y}(x\mid y)=\Prob(X=x\mid Y=y)=\frac{p_{X,Y}(x,y)}{p_Y(y)} ;
+    \]
+    the first argument $x$ is a value of $X$, the second argument $y$ names the row.
+  \end{block}
+  \words{Restrict to row $y$ and rescale its probabilities so that they total $1$.}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Conditional Expectation Given $Y=y$: The Row Average}
+  \small
+  \begin{block}{Definition (discrete case)}
+    Let $S_Y=\{y : p_Y(y)>0\}$. The \textbf{conditional expectation of $X$ given $Y=y$} is the function
+    \[
+      g\colon S_Y\to\R,\qquad g(y)=\E[X\mid Y=y]=\sum_x x\,p_{X\mid Y}(x\mid y).
+    \]
+  \end{block}
+  \words{The ordinary expected value, computed with the row's conditional distribution in place of the whole table's.}
+  \begin{block}{What each symbol is, and what the object is not}
+    \begin{itemize}
+      \item $x$: runs over the values of $X$, summed away. \ $y$: held fixed, names the row. \ Result: depends on $y$ alone.
+      \item $g\colon S_Y\to\R$: a function on the values of $Y$, not on $\Omega$. Not a random variable.
+      \item $y\notin S_Y$: undefined. A row of probability $0$ has no conditional distribution.
+      \item $\E[X\,\ind_{\{Y=y\}}]=\sum_x x\,p_{X,Y}(x,y)=\E[X\mid Y=y]\,\Prob(Y=y)$, with $\ind_{\{Y=y\}}\colon\Omega\to\{0,1\}$ the indicator of the row: the row's total, not its average.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Two Dice: The Row Average as a Function of $y$}
+  \small
+  \label{rowavg}%
+  \begin{columns}[T]
+    \begin{column}{0.56\textwidth}
+      \begin{exampleblock}{$\E[X\mid Y=y]$ for the sum of two dice}
+        Row $y$ contains $y+1,\dots,y+6$, each with conditional probability $\tfrac16$:
+        \[
+          \E[X\mid Y=y]=\tfrac16\big((y+1)+\dots+(y+6)\big)=y+3.5 .
+        \]
+        As a function on $S_Y=\{1,\dots,6\}$:\par\smallskip
+        \centering
+        \setlength{\tabcolsep}{4pt}
+        \begin{tabular}{@{}c|cccccc@{}}
+          $y$ & 1 & 2 & 3 & 4 & 5 & 6 \\ \hline
+          $g(y)=\E[X\mid Y=y]$ & 4.5 & 5.5 & 6.5 & 7.5 & 8.5 & 9.5
+        \end{tabular}
+      \end{exampleblock}
+      \begin{itemize}
+        \item $g\colon\{1,\dots,6\}\to\R$, $g(y)=y+3.5$. Six numbers, one per row.
+        \item $g(y)-y=3.5=\E[Z]$ for every $y$: on row $y$ the first die is fixed at $y$ and all the remaining randomness is the second die. Slide~\ref{constrow} makes this a method.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \centering
+      each row, then its average\par\medskip
+      \rowavgtable
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{The Continuous Case: Rows Become Slices}
+  \small
+  \begin{block}{Definition (continuous case)}
+    Let $X,Y$ have joint pdf $f_{X,Y}\colon\R^2\to[0,\infty)$, let $S_Y=\{y : f_Y(y)>0\}$, and define the \textbf{conditional pdf of $X$ given $Y$}
+    \[
+      f_{X\mid Y}\colon\R\times S_Y\to[0,\infty),\qquad f_{X\mid Y}(x\mid y)=\frac{f_{X,Y}(x,y)}{f_Y(y)},
+    \]
+    $x$ the value of $X$, $y$ the slice. The \textbf{conditional expectation of $X$ given $Y=y$} is the function
+    \[
+      g\colon S_Y\to\R,\qquad g(y)=\E[X\mid Y=y]=\int_{-\infty}^{\infty}x\,f_{X\mid Y}(x\mid y)\dd x .
+    \]
+  \end{block}
+  \words{The row $\{Y=y\}$ is now a horizontal line through the plane, and the slice of $f_{X,Y}$ along it, rescaled to area $1$, plays the part of the row's conditional pmf.}
+  \begin{itemize}
+    \item For fixed $y\in S_Y$, $f_{X\mid Y}(\,\cdot\mid y)$ is a pdf in $x$: $\int f_{X\mid Y}(x\mid y)\dd x=f_Y(y)/f_Y(y)=1$.
+    \item $\Prob(Y=y)=0$, so $\Prob(\,\cdot\mid Y=y)$ cannot be defined by dividing probabilities; the ratio of densities is the limit of conditioning on $\{y\le Y\le y+\delta\}$ as $\delta\to0$.
+    \item Otherwise nothing changes: fix $y$, take the slice, rescale, average.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{The Two-Stage Point: Horizontal and Vertical Slices}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.66\textwidth}
+      $Y$ uniform on $[0,1]$; given $Y=y$, $X$ uniform on $[0,y]$. So $f_Y=1$ on $(0,1]$, $f_{X\mid Y}(x\mid y)=\tfrac1y$ on $[0,y]$, and $f_{X,Y}(x,y)=f_{X\mid Y}(x\mid y)f_Y(y)=\tfrac1y$ on the triangle $0<x<y<1$.
+      \begin{exampleblock}{Given $Y=y$: a horizontal slice}
+        $S_Y=(0,1]$, the slice is uniform on $[0,y]$, and
+        $\E[X\mid Y=y]=\int_0^y x\,\tfrac1y\dd x=\tfrac y2$.
+      \end{exampleblock}
+      \begin{exampleblock}{Given $X=x$: a vertical slice}
+        $f_X(x)=\int_x^1\tfrac1y\dd y=-\ln x$ on $S_X=(0,1)$, so $f_{Y\mid X}(y\mid x)=\dfrac{1/y}{-\ln x}$ for $x<y<1$ and
+        $\E[Y\mid X=x]=\displaystyle\int_x^1\frac{y}{y}\,\frac{\dd y}{-\ln x}=\frac{1-x}{-\ln x}$.
+      \end{exampleblock}
+      \begin{itemize}
+        \item The vertical slice is not uniform, $f_{Y\mid X}(y\mid x)\propto\tfrac1y$ favours small $y$, so $\E[Y\mid X=x]$ lies below the slice's midpoint $\tfrac{1+x}2$: at $x=\tfrac12$, $0.7213$ against $0.75$.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=2.6,font=\scriptsize]
+        \fill[shade!50] (0,0) -- (1,1) -- (0,1) -- cycle;
+        \draw[->] (0,0) -- (1.15,0) node[right] {$x$};
+        \draw[->] (0,0) -- (0,1.15) node[above] {$y$};
+        \draw[soft] (0,0) -- (1,1) node[right,pos=0.3,black] {\ $x=y$};
+        \draw[accent,very thick] (0,0.55) -- (0.55,0.55);
+        \node[accent,left] at (0,0.55) {$y$};
+        \fill[accent] (0.275,0.55) circle (0.6pt) node[above,accent] {$\tfrac y2$};
+        \draw[leaf,very thick] (0.7,0.7) -- (0.7,1);
+        \node[leaf,below] at (0.7,0) {$x$};
+        \draw[soft,dashed] (0.7,0) -- (0.7,0.7);
+        \fill[leaf] (0.7,0.84) circle (0.6pt) node[right,leaf] {$\tfrac{1-x}{-\ln x}$};
+        \node[below] at (1,0) {$1$};
+        \node[left] at (0,1) {$1$};
+      \end{tikzpicture}
+      \par\medskip
+      {\footnotesize Blue: $\{Y=y\}$, uniform on $[0,y]$. Green: $\{X=x\}$, density $\propto\tfrac1y$ on $[x,1]$.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Functions of $X$, and What Is Constant on a Row}
+  \small
+  \label{constrow}%
+  The same recipe applies to any random variable, and in particular to any function of $X$: for $W\colon\Omega\to\R$ and $h\colon\R\to\R$,
+  \[
+    \E[W\mid Y=y]=\sum_w w\,p_{W\mid Y}(w\mid y),\qquad
+    \E[h(X)\mid Y=y]=\sum_x h(x)\,p_{X\mid Y}(x\mid y),
+  \]
+  with $p_{W\mid Y}$ defined as on slide~\ref{condpmf} with $W$ in place of $X$; the second formula is the rule $\E[h(X)]=\sum_x h(x)p_X(x)$ applied to the row's pmf.
+  \begin{block}{Observation: on row $y$, $Y$ is the constant $y$}
+    Anything that depends on the outcome only through $Y$ is constant on the row. Given $Y=y$, $X=Y+Z$ is $y+Z$: the row's randomness is all in $Z$.
+  \end{block}
+  \begin{exampleblock}{Two dice: $\E[X^2\mid Y=y]$ without listing the row}
+    On row $y$, $X^2=(y+Z)^2=y^2+2yZ+Z^2$ with $y$ a constant and $Z$ uniform on $\{1,\dots,6\}$, so
+    \[
+      \E[X^2\mid Y=y]=y^2+2y\,\E[Z]+\E[Z^2]=y^2+7y+\tfrac{91}{6} .
+    \]
+    Head-on you would square six numbers and average, for each of six rows.
+  \end{exampleblock}
+  \begin{itemize}
+    \item The observation is the seed of the property ``taking out what is known'' (slide~\ref{takeout}).
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: Conditional Expectation Given a Value\quiz{exercises A1--A2}}
+  \begin{exercise}
+    \begin{enumerate}
+      \item Two dice. Which cells form the event $\{X=10\}$? Write down $p_{Z\mid X}(z\mid 10)$ for $z=1,\dots,6$ and compute $\E[Z\mid X=10]$.
+      \item Two dice. Compute $\E[Z\mid X=x]$ for every $x\in\{2,\dots,12\}$ with no arithmetic, by symmetry between the two dice. (What is $\E[Y\mid X=x]+\E[Z\mid X=x]$?)
+      \item Two dice. Compute $\E[YZ\mid Y=y]$ and $\E[Z^2\mid Y=y]$ in one line each, using ``on row $y$, $Y$ is the constant $y$''.
+      \item The mirrored two-stage point: $Y$ uniform on $[0,1]$ and, given $Y=y$, $X$ uniform on $[y,1]$. Draw the region where $f_{X,Y}>0$ and write $f_{X,Y}$. Compute $\E[X\mid Y=y]$, then $f_X$, then $\E[Y\mid X=x]$.
+    \end{enumerate}
+  \end{exercise}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Total Expectation: The Average of the Row Averages}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.56\textwidth}
+      The rows partition the table. The overall average of the $36$ cells can be computed row by row:
+      \[
+        \E[X]=\sum_{y=1}^6 \underbrace{\tfrac16}_{\Prob(Y=y)}\cdot\underbrace{(y+3.5)}_{\text{row average}}=7 .
+      \]
+      \begin{block}{Theorem (law of total expectation)}
+        \begin{align*}
+          \text{discrete:}&\quad \E[X]=\sum_{y\in S_Y}\E[X\mid Y=y]\,p_Y(y),\\
+          \text{continuous:}&\quad \E[X]=\int_{S_Y}\E[X\mid Y=y]\,f_Y(y)\dd y .
+        \end{align*}
+      \end{block}
+      \words{Average each row, then average the row averages weighted by the row probabilities; because the rows cover the table exactly once, this is the overall average.}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \centering
+      \begin{tikzpicture}[x=0.4cm,y=0.4cm,font=\scriptsize]
+        \foreach \y in {1,...,6}{
+          \pgfmathsetmacro{\g}{\y+3.5}
+          \foreach \z in {1,...,6}{\dicecell{\y}{\z}{X}}
+          \node[right,accent] at (6.6,-\y) {$\to\g$};
+        }
+        \dicegrid
+        \node[accent,font=\small] at (7.9,-7.3) {$\downarrow$};
+        \node[accent] at (7.9,-8.2) {$\tfrac16\sum=7$};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Total Expectation: Proof}
+  \small
+  \begin{block}{Proof (discrete case)}
+    \begin{align*}
+      \sum_y \E[X\mid Y=y]\,p_Y(y)
+      &=\sum_y\Big(\sum_x x\,p_{X\mid Y}(x\mid y)\Big)p_Y(y) && \text{\footnotesize definition}\\
+      &=\sum_y\sum_x x\,p_{X,Y}(x,y) && \text{\footnotesize undo the rescaling}\\
+      &=\sum_x x\sum_y p_{X,Y}(x,y)=\sum_x x\,p_X(x)=\E[X]. && \text{\footnotesize swap sums; marginal}\quad\square
+    \end{align*}
+  \end{block}
+  \words{Line two undoes the rescaling that defined the conditional pmf, and line three sums the cells column-first instead of row-first.}
+  \begin{itemize}
+    \item The swap of the two sums is free on the finite table; in general it needs $\E|X|<\infty$.
+    \item Continuous case: identical, with $f$ for $p$ and $\int$ for $\sum$:
+      $\int_{S_Y}\Big(\int x\,f_{X\mid Y}(x\mid y)\dd x\Big)f_Y(y)\dd y=\iint x\,f_{X,Y}(x,y)\dd x\dd y=\int x\,f_X(x)\dd x$.
+    \item Any $W\colon\Omega\to\R$ in place of $X$: $\E[W]=\sum_y\E[W\mid Y=y]\,p_Y(y)$, in particular for $W=h(X)$.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Total Expectation at Work (1): Problem A, a Random Number of Coins}
+  \small
+  \label{coins}%
+  Roll a die, getting $N\colon\Omega\to\{1,\dots,6\}$. Toss $N$ fair coins, independent of the die; $H\colon\Omega\to\{0,\dots,6\}$ is the number of heads. What is $\E[H]$?
+  \begin{block}{By conditioning}
+    Given $N=n$, $H$ is binomial with $n$ tosses (the coins are independent of the die, so the row $\{N=n\}$ does not change their distribution), so $\E[H\mid N=n]=\tfrac n2$. Then
+    \[
+      \E[H]=\sum_{n=1}^6\tfrac n2\cdot\tfrac16=\tfrac12\,\E[N]=1.75 .
+    \]
+  \end{block}
+  \begin{block}{Head-on, for comparison}
+    $p_H(h)=\sum_{n=\max(h,1)}^{6}\tfrac16\binom nh 2^{-n}$ for $h=0,\dots,6$: seven sums (e.g.\ $p_H(0)=\tfrac{63}{384}$, $p_H(1)=\tfrac{120}{384}$), then $\sum_h h\,p_H(h)$.
+  \end{block}
+  \begin{itemize}
+    \item Given the row $N=n$ the problem is a textbook one. The distribution of $H$, a mixture of six binomials, was never needed.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Total Expectation at Work (2): The Two-Stage Point, and Variance}
+  \small
+  \label{variance}%
+  $Y$ uniform on $[0,1]$; given $Y=y$, $X$ uniform on $[0,y]$. What is $\E[X]$?
+  \begin{block}{By conditioning}
+    $\E[X\mid Y=y]=\tfrac y2$ and $f_Y=1$ on $(0,1]$, so
+    $\E[X]=\int_0^1\tfrac y2\cdot1\dd y=\tfrac14$.
+  \end{block}
+  \begin{block}{Head-on, for comparison}
+    First find the pdf of $X$ by integrating out $y$: $f_X(x)=\int_x^1 f_{X,Y}(x,y)\dd y=\int_x^1\tfrac{\dd y}{y}=-\ln x$ for $0<x<1$.
+    Then $\E[X]=\int_0^1 x(-\ln x)\dd x$, which needs integration by parts, and gives $\tfrac14$.
+  \end{block}
+  \begin{block}{Definition (variance)}
+    For $X\colon\Omega\to\R$ with $\E[X^2]<\infty$: \quad $\Var(X)=\E\big[(X-\E[X])^2\big]=\E[X^2]-\E[X]^2$.
+  \end{block}
+  \words{The average squared distance of $X$ from its mean; computing it needs $\E[X^2]$, which total expectation supplies row by row.}
+  \begin{itemize}
+    \item Here $\E[X^2\mid Y=y]=\tfrac{y^2}3$, so $\E[X^2]=\int_0^1\tfrac{y^2}3\dd y=\tfrac19$ and $\Var(X)=\tfrac19-\tfrac1{16}=\tfrac7{144}$. Neither computation needed $f_X$.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: Total Expectation\quiz{exercises A3--A5}}
+  \begin{exercise}
+    \begin{enumerate}
+      \item Two dice. Compute $\E[X^2]$ from $\E[X^2\mid Y=y]=y^2+7y+\tfrac{91}6$ (slide~\ref{constrow}) and deduce $\Var(X)$.
+      \item Roll a die, getting $N$; then roll $N$ more dice and let $S$ be their total. Compute $\E[S]$. How many outcomes would a head-on computation have to enumerate?
+      \item The two-stage point. Verify $\E[X^2]=\tfrac19$ head-on from $f_X(x)=-\ln x$. Then compute $\E[XY]$ by conditioning on $Y$ and check it against the double integral over the triangle.
+      \item A fair die is rolled once, showing $K$. A fair coin is then tossed $K$ times, and you win $\pounds2^K$ if all $K$ tosses are heads, otherwise nothing. Compute $\E[\text{winnings}\mid K=k]$ and then the expected winnings. Would you pay $\pounds1.50$ to play?
+    \end{enumerate}
+  \end{exercise}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{$\E[X\mid Y]$: Paint Every Row With Its Average}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      Slide~\ref{rowavg} gave a function on the values of $Y$: $g\colon S_Y\to\R$, $g(y)=\E[X\mid Y=y]$.
+      \medskip
+
+      Now write $g(y)$ into \emph{every cell of row $y$}. The result is a new number in each cell of the table, that is, a new random variable.
+      \begin{block}{Definition}
+        The \textbf{conditional expectation of $X$ given $Y$} is the random variable
+        \begin{align*}
+          \E[X\mid Y]\colon\Omega&\to\R,\\
+          \E[X\mid Y](\omega)&=g\big(Y(\omega)\big)=\E\big[X\mid Y=Y(\omega)\big].
+        \end{align*}
+      \end{block}
+      \words{At outcome $\omega$, look up which row $\omega$ is in and report that row's average.}
+      \begin{itemize}
+        \item $g(Y)$ is defined on the event $\{Y\in S_Y\}$, which has probability $1$; set it to $0$ elsewhere. On the two-dice $\Omega$ every outcome has positive probability, so there is nothing to fix.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \centering
+      $\E[X\mid Y](\omega)=Y(\omega)+3.5$\par\medskip
+      \dicetable[0.5]{0}{G}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Three Tables, Three Levels of Knowledge}
+  \small
+  \begin{center}
+    \begin{tabular}{@{}c@{\quad}c@{\quad}c@{}}
+      $X$ & $\E[X\mid Y]$ & $\E[X]$ \\[2pt]
+      \dicetable[0.48]{0}{X} & \dicetable[0.48]{0}{G} & \dicetable[0.48]{0}{E} \\[4pt]
+      you see the outcome & you see the row only & you see nothing
+    \end{tabular}
+  \end{center}
+  \words{Each table is the previous one averaged over what you do not know.}
+  \begin{itemize}
+    \item $\E[X\mid Y=y]$: a number for each $y$. \ $\E[X\mid Y]=g(Y)$: a random variable, constant on each row $\{Y=y\}$, where its value is $\E[X\mid Y=y]$.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{$\E[X\mid Y]$: Extreme Cases and the Continuous Case}
+  \small
+  \begin{itemize}
+    \item \textbf{$\E[X\mid X]=X$.} Condition on $X$ itself: each ``row'' $\{X=x\}$ contains only cells where $X=x$, so its average is $x$. Full knowledge changes nothing.
+    \item \textbf{$\E[X\mid Y]=\E[X]$ if $Y$ is constant.} One row, the whole table. No knowledge.
+    \item \textbf{$\E[Y\mid Y]=Y$}, and more generally $\E[h(Y)\mid Y]=h(Y)$ for $h\colon\R\to\R$: on row $y$, $h(Y)$ is the constant $h(y)$, whose average is $h(y)$.
+  \end{itemize}
+  \begin{block}{Continuous case}
+    The same definition, $\E[X\mid Y]=g(Y)$ with $g\colon S_Y\to\R$, $g(y)=\int x\,f_{X\mid Y}(x\mid y)\dd x$. The ``rows'' $\{Y=y\}$ each have probability $0$, but $g(Y)\colon\Omega\to\R$ is an ordinary random variable: a function of $Y$.
+  \end{block}
+  \begin{exampleblock}{Examples}
+    Two-stage point: $g(y)=y/2$, so $\E[X\mid Y]=Y/2$. At an outcome where $Y=0.8$, the average for $X$ is $0.4$, whatever $X$ actually is. Likewise $\E[Y\mid X]=(1-X)/(-\ln X)$.\\
+    Random coins: $\E[H\mid N]=N/2$, a random variable with values $\tfrac12,1,\dots,3$, each with probability $\tfrac16$.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: $\E[X\mid Y]$ as a Random Variable\quiz{exercises A11--A13}}
+  \begin{exercise}
+    \begin{enumerate}
+      \item Two dice. Evaluate $\E[X\mid Y](\omega)$ and $X(\omega)$ at $\omega=(2,5)$, $(2,1)$, $(6,1)$. On which cells does $\E[X\mid Y]$ equal $8.5$?
+      \item Two dice. Using exercise 2 of the first battery, write $\E[Z\mid X]$ as a function of $X$. Check $\E[Y\mid X]+\E[Z\mid X]=X$ and say which rows this conditioning creates.
+      \item $Y$ uniform on $\{-1,0,1\}$, $W=Y^2$. List the values of $\E[W\mid Y]$ and $\E[Y\mid W]$ at each of the three outcomes. Which rows does each conditioning create?
+      \item Random coins. $\E[H\mid N]=N/2$ takes six values; list them with their probabilities and compute $\E\big[\E[H\mid N]\big]$ from that list. Compare with $\E[H]=1.75$.
+    \end{enumerate}
+  \end{exercise}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Property 1: Tower. The Painted Table Has the Same Average}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      Painting a row with its average does not change the row's total. So the painted table has the same overall average as the original:
+      \begin{block}{Theorem (tower property)}
+        $\E\big[\E[X\mid Y]\big]=\E[X]$.
+      \end{block}
+      \begin{block}{Proof}
+        $\E[X\mid Y]=g(Y)$, and the expectation of a function of $Y$ is
+        $\E[g(Y)]=\sum_y g(y)\,p_Y(y)=\sum_y\E[X\mid Y=y]\,p_Y(y)=\E[X]$ by total expectation. \hfill$\square$
+      \end{block}
+      \words{It is the law of total expectation with the $y$'s hidden inside a random variable.}
+      \begin{itemize}
+        \item That makes it composable: $\E[X\mid Y]$ is itself a random variable, and can be attacked by conditioning on something else.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \begin{tabular}{@{}c@{\ }c@{\ }c@{}}
+        \minitable[0.44]{X} & {\color{accent}$\to$} & \minitable[0.44]{G} \\[2pt]
+        average $7$ & & average $7$
+      \end{tabular}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Property 1: Why the Tower Matters}
+  \small
+  To compute $\E[X]$, compute $\E[X\mid Y]$ for a well-chosen $Y$ and average that instead.
+  \begin{center}
+    \renewcommand{\arraystretch}{1.4}
+    \begin{tabular}{@{}lll@{}}
+      \toprule
+      problem & $\E[X\mid Y]$, a formula in $Y$ & then $\E[X]=\E[\E[X\mid Y]]$ \\
+      \midrule
+      coins, $N$ from a die & $\E[H\mid N]=N/2$ & $\E[N]/2=1.75$ \\
+      two-stage point & $\E[X\mid Y]=Y/2$ & $\E[Y]/2=1/4$ \\
+      random sum $S=X_1+\dots+X_N$ & $\E[S\mid N]=\mu N$ & $\mu\,\E[N]$ \\
+      waiting time $T$ for HH & $\E[T\mid Y]$ for the opening $Y$ & an equation for $\E[T]$ \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \begin{itemize}
+    \item In each row $X$ has an unpleasant distribution; $\E[X\mid Y]$ is a one-line formula in $Y$.
+    \item Choosing $Y$ is the whole art: the row problem must be textbook, and $p_Y$ or $f_Y$ must be known.
+    \item The last two rows are the applications at the end of the lecture.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Property 2: A Problem. Are $N$ and $H$ Correlated?}
+  \small
+  Problem A again: $N$ the die, $H$ the number of heads among $N$ coins. More coins should mean more heads. How strongly are $N$ and $H$ linked?
+  \begin{block}{Definition (covariance)}
+    For $X,Y\colon\Omega\to\R$ with finite second moments: \quad $\Cov(X,Y)=\E\big[(X-\E[X])(Y-\E[Y])\big]=\E[XY]-\E[X]\,\E[Y]$; \quad $\Cov(X,X)=\Var(X)$.
+  \end{block}
+  \words{Positive when $X$ above its mean tends to come with $Y$ above its mean; zero for independent $X,Y$.}
+  \begin{block}{Head-on}
+    $\E[NH]=\sum_{n=1}^6\sum_{h=0}^n n\,h\,p_{N,H}(n,h)$ with $p_{N,H}(n,h)=\tfrac16\binom nh2^{-n}$: $21$ nonzero terms of the joint pmf, each a binomial coefficient over a power of two.
+  \end{block}
+  \begin{block}{What conditioning offers}
+    Tower: $\E[NH]=\E\big[\E[NH\mid N]\big]$. On the row $\{N=n\}$ the factor $N$ is the number $n$. If a constant factor can be pulled out of a row average, then
+    $\E[NH\mid N=n]=n\,\E[H\mid N=n]=n\cdot\tfrac n2$,
+    and $\E[NH]$ is an ordinary expectation of a function of $N$. Slide~\ref{constrow} made this move one row at a time; the next slide states it once, for all rows.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Property 2: Taking Out What Is Known}
+  \small
+  \label{takeout}%
+  On row $y$, anything that is a function of $Y$ is the constant $h(y)$, and a constant factor comes out of an average.
+  \begin{block}{Theorem}
+    For any $h\colon\R\to\R$ with $\E|h(Y)X|<\infty$: \quad $\E[h(Y)\,X\mid Y]=h(Y)\,\E[X\mid Y]$. \quad In particular $\E[h(Y)\mid Y]=h(Y)$.
+  \end{block}
+  \begin{block}{Proof (discrete case)}
+    Fix $y\in S_Y$. $\E[h(Y)X\mid Y=y]=\sum_x h(y)\,x\,p_{X\mid Y}(x\mid y)=h(y)\sum_x x\,p_{X\mid Y}(x\mid y)=h(y)\,\E[X\mid Y=y]$.
+    This holds for every $y$; substitute $y=Y(\omega)$. Continuous case identical, with $f$ for $p$ and $\int$ for $\sum$. \hfill$\square$
+  \end{block}
+  \words{Whatever is already determined by the row is a constant on the row and can be taken out of the row average.}
+  \begin{block}{Linearity}
+    $\E[aX+bX'\mid Y]=a\,\E[X\mid Y]+b\,\E[X'\mid Y]$ for constants $a,b$, for the same reason ordinary expectation is linear: row by row.
+    With the theorem: $\E[h(Y)+X\mid Y]=h(Y)+\E[X\mid Y]$.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Property 2: Back to $\Cov(N,H)$, and $\E[XY]$ for Two Dice}
+  \small
+  \begin{exampleblock}{$\Cov(N,H)$ for Problem A}
+    \[
+      \E[NH]=\E\big[\E[NH\mid N]\big]=\E\big[N\,\E[H\mid N]\big]=\E\big[N\cdot\tfrac N2\big]=\tfrac12\E[N^2]=\tfrac12\cdot\tfrac{91}6=\tfrac{91}{12},
+    \]
+    so $\Cov(N,H)=\tfrac{91}{12}-\tfrac72\cdot\tfrac74=\tfrac{35}{24}\approx1.46$.
+    With $\Var(N)=\E[N^2]-\E[N]^2=\tfrac{91}6-\tfrac{49}4=\tfrac{35}{12}$: $\Cov(N,H)/\Var(N)=\tfrac12$, the slope of $\E[H\mid N]=\tfrac12N$.
+  \end{exampleblock}
+  \begin{exampleblock}{$\E[XY]$ for two dice, without listing $36$ products}
+    \[
+      \E[XY]=\E\big[\E[XY\mid Y]\big]=\E\big[Y\,\E[X\mid Y]\big]=\E[Y(Y+3.5)]=\E[Y^2]+3.5\,\E[Y]=\tfrac{91}{6}+\tfrac{49}{4}=\tfrac{329}{12},
+    \]
+    about $27.42$, so $\Cov(X,Y)=\tfrac{329}{12}-7\cdot3.5=\tfrac{35}{12}$.
+  \end{exampleblock}
+  \begin{itemize}
+    \item Both computations are the same three steps: tower; take out the factor that is a function of the conditioning variable; an ordinary expectation of a function of that variable.
+    \item The $21$-term double sum of the previous slide was never written down.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Property 3: Independence}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.64\textwidth}
+      \begin{block}{Definition (independence)}
+        $X,Y\colon\Omega\to\R$ are \textbf{independent}, written $X\indep Y$, if
+        \[
+          \Prob(X\in A,\,Y\in B)=\Prob(X\in A)\,\Prob(Y\in B)\quad\text{for all }A,B\subseteq\R .
+        \]
+        $\xi_1,\dots,\xi_n\colon\Omega\to\R$ are \textbf{independent} if
+        $\Prob(\xi_1\in A_1,\dots,\xi_n\in A_n)=\prod_{i=1}^n\Prob(\xi_i\in A_i)$ for all $A_i\subseteq\R$; a sequence, if every finite part is.
+      \end{block}
+      \words{The row you are in tells you nothing about which column you are in.}
+      \begin{itemize}
+        \item Two dice: $p_{Y,Z}(y,z)=\tfrac1{36}=\tfrac16\cdot\tfrac16=p_Y(y)\,p_Z(z)$; summing over the cells of $\{Y\in A\}\cap\{Z\in B\}$ gives the definition for all $A,B$. So $Y\indep Z$.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.34\textwidth}
+      \centering
+      $Z(\omega)=z$: every row alike\par\medskip
+      \dicetable[0.4]{0}{Z}
+    \end{column}
+  \end{columns}
+  \begin{block}{Fact (stated without proof)}
+    Functions of disjoint groups of independent variables are independent: $\xi_1,\xi_2,\dots$ independent implies $f(\xi_1,\dots,\xi_5)\indep g(\xi_6,\xi_7,\xi_8)$ for all $f\colon\R^5\to\R$, $g\colon\R^3\to\R$.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Property 3: A Problem. A Random Walk, Seen From Halfway}
+  \small
+  \label{rw}%
+  Let $\xi_1,\xi_2,\dots\colon\Omega\to\{-1,1\}$ be independent with $\Prob(\xi_i=1)=\Prob(\xi_i=-1)=\tfrac12$, and $S_n=\xi_1+\dots+\xi_n$ the position after $n$ steps. You watch the first five steps and see $S_5$. What do you expect $S_8$ to be, and $S_8^2$? That is: find $\E[S_8\mid S_5]$ and $\E[S_8^2\mid S_5]$.
+  \begin{block}{Head-on}
+    Row $\{S_5=s\}$ for $s\in\{-5,-3,-1,1,3,5\}$. On it, $S_8$ has the conditional pmf $p_{S_8\mid S_5}(t\mid s)=p_{S_5,S_8}(s,t)/p_{S_5}(s)$, which needs the joint pmf of $(S_5,S_8)$: count paths.
+    For $s=3$: $t=0,2,4,6$ with probabilities $\tfrac18,\tfrac38,\tfrac38,\tfrac18$, mean $3$, second moment $12$. Then five more rows.
+  \end{block}
+  \begin{block}{What conditioning offers}
+    $S_8=S_5+D$ with $D=\xi_6+\xi_7+\xi_8$. On row $\{S_5=s\}$ the first term is the constant $s$ and comes out. The second is built from steps the row says nothing about, so the row should not change its distribution: $\E[D\mid S_5]$ should be $\E[D]=0$.
+  \end{block}
+  \begin{itemize}
+    \item ``The row says nothing about $D$'' is $D\indep S_5$, which holds by the fact on the previous slide. The next slide says exactly what it buys.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Property 3: Independence. Every Row Looks Like the Whole Table}
+  \small
+  \begin{block}{Theorem}
+    If $X\indep Y$ then $\E[X\mid Y]=\E[X]$, a constant; equivalently $\E[X\mid Y=y]=\E[X]$ for every $y\in S_Y$.
+  \end{block}
+  \begin{block}{Proof (discrete case)}
+    Take $A=\{x\}$, $B=\{y\}$ in the definition: $p_{X,Y}(x,y)=p_X(x)\,p_Y(y)$. So for every $y\in S_Y$,
+    \[
+      p_{X\mid Y}(x\mid y)=\frac{p_X(x)\,p_Y(y)}{p_Y(y)}=p_X(x):
+    \]
+    each row carries the same distribution of $X$ as the whole table. Hence every row average is $\sum_x x\,p_X(x)=\E[X]$.
+    Continuous case identical, with $f_{X,Y}=f_Xf_Y$. \hfill$\square$
+  \end{block}
+  \words{Knowing the row tells you nothing about $X$, so the row average is the overall average.}
+  \begin{itemize}
+    \item Two dice: $Z\indep Y$; every row of the $Z$-table is $1,\dots,6$, so $\E[Z\mid Y]=3.5$ on every row.
+    \item Also $\E[h(X)\mid Y]=\E[h(X)]$ for $h\colon\R\to\R$, since $h(X)\indep Y$ too ($\{h(X)\in A\}=\{X\in h^{-1}(A)\}$).
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Property 3: The Random Walk Done, and a Recipe}
+  \small
+  \label{rwdone}%
+  \begin{exampleblock}{$\E[S_8\mid S_5]$ and $\E[S_8^2\mid S_5]$}
+    $D=\xi_6+\xi_7+\xi_8$ takes the values $-3,-1,1,3$ with probabilities $\tfrac18,\tfrac38,\tfrac38,\tfrac18$, so $\E[D]=0$ and $\E[D^2]=9\cdot\tfrac14+1\cdot\tfrac34=3$; and $D\indep S_5$ (disjoint groups of steps).
+    \begin{align*}
+      \E[S_8\mid S_5]&=\E[S_5\mid S_5]+\E[D\mid S_5]=S_5+\E[D]=S_5,\\
+      \E[S_8^2\mid S_5]&=\E[S_5^2+2S_5D+D^2\mid S_5]=S_5^2+2S_5\,\E[D]+\E[D^2]=S_5^2+3 .
+    \end{align*}
+    Check on row $s=3$: $\tfrac18\cdot0+\tfrac38\cdot4+\tfrac38\cdot16+\tfrac18\cdot36=12=3^2+3$.
+  \end{exampleblock}
+  \begin{block}{The recipe}
+    To compute $\E[X\mid Y]$ without listing rows, write $X$ as sums and products of \emph{functions of $Y$} and \emph{quantities independent of $Y$}. The former come out unchanged (taking out what is known); the latter are replaced by their ordinary expectations (independence).
+  \end{block}
+  \begin{itemize}
+    \item Two dice in one line: $X=Y+Z$ with $Z\indep Y$, so $\E[X\mid Y]=Y+\E[Z]=Y+3.5$; and $\E[X^2\mid Y]=Y^2+2Y\,\E[Z]+\E[Z^2]$.
+    \item $\E[S_8\mid S_5]=S_5$: from wherever the walk stands, its expected future position is where it is. This is the martingale property, taken up in the stochastic-processes lectures.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Property 3: What Independence Does Not Say}
+  \small
+  \begin{block}{The converse fails: $\E[X\mid Y]=\E[X]$ does not force $X\indep Y$}
+    $Y$ uniform on $\{-1,0,1\}$ and $W=Y^2$. Conditioning on $W$ creates two rows:
+    \begin{center}
+      \renewcommand{\arraystretch}{1.2}
+      \begin{tabular}{@{}lccc@{}}
+        \toprule
+        row & outcomes & values of $Y$ & row average \\
+        \midrule
+        $\{W=0\}$ & $\{0\}$ & $0$ & $0$ \\
+        $\{W=1\}$ & $\{-1,1\}$ & $-1,\ 1$ & $0$ \\
+        \bottomrule
+      \end{tabular}
+    \end{center}
+    So $\E[Y\mid W]=0=\E[Y]$, yet $W$ is a function of $Y$: $\Prob(Y=0,W=0)=\tfrac13\ne\Prob(Y=0)\Prob(W=0)=\tfrac19$.
+  \end{block}
+  \begin{itemize}
+    \item Equal row \emph{averages} do not mean equal row \emph{distributions}. Independence is the second; the theorem only needs, and $\E[X\mid Y]=\E[X]$ only delivers, the first.
+    \item What $\E[X\mid Y]=\E[X]$ does deliver, by tower and taking out: $\E[h(Y)X]=\E\big[h(Y)\,\E[X\mid Y]\big]=\E[h(Y)]\,\E[X]$, i.e.\ $\Cov(h(Y),X)=0$ for every $h\colon\R\to\R$. Here $\Cov(W,Y)=\E[Y^3]-\E[W]\E[Y]=0$.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Properties: Summary}
+  \footnotesize
+  \begin{center}
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{@{}l>{$}l<{$}p{4.1cm}@{}}
+      \toprule
+      property & \text{statement} & one-glance reason \\
+      \midrule
+      tower & \E[\E[X\mid Y]]=\E[X] & painting rows with their averages keeps the total \\
+      linearity & \E[aX+bX'\mid Y]=a\E[X\mid Y]+b\E[X'\mid Y] & averages are linear, row by row \\
+      taking out what is known & \E[h(Y)X\mid Y]=h(Y)\E[X\mid Y] & $h(Y)$ is constant on a row \\
+      known variables & \E[h(Y)\mid Y]=h(Y),\ \ \E[X\mid X]=X & a constant's average is itself \\
+      independence & X\indep Y\Rightarrow\E[X\mid Y]=\E[X] & every row has the table's distribution of $X$ \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \begin{center}
+    \renewcommand{\arraystretch}{1.4}
+    \begin{tabular}{@{}lp{5.6cm}p{5cm}@{}}
+      \toprule
+      object & type & meaning \\
+      \midrule
+      $\E[X]$ & number & average over the whole table \\
+      $\E[X\mid Y=y]$ & number for each $y\in S_Y$; a function $g\colon S_Y\to\R$ & average over row $y$ \\
+      $\E[X\mid Y]$ & random variable $g(Y)\colon\Omega\to\R$ & row average, written into every cell of the row \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: The Properties\quiz{exercises A14--A19}}
+  \begin{exercise}
+    \begin{enumerate}
+      \item Two dice. Compute $\E[X\,\ind_{\{Y=6\}}]$, with $\ind_{\{Y=6\}}\colon\Omega\to\{0,1\}$ the indicator of row $6$, by the tower property and taking out what is known. Check against the table.
+      \item Two dice. Write $\E[X^2\mid Y]$ as a random variable, then get $\E[X^2]$ by the tower property and $\Var(X)$. Compare with battery 2, exercise 1.
+      \item Two dice. From $\E[XY]=\tfrac{329}{12}$ compute $\Cov(X,Y)$; then $\Cov(X,Z)$ by symmetry; check $\Cov(X,Y)+\Cov(X,Z)=\Var(X)$ and say why that identity must hold.
+      \item Random walk. Compute $\E[S_5\mid S_8]$. (All eight steps play the same role given $S_8$, so $\E[\xi_1\mid S_8]=\dots=\E[\xi_8\mid S_8]$; what do they sum to?)
+      \item Show that $\E[X\mid Y]=\E[X]$ forces $\Cov(h(Y),X)=0$ for every $h\colon\R\to\R$, but that $\Cov(Y,X)=0$ alone does not force $\E[X\mid Y]=\E[X]$. (Try $Y$ uniform on $\{-1,0,1\}$ and $X=Y^2$.)
+    \end{enumerate}
+  \end{exercise}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Application 1: Random Sums. Problem B}
+  \small
+  Let $N\colon\Omega\to\{0,1,2,\dots\}$ and let $X_1,X_2,\dots\colon\Omega\to\R$ have $\E[X_i]=\mu$ for all $i$. Put
+  \[
+    S=X_1+X_2+\dots+X_N\qquad(S=0\text{ when }N=0).
+  \]
+  \words{Two layers of randomness: how many terms, and what each term is.}
+  \begin{block}{Problem B, and why it is hard head-on}
+    $N$ claims, $\E[N]=20$; claim $i$ has size $X_i$ with $\E[X_i]=\pounds1500$. Find $\E[S]$.
+    The pmf or pdf of $S$ is $\sum_n\Prob(N=n)\cdot(\text{distribution of }X_1+\dots+X_n)$, an $n$-fold convolution for each $n$; and here neither the distribution of $N$ nor that of the $X_i$ is even specified. Only the two means are.
+  \end{block}
+  \begin{block}{What conditioning offers}
+    On the row $\{N=n\}$, $S=X_1+\dots+X_n$ is a sum of a \emph{fixed} number of terms, and $\E[X_1+\dots+X_n]=n\mu$ by linearity. So $\E[S\mid N=n]$ would be $n\mu$, provided that restricting to the row does not change the distribution of the terms.
+  \end{block}
+  \begin{itemize}
+    \item That proviso is a genuine assumption about how $N$ is decided. It is stated next.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Application 1: Random Sums. The Assumption}
+  \small
+  \begin{block}{Assumption: $N$ is independent of the $X_i$}
+    For every $n$ and all sets $A_1,\dots,A_n\subseteq\R$,
+    \[
+      \Prob(N=n,\ X_1\in A_1,\dots,X_n\in A_n)=\Prob(N=n)\,\Prob(X_1\in A_1,\dots,X_n\in A_n).
+    \]
+  \end{block}
+  \words{Given $N=n$, the joint distribution of $(X_1,\dots,X_n)$ is what it was unconditionally.}
+  \begin{itemize}
+    \item Not assumed: independence of the $X_i$ from each other, or identical distributions. Only equal means $\mu$.
+    \item Holds when $N$ is settled by a separate mechanism: the number of customers before anyone spends; the number of claims regardless of their sizes.
+    \item Fails when $N$ is decided by looking at the $X_i$: ``stop at the first six''; ``include the second term only if it is small'' (slide~\ref{insurer}).
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Application 1: Random Sums. Theorem and Proof}
+  \small
+  \begin{block}{Theorem}
+    Under the assumption, $\E[S\mid N=n]=n\mu$ for every $n$, hence $\E[S\mid N]=\mu N$ and $\E[S]=\mu\,\E[N]$.
+  \end{block}
+  \begin{block}{Proof}
+    On the row $\{N=n\}$, $S=W_n:=X_1+\dots+X_n$. By the assumption, the row $\{N=n\}$ does not change the distribution of $W_n$, so Property 3, applied to $W_n$ at the row $n$, gives
+    \[
+      \E[S\mid N=n]=\E[W_n\mid N=n]=\E[W_n]=n\mu
+    \]
+    by linearity. Substitute $n=N$ to get $\E[S\mid N]=\mu N$; then $\E[S]=\E[\mu N]=\mu\,\E[N]$ by the tower property. \hfill$\square$
+  \end{block}
+  \words{Given the row, the random number of terms is a fixed number and linearity does the rest.}
+  \begin{itemize}
+    \item The three steps again: condition on the layer that makes the problem hard; on the row it is gone; tower.
+    \item Nothing about the distribution of $S$ was computed. Its mean is all that was asked for and all that was found.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Application 1: Back to the Insurer, and When the Assumption Fails}
+  \small
+  \label{insurer}%
+  \begin{exampleblock}{Problem B}
+    $\E[S]=\mu\,\E[N]=1500\cdot20=\pounds30\,000$, whatever the distributions of $N$ and of the claim sizes, as long as the count is independent of the sizes.
+  \end{exampleblock}
+  \begin{exampleblock}{$N$ decided by peeking at a term: the formula gives the wrong number}
+    Two dice $X_1,X_2$. Let $N=1$ if $X_2=6$ and $N=2$ otherwise (the second die counts only if it is not a six). Then $S=X_1+X_2\,\ind_{\{X_2\ne6\}}$ and
+    \[
+      \E[S]=3.5+\tfrac{1+2+3+4+5}6=6,\qquad\text{but}\qquad \mu\,\E[N]=3.5\cdot\tfrac{11}6=\tfrac{77}{12}\approx6.42 .
+    \]
+    On the row $\{N=2\}=\{X_2\ne6\}$ the second term averages $3$, not $\mu=3.5$: the row changed the distribution of a term.
+  \end{exampleblock}
+  \begin{itemize}
+    \item ``Stop at the first six'' also violates the assumption, yet $\mu\,\E[N]=3.5\cdot6=21$ is right (exercise battery 5). That is Wald's identity, a separate theorem: its hypothesis is that $N$ never looks \emph{ahead}. The peeking example looks ahead.
+  \end{itemize}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Application 2: Waiting for HH. Problem C}
+  \small
+  Toss a fair coin repeatedly. Let $T\colon\Omega\to\{2,3,\dots\}$ be the number of the toss on which two consecutive heads are first completed: for T\,H\,T\,H\,H\,\dots, $T=5$. We want $\E[T]$.
+  \begin{block}{Why head-on is hard}
+    $\Prob(T=n)$ is the number of H/T strings of length $n$ that end in HH and contain no earlier HH, over $2^n$. The count is the Fibonacci number $F_{n-1}$, so $\Prob(T=n)=F_{n-1}/2^n$, and $\E[T]=\sum_{n\ge2}nF_{n-1}/2^n$ needs generating functions to sum.
+  \end{block}
+  The rows we condition on here are described by events rather than by the value of a named variable, so:
+  \begin{block}{Definition (conditional expectation given an event)}
+    For $A\in\F$ with $\Prob(A)>0$ and $\ind_A\colon\Omega\to\{0,1\}$ the indicator of $A$,
+    \[
+      \E[X\mid A]=\sum_x x\,\Prob(X=x\mid A)=\E[X\mid \ind_A=1].
+    \]
+  \end{block}
+  \words{A row can be any event of positive probability: restrict to $A$, rescale, average.}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Application 2: Waiting for HH. The Restart Property}
+  \small
+  Let $A_k$ be the event that the first $k$ tosses form a given H/T string ending in T; $\Prob(A_k)=2^{-k}>0$. On $A_k$ no progress towards HH has been made at toss $k$.
+  \begin{block}{Restart property}
+    Let $T'$ be the number of tosses after toss $k$ until HH is first completed among tosses $k+1,k+2,\dots$. Then on $A_k$, $T=k+T'$, and
+    \[
+      \E[T\mid A_k]=k+\E[T'\mid A_k]=k+\E[T].
+    \]
+  \end{block}
+  \begin{block}{Why}
+    $T'$ is a function of tosses $k+1,k+2,\dots$, and $\ind_{A_k}$ of tosses $1,\dots,k$: disjoint groups of independent tosses, so $T'\indep\ind_{A_k}$ and, by Property 3, $\E[T'\mid A_k]=\E[T']$. The tosses $k+1,k+2,\dots$ are a fair coin tossed repeatedly, exactly the experiment defining $T$, so $T'$ has the distribution of $T$ and $\E[T']=\E[T]$. \hfill$\square$
+  \end{block}
+  \words{On such a row $T$ is $k$ plus a fresh copy of $T$, so the row average is $k$ plus the very unknown we are after.}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Application 2: Waiting for HH. The Computation}
+  \small
+  \label{hh}%
+  \begin{columns}[T]
+    \begin{column}{0.6\textwidth}
+      \textbf{The conditioning variable.} Let $Y\colon\Omega\to\{1,2,3\}$ record how the game opens:
+      \[
+        Y=\begin{cases}1&\text{toss 1 is T}\\2&\text{tosses 1,2 are H,T}\\3&\text{tosses 1,2 are H,H}\end{cases}
+      \]
+      with $p_Y(1)=\tfrac12$, $p_Y(2)=p_Y(3)=\tfrac14$.
+      Every outcome falls in exactly one case: three rows.
+      \medskip
+
+      \textbf{Row averages.} Rows 1 and 2 are the events $A_1=\{\text{T}\}$ and $A_2=\{\text{HT}\}$ (restart); row 3 is finished:
+      \[
+        \E[T\mid Y=1]=1+\E[T],\qquad \E[T\mid Y=2]=2+\E[T],
+      \]
+      and $\E[T\mid Y=3]=2$.
+      \textbf{Total expectation.}
+      \begin{align*}
+        \E[T]&=\tfrac12\big(1+\E[T]\big)+\tfrac14\big(2+\E[T]\big)+\tfrac14\cdot2\\
+             &=\tfrac34\E[T]+\tfrac32,\qquad\text{so }\E[T]=6 .
+      \end{align*}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \centering
+      \begin{tikzpicture}[font=\scriptsize,
+          box/.style={draw,rounded corners,inner sep=2pt,fill=white},
+          lbl/.style={inner sep=1.5pt,fill=white,midway}]
+        \node[box] (s) at (0,0) {start};
+        \node[box,fill=shade] (t) at (-1.2,-1.3) {T: restart};
+        \node[box] (h) at (1.2,-1.3) {H};
+        \node[box,fill=shade] (ht) at (0.2,-2.6) {HT: restart};
+        \node[box,fill=leaf!20] (hh) at (2.2,-2.6) {HH: done};
+        \draw (s) -- node[lbl] {$\tfrac12$} (t);
+        \draw (s) -- node[lbl] {$\tfrac12$} (h);
+        \draw (h) -- node[lbl] {$\tfrac12$} (ht);
+        \draw (h) -- node[lbl] {$\tfrac12$} (hh);
+      \end{tikzpicture}
+      \par\medskip
+      {\footnotesize Two of the three leaves lead back to the start. That is why $\E[T]$ appears on both sides.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Application 2: The Same Move, Elsewhere}
+  \small
+  Whenever a process restarts after certain outcomes, condition on the first step: the unknown mean appears on both sides of the total-expectation equation, and the equation solves it.
+  \begin{itemize}
+    \item \textbf{Rolls until the first six}, $T_6$: \ $\E[T_6]=\tfrac16\cdot1+\tfrac56\big(1+\E[T_6]\big)$, so $\E[T_6]=6$.
+    \item \textbf{Waiting for a T}, $T_{\mathrm T}$: the same equation with $\tfrac12$ for $\tfrac16$ gives $\E[T_{\mathrm T}]=2$.
+    \item \textbf{Pattern HT}, $T_{\mathrm{HT}}$: after the first H, wait for a T. \ $\E[T_{\mathrm{HT}}]=\tfrac12\big(1+\E[T_{\mathrm{HT}}]\big)+\tfrac12\big(1+\E[T_{\mathrm T}]\big)$, so $\E[T_{\mathrm{HT}}]=4<6$: when HT fails (HH), the second H is a head start; when HH fails (HT), nothing is.
+    \item \textbf{Pattern HHH:} $14$. \ \textbf{Two sixes in a row:} $42$. Same equation, more rows.
+    \item \textbf{No memory:} $\E[T_6\mid T_6>3]=3+\E[T_6]=9$, by the restart property at $k=3$.
+  \end{itemize}
+  \begin{block}{The equation is legitimate}
+    Solving $\E[T]=\tfrac34\E[T]+\tfrac32$ presumes $\E[T]<\infty$. Each block of two tosses is HH with probability $\tfrac14$, so $\Prob(T>2m)\le(\tfrac34)^m$, and $\E[T]=\sum_{n\ge0}\Prob(T>n)<\infty$ (tail-sum formula for $\{0,1,2,\dots\}$-valued $T$; standard, not proved here).
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: Applications\quiz{exercises A6--A10, A20--A21}}
+  \begin{exercise}
+    \begin{enumerate}
+      \item You receive $N$ emails today; each, independently of everything, has an attachment with probability $p$. With $A$ the number of attachments, show $\E[A\mid N]=pN$ and $\E[A]=p\,\E[N]$. Point to the line where independence of $N$ from the attachments is used.
+      \item Derive $\E[T]=14$ for HHH by conditioning on the opening T, HT, HHT, HHH.
+      \item A gambler stakes $\pounds1$ per round on a fair coin and stops at her first win. Let $R$ be the number of rounds. Show $\E[R]=2$ by conditioning on the first round, and find her expected net gain.
+      \item Roll a die repeatedly and let $S$ be the total shown up to and including the first six. Compute $\E[S]$ by conditioning on the first roll. Why does $\E[S]=\mu\,\E[N]$ from the random-sums theorem \emph{not} apply here, even though it gives the right number?
+    \end{enumerate}
+  \end{exercise}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Answers to the In-Slide Exercises (1): Batteries 1 and 2}
+  \small
+  \begin{itemize}
+    \item \textbf{Battery 1.} (1) $\{X=10\}=\{(4,6),(5,5),(6,4)\}$; $p_{Z\mid X}(z\mid10)=\tfrac13$ for $z=4,5,6$ and $0$ otherwise; $\E[Z\mid X=10]=5$.
+      (2) By symmetry $\E[Y\mid X=x]=\E[Z\mid X=x]$; they sum to $\E[X\mid X=x]=x$; so each is $x/2$.
+      (3) $\E[YZ\mid Y=y]=y\,\E[Z]=3.5y$; $\E[Z^2\mid Y=y]=\E[Z^2]=\tfrac{91}6$, since row $y$ has $Z$ uniform on $\{1,\dots,6\}$.
+      (4) The triangle $0<y<x<1$, $f_{X,Y}(x,y)=\tfrac1{1-y}$ there. $\E[X\mid Y=y]=\tfrac{1+y}2$. $f_X(x)=\int_0^x\tfrac{\dd y}{1-y}=-\ln(1-x)$. $\E[Y\mid X=x]=\dfrac{\int_0^x\frac{y}{1-y}\dd y}{-\ln(1-x)}=1-\dfrac{x}{-\ln(1-x)}$ ($\approx x/2$ for small $x$; $0.279$ at $x=\tfrac12$).
+    \item \textbf{Battery 2.} (1) $\E[X^2]=\tfrac16\sum_y(y^2+7y+\tfrac{91}6)=\tfrac{91}6+24.5+\tfrac{91}6=\tfrac{329}6$; $\Var(X)=\tfrac{329}6-49=\tfrac{35}6$.
+      (2) $\E[S\mid N=n]=3.5n$, so $\E[S]=3.5\cdot3.5=12.25$; head-on, $6+36+\dots+6^6=55\,986$ outcomes.
+      (3) $\int_0^1x^2(-\ln x)\dd x=\tfrac19$ by parts. $\E[XY\mid Y=y]=y\cdot\tfrac y2$, so $\E[XY]=\int_0^1\tfrac{y^2}2\dd y=\tfrac16=\int_0^1\!\int_0^y xy\,\tfrac1y\dd x\dd y$.
+      (4) Given $K=k$: $2^k$ with probability $2^{-k}$, so $\E[\cdot\mid K=k]=1$ for every $k$, hence expected winnings $\pounds1$. Do not pay $\pounds1.50$.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Answers to the In-Slide Exercises (2): Batteries 3 and 4}
+  \small
+  \begin{itemize}
+    \item \textbf{Battery 3.} (1) $5.5,5.5,9.5$ versus $X=7,3,7$; value $8.5$ on row $5$, the cells $(5,z)$.
+      (2) $\E[Z\mid X]=X/2$; the sum is $\E[X\mid X]=X$: linearity and $\E[h(X)\mid X]=h(X)$. The rows are the eleven diagonals $\{X=x\}$.
+      (3) $\E[W\mid Y]=Y^2$: values $1,0,1$; rows are the three singletons. $\E[Y\mid W]$: rows $\{W=0\}=\{0\}$ and $\{W=1\}=\{-1,1\}$, averages $0$ and $0$; so $0,0,0$.
+      (4) Values $\tfrac12,1,\tfrac32,2,\tfrac52,3$, each with probability $\tfrac16$; their average is $\tfrac16\cdot\tfrac{21}2=1.75=\E[H]$.
+    \item \textbf{Battery 4.} (1) $\E[\ind_{\{Y=6\}}\,\E[X\mid Y]]=\E[\ind_{\{Y=6\}}(Y+3.5)]=9.5\cdot\tfrac16=\tfrac{57}{36}$; row $6$ sums to $57$ out of $36$ cells.
+      (2) $\E[X^2\mid Y]=Y^2+7Y+\tfrac{91}6$; tower gives $\tfrac{329}6$; $\Var(X)=\tfrac{35}6$, as in battery 2.
+      (3) $\Cov(X,Y)=\tfrac{329}{12}-24.5=\tfrac{35}{12}=\Cov(X,Z)$; sum $\tfrac{35}6=\Var(X)$, because $\Cov(X,Y)+\Cov(X,Z)=\Cov(X,Y+Z)=\Cov(X,X)$.
+      (4) By symmetry the eight $\E[\xi_i\mid S_8]$ are equal and sum to $\E[S_8\mid S_8]=S_8$, so each is $S_8/8$ and $\E[S_5\mid S_8]=\tfrac58S_8$.
+      (5) $\E[h(Y)X]=\E[h(Y)\,\E[X\mid Y]]=\E[h(Y)]\,\E[X]$. Conversely $Y$ uniform on $\{-1,0,1\}$, $X=Y^2$: $\Cov(Y,X)=\E[Y^3]=0$, but $\E[X\mid Y]=Y^2\ne\tfrac23=\E[X]$.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Answers to the In-Slide Exercises (3): Battery 5}
+  \begin{itemize}
+    \item (1) $A=\sum_{i\le N}\ind_{B_i}$, with $B_i$ the event that email $i$ has an attachment; on row $\{N=n\}$ the indicators keep their distribution (this is where independence enters), so $\E[A\mid N=n]=np$; then $\E[A\mid N]=pN$ and $\E[A]=p\E[N]$ by the tower property.
+    \item (2) Openings T, HT, HHT, HHH with probabilities $\tfrac12,\tfrac14,\tfrac18,\tfrac18$ and row averages $1+m,\,2+m,\,3+m,\,3$ where $m=\E[T]$: $m=\tfrac78m+\tfrac74$, so $m=14$.
+    \item (3) $\E[R]=\tfrac12\cdot1+\tfrac12(1+\E[R])$, so $\E[R]=2$; net gain $1-(R-1)=2-R$ has mean $0$.
+    \item (4) First roll a six: $S=6$. First roll $k\ne6$: $S=k+S'$, $S'$ a fresh copy. $\E[S]=1+\tfrac16(1+2+3+4+5)+\tfrac56\E[S]$, so $\E[S]=21$.
+      The random-sums theorem needs $N$ independent of the $X_i$; here $N$ is the index of the first six, determined by the $X_i$. The agreement $3.5\cdot6=21$ is Wald's identity, which needs a different argument.
+  \end{itemize}
+\end{frame}

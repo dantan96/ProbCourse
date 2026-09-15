@@ -1,0 +1,137 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Slide review</title>
+<style>
+  :root { --ink:#1e2846; --soft:#6e6e6e; --line:#d8dde6; --accent:#005aa0; --bg:#f7f8fa; }
+  body { margin:0; font:15px/1.45 -apple-system, "Helvetica Neue", sans-serif; color:var(--ink); background:var(--bg); }
+  header { position:sticky; top:0; z-index:2; display:flex; gap:1.5em; align-items:baseline; padding:.6em 1.2em; background:#fff; border-bottom:1px solid var(--line); }
+  header h1 { font-size:1.05em; margin:0; }
+  header .meta { color:var(--soft); font-size:.9em; }
+  header nav a { margin-right:.8em; color:var(--soft); text-decoration:none; padding:.15em .5em; border-radius:5px; }
+  header nav a.on { background:var(--accent); color:#fff; }
+  header .meta:first-of-type { margin-right:auto; }
+  header #status { margin-left:auto; }
+  details.past { margin-top:.6em; font-size:.88em; color:var(--soft); }
+  details.past summary { cursor:pointer; }
+  details.past .pass { margin:.5em 0 0 .2em; padding-left:.7em; border-left:2px solid var(--line); white-space:pre-wrap; }
+  details.past .pass b { color:var(--ink); font-weight:600; }
+  header button { font:inherit; padding:.3em .9em; border:1px solid var(--line); border-radius:6px; background:#fff; cursor:pointer; }
+  main { padding:1.2em; display:grid; gap:1.6em; }
+  .row { display:grid; grid-template-columns: minmax(0,3fr) minmax(280px,2fr); gap:1.2em; align-items:start; }
+  .slide img { width:100%; display:block; border:1px solid var(--line); border-radius:6px; background:#fff; }
+  .slide .cap { color:var(--soft); font-size:.9em; margin:.35em 0 0 .1em; }
+  textarea { width:100%; box-sizing:border-box; min-height:9em; resize:vertical; font:inherit; padding:.7em .8em; border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--ink); }
+  textarea:focus { outline:2px solid var(--accent); border-color:transparent; }
+  .state { font-size:.82em; color:var(--soft); margin-top:.3em; min-height:1.2em; }
+  @media (max-width: 900px) { .row { grid-template-columns: 1fr; } }
+</style>
+<header>
+  <h1>Slide review</h1>
+  <nav id="decks"></nav>
+  <span class="meta" id="meta"></span>
+  <span class="meta" id="status"></span>
+  <button id="commit" title="Commit review/comments.md now">Commit now</button>
+  <button id="archive" title="Commit, move these comments to review/passes/, and clear the boxes">Finish pass</button>
+</header>
+<main id="main"></main>
+<script>
+const main = document.getElementById('main');
+const DECK = new URLSearchParams(location.search).get('deck') || 'refresher';
+const status = document.getElementById('status');
+const timers = {};
+const lastSaved = {};
+
+async function api(path, body) {
+  const opts = path.startsWith('/api/state') ? {} : {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(Object.assign({deck: DECK}, body || {}))};
+  if (path.startsWith('/api/state')) path += '?deck=' + encodeURIComponent(DECK);
+  const r = await fetch(path, opts);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+
+function autosize(t) { t.style.height = 'auto'; t.style.height = Math.max(t.scrollHeight + 4, 9 * 16) + 'px'; }
+
+async function save(n, text, commit) {
+  const st = document.getElementById('state-' + n);
+  try {
+    const res = await api('/api/save', {slide: n, text, commit});
+    lastSaved[n] = text;
+    st.textContent = 'saved ' + res.saved + (res.commit ? ' · committed ' + res.commit : '');
+    status.textContent = '';
+  } catch (e) {
+    st.textContent = 'save failed: ' + e;
+    status.textContent = 'server unreachable, keeping local copy';
+  }
+  try { localStorage.setItem('slide-review-' + DECK + '-' + n, text); } catch (_) {}
+}
+
+function schedule(n, text) {
+  clearTimeout(timers[n]);
+  document.getElementById('state-' + n).textContent = 'editing…';
+  timers[n] = setTimeout(() => save(n, text, false), 400);
+}
+
+function esc(x) { return x.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+function pastHtml(passes, n) {
+  const items = passes.filter(p => p.comments[String(n)]);
+  if (!items.length) return '';
+  return `<details class="past"><summary>Earlier comments (${items.length} pass${items.length > 1 ? 'es' : ''})</summary>` +
+    items.map(p => { const c = p.comments[String(n)]; return `<div class="pass"><b>${esc(p.name)}</b>${c.title ? ' · then titled “' + esc(c.title) + '”' : ''}\n${esc(c.text)}</div>`; }).join('') +
+    '</details>';
+}
+
+async function load() {
+  const state = await api('/api/state');
+  document.getElementById('decks').innerHTML = state.decks.map(d => `<a href="?deck=${d.key}" class="${d.key === state.deck ? 'on' : ''}">${esc(d.title)}</a>`).join('');
+  document.title = 'Slide review · ' + (state.decks.find(d => d.key === state.deck) || {}).title;
+  document.getElementById('meta').textContent = state.slides.length + ' slides · PDF built ' + state.pdf_built;
+  main.innerHTML = '';
+  for (const s of state.slides) {
+    // The server is the source of truth; browser storage is only a crash backup and
+    // is cleared once the server has answered, so stale text never resurfaces.
+    const text = state.comments[String(s.n)] || '';
+    try { localStorage.removeItem('slide-review-' + DECK + '-' + s.n); } catch (_) {}
+    lastSaved[s.n] = text;
+    const row = document.createElement('section');
+    row.className = 'row';
+    row.innerHTML = `
+      <div class="slide">
+        <img src="/slides/${state.deck}/${s.png}" alt="slide ${s.n}">
+        <div class="cap">Slide ${s.n}${s.title ? ' · ' + s.title : ''}</div>
+      </div>
+      <div>
+        <textarea id="t-${s.n}" placeholder="Comments on slide ${s.n}…" spellcheck="false"></textarea>
+        <div class="state" id="state-${s.n}"></div>
+        ${pastHtml(state.passes, s.n)}
+      </div>`;
+    main.appendChild(row);
+    const t = row.querySelector('textarea');
+    t.value = text;
+    autosize(t);
+    t.addEventListener('input', () => { autosize(t); schedule(s.n, t.value); });
+    t.addEventListener('blur', () => {
+      clearTimeout(timers[s.n]);
+      if (t.value !== lastSaved[s.n]) save(s.n, t.value, true);
+      else if (t.value) api('/api/commit').then(r => { if (r.commit !== 'nothing to commit') document.getElementById('state-' + s.n).textContent = 'committed ' + r.commit; });
+    });
+  }
+}
+
+document.getElementById('commit').addEventListener('click', async () => {
+  try {
+    const r = await api('/api/commit');
+    status.textContent = r.commit === 'nothing to commit' ? 'nothing new to commit' : 'committed ' + r.commit;
+  } catch (e) { status.textContent = 'commit failed: ' + e.message; }
+});
+
+document.getElementById('archive').addEventListener('click', async () => {
+  try {
+    const r = await api('/api/archive');
+    status.textContent = r.archived ? 'archived as ' + r.archived + ', boxes cleared' : r.note;
+    if (r.archived) load();
+  } catch (e) { status.textContent = 'archive failed: ' + e.message; }
+});
+
+load();
+</script>

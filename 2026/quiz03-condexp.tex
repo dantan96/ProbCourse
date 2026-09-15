@@ -1,0 +1,192 @@
+% Quiz 3, Part A: Conditional Expectation. Included by quiz03.tex (solutions
+% hidden) and quiz03_solutions.tex (solutions shown). Problems A1--A21; the
+% Conditional Expectation deck refers to them by number (exercises 1--2, 3--5,
+% 6--10, 11--13, 14--19, 20--21 = A1--A2, A3--A5, A6--A10, A11--A13, A14--A19,
+% A20--A21). None of the problems repeats an in-slide exercise or a worked
+% example of the deck; every number was computed in python3 (scratchpad/quizA2.py)
+% and is quoted in a comment where it appears.
+\providecommand{\Var}{\operatorname{Var}}
+\providecommand{\Cov}{\operatorname{Cov}}
+\noindent Notation as in the Conditional Expectation lecture. Two dice are $Y$ (first), $Z$ (second), $X=Y+Z$: the two-dice table, rows the events $\{Y=y\}$. Here also $M=\max(Y,Z)$ and $D=Y-Z$.
+
+\begin{enumerate}[label=A\arabic*.,leftmargin=2.6em]
+\subsection*{Conditional expectation given a value \hfill\normalfont\small\color{soft}Lecture battery 1}
+\item Two dice. Which cells form the event $\{M=m\}$, and how many are there? Compute $\E[Z\mid M=m]$ for $m=1,\dots,6$ (a formula in $m$), then $\E[X\mid M=m]$ by symmetry, and deduce $\E[\min(Y,Z)\mid M=m]$ without further counting.
+\begin{solution}
+$\{M=m\}$ is the L-shape $\{(m,z):z<m\}\cup\{(y,m):y<m\}\cup\{(m,m)\}$, $2m-1$ cells, each of conditional probability $\tfrac1{2m-1}$. On it $Z$ takes the values $1,\dots,m-1$ once each and the value $m$ on $m$ cells, so
+\[
+  \E[Z\mid M=m]=\frac{\tfrac12m(m-1)+m^2}{2m-1}=\frac{m(3m-1)}{2(2m-1)}:\qquad 1,\ \tfrac53,\ \tfrac{12}5,\ \tfrac{22}7,\ \tfrac{35}9,\ \tfrac{51}{11}.
+\]
+The L-shape is symmetric in $Y$ and $Z$, so $\E[Y\mid M=m]=\E[Z\mid M=m]$ and $\E[X\mid M=m]=\frac{m(3m-1)}{2m-1}$. Since $\min(Y,Z)=X-M$ and $M$ is the constant $m$ on the row, $\E[\min(Y,Z)\mid M=m]=\frac{m(3m-1)}{2m-1}-m=\frac{m(m-1)}{2m-1}$: $0,\tfrac23,\tfrac65,\tfrac{12}7,\tfrac{20}9,\tfrac{30}{11}$.
+% python3: E[Z|M=m] = 1, 5/3, 12/5, 22/7, 35/9, 51/11; E[min|M=m] = 0, 2/3, 6/5, 12/7, 20/9, 30/11
+\end{solution}
+
+\item Let $Y$ be uniform on $[1,2]$ and, given $Y=y$, let $X$ be uniform on $[0,y]$. Sketch the region where $f_{X,Y}>0$ and write down $f_{X,Y}$ and $f_{X\mid Y}$ with their domains. Compute $\E[X\mid Y=y]$ and $\E[X^2\mid Y=y]$.
+\begin{solution}
+$f_Y=1$ on $[1,2]$, $f_{X\mid Y}(x\mid y)=\tfrac1y$ for $0\le x\le y$, so $f_{X,Y}(x,y)=\tfrac1y$ on the trapezium $\{1\le y\le2,\ 0\le x\le y\}$ and $0$ elsewhere; $f_{X\mid Y}\colon\R\times[1,2]\to[0,\infty)$, $x$ the value of $X$ and $y$ the given value of $Y$. The slice at height $y$ is uniform on $[0,y]$: $\E[X\mid Y=y]=\tfrac y2$ and $\E[X^2\mid Y=y]=\int_0^yx^2\tfrac1y\dd x=\tfrac{y^2}3$.
+\end{solution}
+
+\subsection*{Law of total expectation \hfill\normalfont\small\color{soft}Lecture battery 2}
+\item Roll a die, getting $N$; then draw $N$ independent numbers uniform on $[0,1]$ and let $L$ be the largest of them. Compute $\E[L]$ by conditioning on $N$. (Given $N=n$, $\Prob(L\le t\mid N=n)=t^n$, so $L$ has conditional pdf $nt^{n-1}$ on $[0,1]$.) Then find $F_L$ head-on and check $\E[L]=\int_0^1(1-F_L(t))\dd t$.
+\begin{solution}
+$\E[L\mid N=n]=\int_0^1t\cdot nt^{n-1}\dd t=\frac n{n+1}$, so
+\[
+  \E[L]=\tfrac16\Big(\tfrac12+\tfrac23+\tfrac34+\tfrac45+\tfrac56+\tfrac67\Big)=\tfrac{617}{840}\approx0.7345 .
+\]
+Head-on: $F_L(t)=\sum_n\Prob(N=n)\Prob(L\le t\mid N=n)=\tfrac16(t+t^2+\dots+t^6)$, a degree-$6$ polynomial, and $\int_0^1(1-F_L)=1-\tfrac16\sum_{n=1}^6\tfrac1{n+1}=\tfrac{617}{840}$: the same six fractions, reached after finding a distribution nobody asked for.
+% python3: E[L]=617/840=0.73452; int(1-F_L)=617/840
+\end{solution}
+
+\item With $Y,X$ as in A2, compute $\E[X]$ and $\E[X^2]$ by total expectation and deduce $\Var(X)$. Then find $f_X$ head-on (it is given by two different formulas on $[0,1]$ and on $[1,2]$) and check $\E[X]$.
+\begin{solution}
+$\E[X]=\int_1^2\tfrac y2\dd y=\tfrac34$, $\E[X^2]=\int_1^2\tfrac{y^2}3\dd y=\tfrac79$, $\Var(X)=\tfrac79-\tfrac9{16}=\tfrac{31}{144}$.
+Head-on: $f_X(x)=\int f_{X,Y}(x,y)\dd y$ integrates $\tfrac1y$ over those $y\in[1,2]$ with $y\ge x$: $f_X(x)=\ln2$ for $0\le x\le1$ and $f_X(x)=\ln\tfrac2x$ for $1\le x\le2$. Then $\E[X]=\ln2\int_0^1x\dd x+\int_1^2x\ln\tfrac2x\dd x=\tfrac{\ln2}2+\big(\tfrac34-\tfrac{\ln2}2\big)=\tfrac34$, after an integration by parts that the conditioning route never needed.
+% python3 sympy: E[X]=3/4, E[X^2]=7/9, Var=31/144; f_X = log2 on [0,1], log(2/x) on [1,2], mass 1; head-on E[X]=3/4
+\end{solution}
+
+\item A supplier's defect rate is unknown: model it as $\Theta$ uniform on $[0,\tfrac15]$. Given $\Theta=\theta$, the number $D$ of defective items in a sample of $10$ is binomial: $\E[D\mid\Theta=\theta]=10\theta$ and $\E[D^2\mid\Theta=\theta]=10\theta(1-\theta)+100\theta^2$. Compute $\E[D]$ and $\Var(D)$, and compare $\Var(D)$ with the variance $10\cdot0.1\cdot0.9$ of a binomial with the average defect rate $0.1$. Then compute $\Prob(D=0)$ head-on and compare with $0.9^{10}$.
+\begin{solution}
+$\E[D]=10\E[\Theta]=1$. $\E[D^2]=10\E[\Theta]+90\E[\Theta^2]=1+90\cdot\tfrac{1}{75}=\tfrac{11}5$ (as $\E[\Theta^2]=\int_0^{1/5}5\theta^2\dd\theta=\tfrac1{75}$), so $\Var(D)=\tfrac{11}5-1=\tfrac65=1.2>0.9$: not knowing the rate spreads $D$ out.
+Head-on: $\Prob(D=0)=\int_0^{1/5}5(1-\theta)^{10}\dd\theta=\tfrac5{11}\big(1-0.8^{11}\big)\approx0.416$, against $0.9^{10}\approx0.349$; each further value $\Prob(D=d)$ is another such integral, and $\E[D]$ would be assembled from eleven of them.
+% python3: E[D]=1, E[D^2]=11/5, Var=6/5; P(D=0)=0.41550, 0.9^10=0.34868
+\end{solution}
+
+\subsection*{Random sums \hfill\normalfont\small\color{soft}Lecture battery 5}
+\item A bus carries $N$ passengers, $\E[N]=25$, the count independent of who the passengers are. Each passenger is an adult (fare $\pounds1.50$) with probability $0.6$ or a child (fare $\pounds0.75$) with probability $0.4$.
+(a) Find the expected takings. Does the answer change if the passengers' types are dependent on one another (families travel together)?
+(b) Now suppose that with probability $\tfrac14$ the bus is a school run, in which case $N=40$ and every passenger is a child; otherwise $N=20$ and every passenger is an adult. Compute the expected takings by conditioning on the kind of run. Then compute $\mu=\E[X_i]$ for a fixed passenger $i\le20$ and $\E[N]$, and explain why $\mu\,\E[N]$ is not the answer.
+\begin{solution}
+(a) $\mu=0.6\cdot1.5+0.4\cdot0.75=\pounds1.20$, so $\E[S]=\mu\E[N]=\pounds30$. Dependence between passengers does not matter: the theorem needs $N$ independent of the fares and equal means, not independence among the $X_i$.
+(b) Conditioning on the kind of run: $\E[S]=\tfrac14\cdot40\cdot0.75+\tfrac34\cdot20\cdot1.5=7.5+22.5=\pounds30$. But $\E[N]=\tfrac14\cdot40+\tfrac34\cdot20=25$ and $\mu=\tfrac14\cdot0.75+\tfrac34\cdot1.5=\pounds1.3125$, so $\mu\E[N]=\pounds32.81\ne30$. The count is not independent of the fares: on the rows where $N$ is large the fares are small. The row $\{N=40\}$ changes the distribution of every $X_i$ (all children), which is exactly what the theorem forbids.
+% python3: (a) 25*1.2=30; (b) 30 vs mu E[N]=(21/16)*25=525/16=32.8125
+\end{solution}
+
+\item Two dice $X_1,X_2$ are rolled in turn, $\mu=\E[X_i]=3.5$. In each of the following, $S$ is the sum of the terms that are counted; compute $\E[S]$ by conditioning on the value of the die that decides $N$, and compare with $\mu\,\E[N]$.
+(a) Looking back: $N=2$ if $X_1\le3$, otherwise $N=1$ (the second die is rolled and counted only when the first is small).
+(b) Looking ahead: $N=2$ if $X_2\le3$, otherwise $N=1$ (both dice are rolled; the second is counted only when it is small).
+\begin{solution}
+In both cases $\Prob(N=2)=\tfrac12$, $\E[N]=\tfrac32$ and $\mu\E[N]=5.25$.
+(a) Condition on $X_1=k$. If $k\le3$: $S=k+X_2$ with $X_2$ untouched, so $\E[S\mid X_1=k]=k+3.5$; if $k\ge4$: $S=k$. Total expectation: $\E[S]=\tfrac16\big[(1+2+3)+3\cdot3.5+(4+5+6)\big]=\tfrac{31.5}6=5.25=\mu\E[N]$.
+(b) Condition on $X_2=k$. If $k\le3$: $S=X_1+k$, $\E[S\mid X_2=k]=3.5+k$; if $k\ge4$: $S=X_1$, $\E[S\mid X_2=k]=3.5$. So $\E[S]=3.5+\tfrac16(1+2+3)=4.5\ne5.25$.
+In (b) the row $\{N=2\}=\{X_2\le3\}$ changes the distribution of the second term (it averages $2$ there, not $3.5$), so the theorem's assumption fails and its formula is wrong. In (a) the decision uses only what has already been rolled and never a term it is about to count; the formula happens to hold (Wald's identity), but the theorem as stated does not apply to (a) either, since $N$ is not independent of $X_1$.
+% python3: (a) 21/4=5.25; (b) 9/2=4.5; mu E[N]=21/4
+\end{solution}
+
+\subsection*{Waiting times \hfill\normalfont\small\color{soft}Lecture battery 5}
+\item Let $T$ be the number of rolls of a fair die until two sixes in a row first appear. Show $\E[T]=42$ by conditioning on the opening (first roll not a six; six then not a six; six, six), as the lecture did for HH.
+\begin{solution}
+Let $m=\E[T]$. The three openings have probabilities $\tfrac56,\tfrac5{36},\tfrac1{36}$; on the first two the game restarts after $1$, respectively $2$, rolls, and on the third it is over at roll $2$:
+\[
+  m=\tfrac56(1+m)+\tfrac5{36}(2+m)+\tfrac1{36}\cdot2=\tfrac{35}{36}m+\tfrac{42}{36},\qquad\text{so } m=42 .
+\]
+% python3 sympy: m=42
+\end{solution}
+
+\item Toss a fair coin until the pattern THH first appears; then the same for THT and for TTT. Compute the three expected waiting times by conditioning on the first toss from each of the three states ``no progress'', ``T'', ``TH'' (respectively ``TT''). Which pattern arrives soonest, and why are three patterns of the same length not equally quick?
+\begin{solution}
+Write $m_0,m_1,m_2$ for the expected number of further tosses from the states ``no progress'', ``T'', and ``T then the second letter''. Conditioning on the next toss:
+THH: $m_0=1+\tfrac12(m_0+m_1)$, $m_1=1+\tfrac12(m_1+m_2)$, $m_2=1+\tfrac12(0+m_1)$, so $(m_0,m_1,m_2)=(8,6,4)$.
+THT: the same first two equations, but $m_2=1+\tfrac12(0+m_0)$, so $(10,8,6)$.
+TTT: $m_0=1+\tfrac12(m_0+m_1)$, $m_1=1+\tfrac12(m_0+m_2)$, $m_2=1+\tfrac12(0+m_0)$, so $(14,12,8)$.
+So THH takes $8$ tosses on average, THT $10$, TTT $14$. The difference is what a failure leaves behind: after TH, a wrong toss for THH is T, which is the start of a new attempt; a wrong toss for THT is H, which is worth nothing; and for TTT a failing H at any stage throws away all progress.
+% python3 sympy: THH (8,6,4); THT (10,8,6); TTT (14,12,8); Monte Carlo 7.97, 10.01, 13.98
+\end{solution}
+
+\item Roll a fair die repeatedly. (a) Let $T$ be the number of rolls until both a $1$ and a $6$ have appeared. Compute $\E[T]$ by conditioning on the first roll. (b) Let $T_6$ be the number of rolls until every face has appeared at least once. Writing $m_k$ for the expected number of further rolls when $k$ distinct faces have been seen, derive $m_k=\tfrac6{6-k}+m_{k+1}$ and compute $\E[T_6]$. Why is $\Prob(T_6=n)$ unpleasant to write down?
+\begin{solution}
+(a) The first roll is a $1$ or a $6$ with probability $\tfrac13$; then the wait for the other specific face is geometric with mean $6$. Otherwise nothing has changed: $\E[T]=\tfrac13(1+6)+\tfrac23(1+\E[T])$, so $\E[T]=9$.
+(b) With $k$ faces seen, the next roll is new with probability $\tfrac{6-k}6$: $m_k=1+\tfrac k6m_k+\tfrac{6-k}6m_{k+1}$, i.e.\ $m_k=\tfrac6{6-k}+m_{k+1}$, with $m_6=0$. Hence $\E[T_6]=m_0=6\big(\tfrac11+\tfrac12+\tfrac13+\tfrac14+\tfrac15+\tfrac16\big)=14.7$.
+$\Prob(T_6=n)$ is the probability that $n-1$ rolls show exactly five faces and roll $n$ the sixth; counting sequences of $n-1$ rolls that use exactly five given faces needs inclusion--exclusion over the missing faces, for every $n$, and then $\sum_n n\Prob(T_6=n)$ still has to be summed.
+% python3 sympy: (a) 9; (b) 147/10=14.7
+\end{solution}
+
+\subsection*{Conditional expectation as a random variable \hfill\normalfont\small\color{soft}Lecture battery 3}
+\item Two dice, $M=\max(Y,Z)$, and $\E[X\mid M]$ from A1. Write down $\E[X\mid M](\omega)$ and $X(\omega)$ for $\omega=(2,5)$, $(5,5)$, $(5,2)$, $(6,1)$. On which set of outcomes does $\E[X\mid M]$ take the value $\tfrac{70}9$? Describe the shape of the ``rows'' that conditioning on $M$ paints, and check that they partition the table.
+\begin{solution}
+$\E[X\mid M]=\frac{M(3M-1)}{2M-1}$. At $(2,5)$, $(5,5)$, $(5,2)$: $M=5$, value $\tfrac{70}9\approx7.78$, while $X=7,10,7$. At $(6,1)$: $M=6$, value $\tfrac{102}{11}\approx9.27$, while $X=7$.
+The value $\tfrac{70}9$ is taken on $\{M=5\}$: the nine cells $(5,1),\dots,(5,5),(1,5),\dots,(4,5)$, an L-shape. The rows of this conditioning are the six nested L-shapes $\{M=m\}$, of sizes $1,3,5,7,9,11$; they are disjoint and their sizes add to $36$.
+% python3: E[X|M=5]=70/9, E[X|M=6]=102/11, E[X|M=2]=10/3
+\end{solution}
+
+\item Two dice. Compute $\E[M\mid X=x]$ and $\E[\min(Y,Z)\mid X=x]$ for $x=4$, $7$, $10$, by listing the cells of each diagonal. Verify $\E[M\mid X]+\E[\min(Y,Z)\mid X]=X$ and explain from the properties of conditional expectation why this holds without any listing. Then write $\E[\,|D|\,\mid X]$ in terms of $\E[M\mid X]$ and $X$.
+\begin{solution}
+Diagonal $x=7$: the cells $(1,6)$, $(2,5)$, $(3,4)$, $(4,3)$, $(5,2)$, $(6,1)$ have $M=6,5,4,4,5,6$ and $\min=1,2,3,3,2,1$, so $\E[M\mid X=7]=5$ and $\E[\min\mid X=7]=2$. Diagonal $x=4$: the cells $(1,3)$, $(2,2)$, $(3,1)$ give $\E[M\mid X=4]=\tfrac83$ and $\E[\min\mid X=4]=\tfrac43$. Diagonal $x=10$: the cells $(4,6)$, $(5,5)$, $(6,4)$ give $\tfrac{17}3$ and $\tfrac{13}3$.
+In each case the two add to $x$: $M+\min(Y,Z)=Y+Z=X$, so by linearity $\E[M\mid X]+\E[\min\mid X]=\E[X\mid X]=X$, as $X$ is constant on each of its own rows. Since $|D|=M-\min(Y,Z)=2M-X$, $\E[\,|D|\,\mid X]=2\E[M\mid X]-X$: $\tfrac43,\ 3,\ \tfrac43$ at $x=4,7,10$.
+% python3: x=4: 8/3, 4/3; x=7: 5, 2; x=10: 17/3, 13/3; E[|D| | X] = 4/3, 3, 4/3
+\end{solution}
+
+\item Let $U$ be uniform on $\{1,2,3,4\}$, $V=\ind_{\{U\text{ odd}\}}$ and $W=\ind_{\{U\ge3\}}$. List the values of the four random variables $\E[U\mid V]$, $\E[U\mid W]$, $\E[V\mid W]$, $\E[W\mid V]$ at each of the four outcomes, saying which rows each conditioning creates. Two of the four are constant: what does that suggest about $V$ and $W$, and is it true?
+\begin{solution}
+$V$ creates the rows $\{1,3\}$ and $\{2,4\}$; $W$ the rows $\{1,2\}$ and $\{3,4\}$.
+$\E[U\mid V]$: $2$ on $\{1,3\}$, $3$ on $\{2,4\}$: values $2,3,2,3$ at $U=1,2,3,4$. $\E[U\mid W]$: $\tfrac32$ on $\{1,2\}$, $\tfrac72$ on $\{3,4\}$: $\tfrac32,\tfrac32,\tfrac72,\tfrac72$.
+$\E[V\mid W]$: on $\{1,2\}$ the values of $V$ are $1,0$, average $\tfrac12$; on $\{3,4\}$ also $\tfrac12$: constant $\tfrac12=\E[V]$. $\E[W\mid V]$: on $\{1,3\}$, $W=0,1$; on $\{2,4\}$, $W=0,1$: constant $\tfrac12=\E[W]$.
+Constancy suggests $V\indep W$, and here it is true: $\Prob(V=v,W=w)=\tfrac14=\Prob(V=v)\Prob(W=w)$ for all four pairs. (A19 shows that constancy alone does not guarantee this.)
+% python3: E[U|V]: 2,3; E[U|W]: 3/2, 7/2; E[V|W]=1/2 both rows; E[W|V]=1/2 both rows
+\end{solution}
+
+\subsection*{The tower property \hfill\normalfont\small\color{soft}Lecture battery 4}
+\item Let $N$ be Poisson with mean $\lambda$, that is, $\Prob(N=n)=e^{-\lambda}\lambda^n/n!$ for $n=0,1,2,\dots$, so that $\E[N]=\lambda$. Toss a fair coin $N$ times; $H$ is the number of heads. Compute $\E[H]$.
+Then show that $H$ is Poisson with mean $\lambda/2$, and compare the effort.
+\begin{solution}
+$\E[H\mid N]=N/2$, so $\E[H]=\lambda/2$ by the tower property.
+Head-on: $\Prob(H=h)=\sum_{n\ge h}e^{-\lambda}\tfrac{\lambda^n}{n!}\binom nh 2^{-n}=e^{-\lambda}\tfrac{(\lambda/2)^h}{h!}\sum_{m\ge0}\tfrac{(\lambda/2)^m}{m!}=e^{-\lambda/2}\tfrac{(\lambda/2)^h}{h!}$, which is Poisson$(\lambda/2)$, whose mean is $\lambda/2$. Correct, but several lines and a trick with the exponential series, versus one line.
+\end{solution}
+
+\item A stick of length $1$ is broken at a uniform point $Y$; the longer piece is kept. Let $L$ be its length. Compute $\E[L]$ two ways: directly from the definition of $L$, and by conditioning on the event $\{Y<\tfrac12\}$.
+Then: the kept piece is broken again at a uniform point, and the longer part kept, with length $L_2$. Compute $\E[L_2]$.
+\begin{solution}
+$L=\max(Y,1-Y)$, so $\E[L]=\int_0^{1/2}(1-y)\dd y+\int_{1/2}^1 y\dd y=\tfrac34$. Conditioning: given $Y<\tfrac12$, $L=1-Y$ is uniform on $(\tfrac12,1)$ with mean $\tfrac34$; likewise given $Y\ge\tfrac12$; so $\E[L]=\tfrac34$.
+For the second break, given $L=\ell$ the same argument scaled by $\ell$ gives $\E[L_2\mid L=\ell]=\tfrac34\ell$, so $\E[L_2\mid L]=\tfrac34L$ and $\E[L_2]=\tfrac34\E[L]=\tfrac9{16}$ by the tower property.
+\end{solution}
+
+\subsection*{Taking out what is known \hfill\normalfont\small\color{soft}Lecture battery 4}
+\item Two dice, $M=\max(Y,Z)$. Compute $\E[MZ]$ using $\E[h(M)Z]=\E[h(M)\,\E[Z\mid M]]$ with $\E[Z\mid M]$ from A1 and the pmf $p_M(m)=\tfrac{2m-1}{36}$. Deduce $\Cov(M,Z)$. Check $\E[MZ]$ against the table.
+\begin{solution}
+$\E[MZ]=\E\big[M\,\E[Z\mid M]\big]=\sum_{m=1}^6 m\cdot\frac{m(3m-1)}{2(2m-1)}\cdot\frac{2m-1}{36}=\frac1{72}\sum_{m=1}^6m^2(3m-1)=\frac{3\cdot441-91}{72}=\frac{154}9\approx17.11$.
+$\E[M]=\sum_m m\,\tfrac{2m-1}{36}=\tfrac{161}{36}$, so $\Cov(M,Z)=\tfrac{154}9-\tfrac{161}{36}\cdot\tfrac72=\tfrac{35}{24}\approx1.46$.
+Check: $\tfrac1{36}\sum_{y,z}\max(y,z)\,z=\tfrac{616}{36}=\tfrac{154}9$.
+% python3: E[MZ]=154/9 (both ways), E[M]=161/36, Cov=35/24
+\end{solution}
+
+\item With $Y,X$ as in A2 ($Y$ uniform on $[1,2]$, $X$ uniform on $[0,Y]$ given $Y$), compute $\E[XY]$ and $\E[XY^2]$ by taking out what is known, and deduce $\Cov(X,Y)$. Which double integrals did you avoid?
+\begin{solution}
+$\E[XY]=\E\big[Y\,\E[X\mid Y]\big]=\E[Y^2/2]=\tfrac12\int_1^2y^2\dd y=\tfrac76$, and $\E[XY^2]=\E[Y^3/2]=\tfrac12\cdot\tfrac{15}4=\tfrac{15}8$.
+$\Cov(X,Y)=\tfrac76-\tfrac34\cdot\tfrac32=\tfrac1{24}$. Avoided: $\int_1^2\!\int_0^y xy\,\tfrac1y\dd x\dd y$ and $\int_1^2\!\int_0^y xy^2\,\tfrac1y\dd x\dd y$ over the trapezium.
+% python3 sympy: E[XY]=7/6, E[XY^2]=15/8, Cov=1/24
+\end{solution}
+
+\subsection*{Independence \hfill\normalfont\small\color{soft}Lecture battery 4}
+\item Two dice, $D=Y-Z$. Compute $\E[D\mid Y]$, $\E[D\mid Z]$ and $\E[D\mid X]$ as random variables. Which of the three conditionings carries information about $D$, and which property of conditional expectation settles each one? (For $\E[D\mid X]$, look at how the diagonal $\{X=x\}$ is placed relative to the main diagonal.)
+\begin{solution}
+$\E[D\mid Y]=Y-\E[Z\mid Y]=Y-3.5$, because $Y$ comes out as known and $Z\indep Y$ gives $\E[Z\mid Y]=\E[Z]$. Likewise $\E[D\mid Z]=3.5-Z$.
+On the diagonal $\{X=x\}$ the cells $(y,x-y)$ and $(x-y,y)$ both lie on it and have opposite values of $D$, so the row average of $D$ is $0$: $\E[D\mid X]=0$, a constant.
+The first two conditionings know something about $D$ (each fixes one of its two terms); the third knows nothing about its sign.
+% python3: E[D|Y=y]=y-7/2; E[D|X=x]=0 for all x
+\end{solution}
+
+\item Two dice, $D=Y-Z$, $X=Y+Z$. Show $\E[X\mid D]=7=\E[X]$ (which cells form $\{D=d\}$, and what is $X$ on them?), and recall $\E[D\mid X]=0=\E[D]$ from A18. Deduce $\Cov(X,D)=0$. Then show that $X$ and $D$ are \emph{not} independent, by comparing the parities of $X$ and $D$ or by computing $\Prob(D=5,X=7)$ against $\Prob(D=5)\Prob(X=7)$. Which lesson of the lecture is this an instance of?
+\begin{solution}
+$\{D=d\}$ is the diagonal of cells $(y,y-d)$ with both coordinates in $\{1,\dots,6\}$; on it $X=2y-d$ and $y$ runs over an interval symmetric about $\tfrac{7+d}2$, so the average of $X$ is $2\cdot\tfrac{7+d}2-d=7$. Hence $\E[X\mid D]=7$, and $\Cov(X,D)=\E[D\,\E[X\mid D]]-\E[X]\E[D]=7\E[D]-7\E[D]=0$.
+Not independent: $X=D+2Z$, so $X$ and $D$ always have the same parity, and $\Prob(D\text{ odd},X\text{ even})=0\ne\Prob(D\text{ odd})\Prob(X\text{ even})$. Or: $\Prob(D=5,X=7)=\Prob(Y=6,Z=1)=\tfrac1{36}$, while $\Prob(D=5)\Prob(X=7)=\tfrac1{36}\cdot\tfrac6{36}$.
+This is ``equal row averages are not equal row distributions'': $\E[X\mid D]=\E[X]$ says every diagonal has average $7$, independence would say every diagonal has the distribution of $X$, and a diagonal with $3$ cells cannot.
+% python3: E[X|D=d]=7 for all d; E[XD]=0; P(D=5,X=7)=1/36 vs 1/216; P(D odd, X even)=0
+\end{solution}
+
+\subsection*{Putting it together \hfill\normalfont\small\color{soft}Lecture battery 5}
+\item A gambler bets on a fair coin and doubles her stake after each loss (stakes $\pounds1,2,4,\dots$), stopping after the first win; $R$ is the number of rounds. (a) Show that her net gain is exactly $\pounds1$ on every outcome, and compute the expected total amount staked by conditioning on $R$. (b) Now the table limit stops her after round $5$ whether or not she has won. Compute her net gain on each outcome, then $\E[\text{net gain}]$, $\E[R]$ and the expected total staked. What do you conclude about the doubling strategy?
+\begin{solution}
+(a) After $k$ losses she has lost $1+2+\dots+2^{k-1}=2^k-1$ and then wins $2^k$: net $+1$, always. The total staked is $2^R-1$ with $\Prob(R=r)=2^{-r}$, and $\E[2^R-1]=\sum_{r\ge1}(2^r-1)2^{-r}=\infty$.
+(b) With the limit, $R=r$ for $r\le4$ still has probability $2^{-r}$ and $R=5$ has probability $\tfrac1{16}$: a win at round $5$ ($\tfrac1{32}$, gain $+1$) or five losses ($\tfrac1{32}$, gain $-31$). So $\E[\text{gain}]=\tfrac{31}{32}\cdot1+\tfrac1{32}\cdot(-31)=0$; $\E[R]=\tfrac12+\tfrac24+\tfrac38+\tfrac4{16}+5\cdot\tfrac1{16}=\tfrac{31}{16}$; $\E[2^R-1]=\tfrac12+\tfrac34+\tfrac78+\tfrac{15}{16}+31\cdot\tfrac1{16}=5$.
+The sure $\pounds1$ of (a) is bought with unbounded expected exposure; any finite limit restores $\E[\text{gain}]=0$ exactly, by trading a $\tfrac1{32}$ chance of losing $\pounds31$ for the $\tfrac{31}{32}$ chance of winning $\pounds1$. No stake-sizing rule makes a fair game favourable.
+% python3: E[gain]=0, E[R]=31/16, E[staked]=5 under the cap
+\end{solution}
+
+\item Let $X_1,X_2,\dots$ be independent, each uniform on $\{1,\dots,6\}$, and let $N$ be the index of the first roll showing $5$ or $6$; $N$ is determined by the $X_i$ and not independent of them. (a) Let $S=X_1+\dots+X_N$ include the stopping roll. Compute $\E[S]$ by conditioning on the first roll, and compare with $\mu\,\E[N]$. (b) Let $S'=X_1+\dots+X_{N-1}$ exclude it. Compute $\E[S']$ the same way and compare with $\mu\,\E[N-1]$. Explain the two comparisons.
+\begin{solution}
+$N$ is geometric with success probability $\tfrac13$: $\E[N]=3$, $\mu\E[N]=10.5$, $\mu\E[N-1]=7$.
+(a) Condition on $X_1=k$. If $k\in\{5,6\}$: $S=k$. If $k\le4$: $S=k+S''$ with $S''$ a fresh copy of $S$. So $\E[S]=\tfrac16(5+6)+\tfrac16\sum_{k=1}^4(k+\E[S])=\tfrac{11}6+\tfrac{10}6+\tfrac46\E[S]$, giving $\E[S]=\tfrac{21}2=10.5=\mu\E[N]$.
+(b) Now $S'=0$ if $k\in\{5,6\}$ and $S'=k+S'''$ otherwise: $\E[S']=\tfrac{10}6+\tfrac46\E[S']$, so $\E[S']=5\ne7$.
+The random-sums theorem applies to neither sum, since $N$ depends on the $X_i$. In (a) the stopping rule never looks at a roll before deciding to count it, and the formula still holds (Wald's identity). In (b) the last roll is dropped \emph{because} it was large: $\E[S']=\E[S]-\E[X_N]=10.5-5.5=5$, and the dropped term has mean $5.5$, not $\mu$. The formula counts $N-1$ typical terms; the actual terms are the small ones.
+% python3 sympy: E[S]=21/2, E[S']=5, mu E[N]=10.5, mu E[N-1]=7, E[X_N]=5.5
+\end{solution}
+\end{enumerate}

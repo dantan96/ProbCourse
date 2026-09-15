@@ -1,0 +1,1738 @@
+% ---------------------------------------------------------------------------
+% Lecture: Entropy. Logarithms are base 2 throughout; units are bits.
+% Spine: the compression route (robot on a moon, codes, Kraft, information,
+% entropy, source coding, cross-entropy, relative entropy, the log loss).
+% Second reading: Wordle (a guess is a partition; expected information; mutual
+% information). Joint/conditional entropy on the two-dice table of the
+% Conditional Expectation deck. Last section: models of text.
+% Every number was computed in python3 (scratch scripts deck_numbers.py, verify.py,
+% wordle.py, more.py); the values are quoted in comments where they appear.
+% In-slide exercises: answers on the last slides.
+% ---------------------------------------------------------------------------
+\newcommand{\quiz}[1]{\hfill{\normalfont\small\color{soft}Homework: #1}}
+\newcommand{\lgg}{\log_2}
+\newcommand{\up}{\textsf{up}}
+\newcommand{\down}{\textsf{down}}
+\newcommand{\lft}{\textsf{left}}
+\newcommand{\rgt}{\textsf{right}}
+
+% Wordle colour squares: green (right place), yellow (wrong place), grey (absent)
+\newcommand{\sq}[1]{\tikz[baseline=-0.55ex]\fill[#1] (0,-0.95ex) rectangle (1.5ex,0.55ex);}
+\newcommand{\cG}{\sq{leaf}}
+\newcommand{\cY}{\sq{amber}}
+\newcommand{\cB}{\sq{soft!60}}
+
+% Stacked bars: widths p_i, heights l_i, area = sum p_i l_i. #1 = x scale (cm per
+% unit width), #2 = y scale (cm per bit), #3 = list of w/h/label triples.
+\newcommand{\areabars}[3]{%
+  \begin{tikzpicture}[x=#1cm,y=#2cm,font=\scriptsize]
+    \foreach \w/\h/\l [remember=\xr as \xl (initially 0), evaluate=\w as \xr using \xl+\w] in {#3}{
+      \fill[shade] (\xl,0) rectangle (\xr,\h);
+      \draw[accent] (\xl,0) rectangle (\xr,\h);
+      \node[above] at ({(\xl+\xr)/2},\h) {\h};
+      \node[below] at ({(\xl+\xr)/2},0) {\l};
+    }
+    \draw[->] (0,0) -- (0,3.5) node[above] {bits};
+    \draw (0,0) -- (1,0);
+  \end{tikzpicture}}
+
+% The 6x6 two-dice table, cell = y+z. #1 scale; #2 row to shade (0 none);
+% #3 anti-diagonal {X=x} to shade (0 none).
+\newcommand{\dtable}[3][0.42]{%
+  \begin{tikzpicture}[x=#1cm,y=#1cm,font=\scriptsize]
+    \foreach \y in {1,...,6}{
+      \ifnum#2=\y \fill[shade] (0.5,-\y+0.5) rectangle (6.5,-\y-0.5);\fi
+      \foreach \z in {1,...,6}{
+        \pgfmathtruncatemacro{\s}{\y+\z}
+        \ifnum#3=\s \fill[shade] (\z-0.5,-\y+0.5) rectangle (\z+0.5,-\y-0.5);\fi
+        \node at (\z,-\y) {\s};
+      }}
+    \draw[soft,shift={(0.5,-0.5)}] (0,0) grid[step=1] (6,-6);
+    \foreach \y in {1,...,6}{\node[left,soft] at (0.4,-\y) {$\y$};}
+    \foreach \z in {1,...,6}{\node[above,soft] at (\z,-0.4) {$\z$};}
+    \node[soft,above left] at (0.45,-0.45) {$y\,\backslash\,z$};
+  \end{tikzpicture}}
+
+% ===========================================================================
+\begin{frame}{Entropy}
+  \small
+  Throughout, $\log=\lgg$, the unit is the \textbf{bit}, and $0\log 0=0$. One problem carries the first half: sending instructions to a robot when every bit costs money. One picture carries the second half: the two-dice table of the Conditional Expectation lecture.
+  \smallskip
+  \renewcommand{\arraystretch}{1.25}
+  \begin{tabular}{@{}r@{\ \ }>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{8.6cm}@{}}
+    1. & \textbf{Codes} & Prefix-free codes are binary trees; a codeword of length $\ell$ consumes $2^{-\ell}$ of the tree (Kraft). \\
+    2. & \textbf{Information} $-\log p$ & The ideal codeword length: the number of halvings from $1$ down to $p$. \\
+    3. & \textbf{Entropy} $H$ & Expected information; the area under stacked bars. \\
+    4. & \textbf{Source coding theorem} & $H\le$ best average code length $<H+1$. \\
+    5. & \textbf{Cross-entropy, relative entropy} & The cost of coding for the wrong distribution, and the waste. Gibbs' inequality. \\
+    6. & \textbf{Why the loss is a logarithm} & Honesty forces $-\log q$; cross-entropy loss; prediction is compression. \\
+    7. & \textbf{Wordle} & A guess is a partition; its entropy is its expected information. \\
+    8. & \textbf{Joint, conditional, mutual} & Row entropies of the two-dice table; chain rule; $I(X;Y)$. \\
+    9. & \textbf{Models of text} & Markov chains, entropy rate, English at about $1$ bit per letter, perplexity, ciphers. \\
+  \end{tabular}
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Motivation: A Robot on a Distant Moon}
+  \small
+  A rover receives a stream of instructions, each one of \up, \down, \lft, \rgt, independent of the others, with probabilities
+  \[
+    \Prob(\up)=\tfrac12,\qquad \Prob(\down)=\tfrac14,\qquad \Prob(\lft)=\tfrac18,\qquad \Prob(\rgt)=\tfrac18 .
+  \]
+  Every bit sent costs money.
+  \begin{exampleblock}{Head-on: a fixed-length code}
+    $\up\mapsto00$, $\down\mapsto01$, $\lft\mapsto10$, $\rgt\mapsto11$: cost $2$ bits per instruction, whatever the probabilities.
+  \end{exampleblock}
+  \begin{block}{Questions we cannot yet answer}
+    \begin{enumerate}
+      \item Can a cleverer encoding average fewer than $2$ bits per instruction?
+      \item If so, how low can the average go? Is there a floor, and what is it?
+      \item The rover's mission changes and \rgt\ becomes the common instruction, but the code installed on board stays. What does that cost?
+    \end{enumerate}
+  \end{block}
+  \medskip
+  {\color{soft}\footnotesize Pre-lecture viewing: ``Reinventing Entropy'' (3Blue1Brown, 32 min), \texttt{https://www.youtube.com/watch?v=l6DKRf-fAAM}}
+  \note{Answers, by the end of Section 5: yes, 1.75 bits; the floor is 1.75 and it is the entropy; 2.625 bits, worse than never having compressed at all.}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{The Setting: A Source of Symbols}
+  \small
+  Fix a probability space $(\Omega,\F,\Prob)$; events are the elements of $\F$.
+  \begin{itemize}
+    \item $S$ is a finite set of \textbf{symbols}, $|S|=n$. Label them $1,\dots,n$ if you like, so that $X\colon\Omega\to S$ is a random variable in the sense of the Refresher: $\{X=x\}\in\F$ for every $x\in S$.
+    \item Shorthand, used throughout: $\{X\in A\}:=\ev{X(\omega)\in A}$ and $\Prob(X\in A):=\Prob(\{X\in A\})$.
+    \item The \textbf{pmf} of $X$ is $p_X\colon S\to[0,1]$, $p_X(x)=\Prob(X=x)$; its \textbf{support} is $S_X=\{x\in S: p_X(x)>0\}$.
+  \end{itemize}
+  \begin{block}{Definition (source)}
+    A \textbf{source} is a sequence of random variables $X_1,X_2,\dots\colon\Omega\to S$, independent and all with pmf $p_X$. Independence, written $X_i\indep X_j$, means
+    $\Prob(X_i\in A,\ X_j\in B)=\Prob(X_i\in A)\,\Prob(X_j\in B)$ for all $A,B\subseteq S$; for the whole sequence,
+    \[
+      \Prob(X_1=x_1,\dots,X_m=x_m)=p_X(x_1)\cdots p_X(x_m)\qquad\text{for every $m$ and all } x_1,\dots,x_m\in S .
+    \]
+  \end{block}
+  \words{A source is a die with $n$ faces, rolled again and again; we are charged for reporting the outcomes.}
+  \begin{itemize}
+    \item The rover: $S=\{\up,\down,\lft,\rgt\}$, $p_X=(\tfrac12,\tfrac14,\tfrac18,\tfrac18)$, $S_X=S$, and $X_i$ is the $i$-th instruction.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Binary Code}
+  \small
+  Let $\{0,1\}^+$ be the set of non-empty finite strings of bits: $0$, $1$, $00$, $01$, $\dots$
+  \begin{block}{Definition}
+    A \textbf{binary code} for $S$ is an injective function $c\colon S\to\{0,1\}^+$; $c(x)$ is the \textbf{codeword} of $x$.
+    Its \textbf{length function} is $\ell_c\colon S\to\{1,2,3,\dots\}$, $\ell_c(x)=$ the number of bits in $c(x)$, and its \textbf{average length} is
+    \[
+      L(c)=\E[\ell_c(X)]=\sum_{x\in S}p_X(x)\,\ell_c(x)\qquad\text{(bits per symbol).}
+    \]
+    The code is \textbf{prefix-free} if for $x\neq x'$ the string $c(x)$ is not an initial segment of $c(x')$.
+  \end{block}
+  \words{Each symbol gets a bit string; the average length is what one symbol costs on average; prefix-free means the receiver knows where every codeword ends without a separator.}
+  \begin{exampleblock}{The rover, coded}
+    $c\colon\ \up\mapsto0,\quad\down\mapsto10,\quad\lft\mapsto110,\quad\rgt\mapsto111$. Prefix-free: no codeword begins another.
+    \[
+      L(c)=\tfrac12\cdot1+\tfrac14\cdot2+\tfrac18\cdot3+\tfrac18\cdot3=1.75\ \text{bits per instruction, against } 2 .
+    \]
+    The stream $0\,110\,10\,0\,111$ is decoded left to right with no ambiguity: \up, \lft, \down, \up, \rgt.
+  \end{exampleblock}
+  % L = 1/2 + 1/2 + 3/8 + 3/8 = 7/4  (deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Prefix-Free Codes Are Binary Trees}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      Read a codeword as a path from the root: $0$ = left, $1$ = right. Then $c(x)$ is a prefix of $c(x')$ exactly when the node of $c(x)$ lies on the path to $c(x')$; so a code is prefix-free exactly when \textbf{every codeword is a leaf}.
+      \medskip
+
+      Choosing $0$ as a codeword consumes the whole left subtree: half of all strings, of every length, can no longer be codewords. Choosing $10$ consumes a quarter; $110$ and $111$ an eighth each:
+      \[
+        \tfrac12+\tfrac14+\tfrac18+\tfrac18=1 .
+      \]
+      \words{A codeword of length $\ell$ uses up the fraction $2^{-\ell}$ of the space of codewords. In the rover's code the fractions used up are exactly the probabilities.}
+      \medskip
+
+      \textbf{Not a code:} $\up\mapsto0$, $\down\mapsto1$, $\lft\mapsto01$, $\rgt\mapsto10$. Injective, $1.5$ bits on average, useless: $01$ reads as \up\,\down\ or as \lft. Here $0$ and $1$ are not leaves.
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \centering
+      \begin{tikzpicture}[x=0.86cm,y=0.85cm,font=\scriptsize,
+          leafnode/.style={circle,fill=accent,inner sep=1.7pt},
+          inner/.style={circle,draw=soft,fill=white,inner sep=1.7pt}]
+        % consumed subtrees, drawn as light triangles below each leaf
+        \fill[shade!70] (-2.2,-1) -- (-3.3,-3.2) -- (-1.1,-3.2) -- cycle;
+        \fill[shade!70] (0.4,-2) -- (-0.15,-3.2) -- (0.95,-3.2) -- cycle;
+        \node[inner] (r) at (0,0) {};
+        \node[leafnode] (a) at (-2.2,-1) {};
+        \node[inner] (b) at (1.6,-1) {};
+        \node[leafnode] (c) at (0.4,-2) {};
+        \node[inner] (d) at (2.6,-2) {};
+        \node[leafnode] (e) at (1.9,-3) {};
+        \node[leafnode] (f) at (3.3,-3) {};
+        \draw[soft] (r)--(a) node[midway,above left] {0};
+        \draw[soft] (r)--(b) node[midway,above right] {1};
+        \draw[soft] (b)--(c) node[midway,above left] {0};
+        \draw[soft] (b)--(d) node[midway,above right] {1};
+        \draw[soft] (d)--(e) node[midway,above left] {0};
+        \draw[soft] (d)--(f) node[midway,above right] {1};
+        \node[above left=1pt,accent] at (a) {$0$: \up};
+        \node[above left=1pt,accent] at (c) {$10$: \down};
+        \node[below,accent] at (e) {$110$: \lft};
+        \node[below,accent] at (f) {$111$: \rgt};
+        \node[soft] at (-2.2,-3.8) {consumed $\tfrac12$};
+        \node[soft] at (0.4,-3.8) {consumed $\tfrac14$};
+        \node[soft] at (2.6,-3.8) {consumed $\tfrac18$, $\tfrac18$};
+        % unit interval of codeword space
+        \begin{scope}[yshift=-4.75cm,xshift=-0.1cm]
+          \draw (-3.2,0) rectangle (3.4,0.45);
+          \draw (0.1,0) -- (0.1,0.45);
+          \draw (1.75,0) -- (1.75,0.45);
+          \draw (2.575,0) -- (2.575,0.45);
+          \node at (-1.55,0.225) {$0$: $\tfrac12$};
+          \node at (0.925,0.225) {$10$: $\tfrac14$};
+          \node at (2.16,0.225) {$110$};
+          \node at (2.99,0.225) {$111$};
+          \node[soft,below] at (0.1,-0.05) {the space of codewords, total $1$};
+        \end{scope}
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Kraft's Inequality}
+  \small
+  \begin{block}{Theorem (Kraft, 1949)}
+    If a prefix-free code for $S=\{x_1,\dots,x_n\}$ has lengths $\ell_1,\dots,\ell_n$, then
+    \[
+      \sum_{i=1}^n 2^{-\ell_i}\le1 .
+    \]
+    Conversely, for any positive integers $\ell_1,\dots,\ell_n$ with $\sum_i2^{-\ell_i}\le1$ there is a prefix-free code with exactly these lengths.
+  \end{block}
+  \words{The fractions of codeword space consumed by the codewords must fit inside $1$; and any lengths that fit can be realised.}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \begin{itemize}
+        \item Rover: $2^{-1}+2^{-2}+2^{-3}+2^{-3}=1$. The tree is full.
+        \item Lengths $(1,2,2,3)$ are impossible for any four symbols: $\tfrac12+\tfrac14+\tfrac14+\tfrac18=\tfrac98>1$.
+        \item Lengths $(2,2,2,2)$: $4\cdot\tfrac14=1$, the fixed-length code. Lengths $(1,2,3,4)$: $\tfrac{15}{16}<1$, realisable.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \centering
+      \begin{tikzpicture}[x=0.55cm,y=0.7cm,font=\scriptsize]
+        \foreach \i in {0,...,7}{\fill[soft!40] (\i,0) circle (2pt);}
+        \draw[accent,thick] (-0.3,-0.35) rectangle (3.3,0.35);
+        \draw[accent,thick] (3.7,-0.35) rectangle (5.3,0.35);
+        \draw[accent,thick] (5.7,-0.35) rectangle (6.3,0.35);
+        \draw[accent,thick] (6.7,-0.35) rectangle (7.3,0.35);
+        \node[below,accent] at (1.5,-0.4) {$0$: $4=2^{3-1}$};
+        \node[below,accent] at (4.5,-0.4) {$10$: $2$};
+        \node[below,accent] at (6,-0.4) {$110$};
+        \node[below,accent] at (7,-0.4) {$111$};
+        \node[above,soft] at (3.5,0.4) {the $2^L=8$ strings of length $L=3$};
+      \end{tikzpicture}
+      \par\smallskip
+      {\footnotesize Beneath a codeword of length $\ell$ lie $2^{L-\ell}$ strings of length $L$; prefix-free makes these sets disjoint.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Kraft's Inequality: Proof}
+  \small
+  \begin{block}{Proof of the inequality}
+    Let $L=\max_i\ell_i$ and grow the tree to depth $L$: it has $2^L$ leaves. Beneath the node of a codeword of length $\ell_i$ lie $2^{L-\ell_i}$ of them.
+    Prefix-free means no codeword lies beneath another, so these sets of leaves are disjoint, and $\sum_i2^{L-\ell_i}\le2^L$. Divide by $2^L$. \hfill$\square$
+  \end{block}
+  \begin{block}{Proof of the converse}
+    Order $\ell_1\le\dots\le\ell_n$ and choose codewords in turn: for $x_i$ take the leftmost depth-$\ell_i$ node not beneath a chosen codeword.
+    The codewords chosen so far cover the leftmost $\sum_{j<i}2^{-\ell_j}<1$ of codeword space, in blocks whose sizes $2^{-\ell_j}$ are multiples of $2^{-\ell_i}$ (as $\ell_j\le\ell_i$); so a free depth-$\ell_i$ node exists immediately to their right.
+Repeat for $i=1,\dots,n$. \hfill$\square$
+  \end{block}
+  \words{Each codeword owns a disjoint block of the $2^L$ strings of the longest length; there are only $2^L$ to own.}
+  \begin{itemize}
+    \item The converse at work, lengths $(1,2,3,4)$: take $0$; then $00,01$ lie beneath $0$, so take $10$; then $110$; then $1110$. Consumed $\tfrac{15}{16}$; the node $1111$ stays free.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: Codes\quiz{Quiz 3 Part B, Section 1}}
+  \small
+  \begin{exercise}
+    \begin{enumerate}
+      \item Decode $1100111010$ with the rover's code. Then encode \rgt, \up, \up, \down\ and count the bits.
+      \item Which of the length profiles $(1,2,2,3)$, $(1,2,3,4)$, $(2,2,2,2)$, $(1,3,3,3)$ can be the lengths of a prefix-free code for four symbols? For each admissible one, write down such a code and its average length under $(\tfrac12,\tfrac14,\tfrac18,\tfrac18)$.
+      \item $p_X=(\tfrac12,\tfrac14,\tfrac14)$. Design a prefix-free code with average length $1.5$ and draw its tree.
+      \item Is $\{0,\,01,\,011,\,0111\}$ prefix-free? Is every stream built from it nevertheless decodable? Compute $\sum2^{-\ell}$ and give a prefix-free code with the same lengths.
+      \item A fair die. Show that no prefix-free code has all six lengths equal to $2$; find one with lengths $(2,2,3,3,3,3)$ and its average length. Can a prefix-free code average $2.5$ bits per roll? (Return to this after Section 4.)
+    \end{enumerate}
+  \end{exercise}
+  \words{Kraft's inequality turns ``is there a prefix-free code with these lengths?'' into an arithmetic check.}
+  % item 2: (1,2,3,4): 15/16, L = 1/2+1/2+3/8+1/2 = 1.875; (2,2,2,2): L=2; (1,3,3,3): 7/8, L = 1/2+3/4+3/8+3/8 = 2
+  % item 4: 1/2+1/4+1/8+1/16 = 15/16; item 5: 6/4 > 1; (2,2,3,3,3,3): 16/6 = 2.667; H = 2.585 so 2.5 impossible
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Information}
+  \small
+  In the rover's code, \up\ costs $1$ bit, \down\ $2$, \lft\ and \rgt\ $3$; and $\tfrac12=2^{-1}$, $\tfrac14=2^{-2}$, $\tfrac18=2^{-3}$. The codeword length is the number of times $1$ must be halved to reach the probability.
+  \begin{block}{Definition}
+    The \textbf{information} (surprisal) of an event is the function $I\colon\{A\in\F:\Prob(A)>0\}\to[0,\infty)$,
+    \[
+      I(A)=\log\frac1{\Prob(A)}=-\log\Prob(A)\qquad\text{bits.}
+    \]
+    For a random variable $X$ with pmf $p_X$, the \textbf{information function} is $I_X\colon S_X\to[0,\infty)$, $I_X(x)=-\log p_X(x)$; composing it with $X$ gives the random variable $I_X(X)\colon\Omega\to[0,\infty)$, $\omega\mapsto-\log p_X(X(\omega))$.
+  \end{block}
+  \words{$I(A)$ is the number of halvings from certainty down to $\Prob(A)$: the number of fair coin tosses that would be exactly as surprising as $A$.}
+  \begin{exampleblock}{Examples}
+    Rover: $I_X(\up)=1$, $I_X(\down)=2$, $I_X(\lft)=I_X(\rgt)=3$ bits, the codeword lengths. \quad
+    A six: $\log6=2.585$ bits. \quad Double six: $\log36=5.170=2.585+2.585$ bits. \quad A specific sequence of $20$ coin tosses: $20$ bits, whatever it is.
+  \end{exampleblock}
+  % log2 6 = 2.5850, log2 36 = 5.1699  (deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Why a Logarithm: Additivity Under Independence}
+  \small
+  Wanted: $f\colon(0,1]\to[0,\infty)$, ``the information of an event of probability $p$'', such that
+  (i) $f$ is non-increasing: a rarer event is at least as informative;
+  (ii) $f(pq)=f(p)+f(q)$: for $A\indep B$ learning both is learning each in turn, so $I(A\cap B)=I(A)+I(B)$ while $\Prob(A\cap B)=\Prob(A)\Prob(B)$;
+  (iii) $f(\tfrac12)=1$: a fair coin toss is one bit.
+  \begin{block}{Theorem}
+    The only such function is $f(p)=-\log p$.
+  \end{block}
+  \begin{block}{Proof}
+    From (ii), $f(1)=f(1\cdot1)=2f(1)$, so $f(1)=0$; and $f(2^{-k})=k\,f(\tfrac12)=k$ for $k=0,1,2,\dots$
+    For rational $r=m/n$, applying (ii) $n$ times gives $n\,f(2^{-m/n})=f(2^{-m})=m$, so $f(2^{-r})=r$: $f(p)=-\log p$ whenever $-\log p$ is rational.
+    For any other $p$, take rationals $r<-\log p<r'$ as close as we like; then $2^{-r'}<p<2^{-r}$ and (i) gives $r\le f(p)\le r'$. \hfill$\square$
+  \end{block}
+  \words{Independence multiplies probabilities; information must add; only a logarithm turns products into sums, and calling a coin toss one bit fixes the base at $2$.}
+  \begin{itemize}
+    \item With $\ln$ instead of $\log$ the unit is the \emph{nat}; $1$ nat $=1/\ln2=1.443$ bits. Nothing else changes.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{What Information Is Not}
+  \small
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.3cm}>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{5.2cm}@{}}
+    \toprule
+    not\dots & the fact & one number \\
+    \midrule
+    \dots about the pattern &
+      $\Prob(A)=\Prob(B)\ \Rightarrow\ I(A)=I(B)$ &
+      HHHHHHHHHH and HTHHTTHTHT: $10$ bits each. \\
+    \dots the length you happened to use &
+      $I_X(x)$ is the \emph{ideal} length; $\ell_c(x)$ is a choice &
+      fixed-length code: $\ell_c(\up)=2\ne I_X(\up)=1$; rover's code: $\ell_c=I_X$, and it is optimal (Section 4). \\
+    \dots one object &
+      $I(A)\in[0,\infty)$; $I_X\colon S_X\to[0,\infty)$; $I_X(X)\colon\Omega\to[0,\infty)$ &
+      a number for an event; a function of the value; a random variable, with mean $H(X)$ (Section 3). \\
+    \dots additive without independence &
+      $I(A\cap B)=I(A)+I(B)$ iff $\Prob(A\cap B)=\Prob(A)\Prob(B)$ &
+      two dice, $Y$ the first, $X$ the sum: $I(\{Y=1\}\cap\{X=2\})=\log36=5.170$, but $I(\{Y=1\})+I(\{X=2\})=2.585+5.170$. \\
+    \dots negative, and zero only for the certain &
+      $I(A)\ge0$, with $I(A)=0$ iff $\Prob(A)=1$ &
+      $I(\Omega)=0$; $I(\text{a six})=2.585$. \\
+    \bottomrule
+  \end{tabular}
+  \words{Information is a property of the probability of what you learned, not of what it looked like or how it was transmitted.}
+  % log2 36 = 5.170 = I(Y=1, X=2) since P(Y=1,X=2)=1/36; log2 6 = 2.585 (verify.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Back to the Rover: The Coded Stream Is Fair Coin Flips}
+  \small
+  Send instructions with the code $0,10,110,111$ and look at the stream of bits, one at a time.
+  \begin{block}{Each bit is a fair coin flip}
+    \begin{align*}
+      \Prob(\text{1st bit}=0)&=\Prob(\up)=\tfrac12,\\
+      \Prob(\text{2nd bit}=0\mid\text{1st bit}=1)&=\frac{\Prob(\down)}{\Prob(\down)+\Prob(\lft)+\Prob(\rgt)}=\frac{1/4}{1/2}=\tfrac12,\\
+      \Prob(\text{3rd bit}=0\mid\text{first two}=11)&=\frac{\Prob(\lft)}{\Prob(\lft)+\Prob(\rgt)}=\frac{1/8}{1/4}=\tfrac12 .
+    \end{align*}
+    Every internal node of the tree splits the probability beneath it in half, and after a codeword ends the next instruction is independent of everything before; so every bit of the stream is $0$ with probability $\tfrac12$, independently of all earlier bits.
+  \end{block}
+  \words{A perfectly compressed stream is indistinguishable from noise; and noise cannot be compressed, since a fair coin flip costs one bit and there is nothing left to predict.}
+  \begin{itemize}
+    \item Compressing the rover's stream a second time gains nothing. Compression removes predictability; what remains is exactly unpredictable.
+  \end{itemize}
+  % P(bit1=0)=1/2, P(bit2=0|1)=1/2, P(bit3=0|11)=1/2  (deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: Information\quiz{Quiz 3 Part B, Section 2}}
+  \small
+  \begin{exercise}
+    \begin{enumerate}
+      \item How many bits of information are in HHHH? In a royal flush, $\Prob=4/2\,598\,960$? An event has $10$ bits of information: what is its probability?
+      \item A fair die is rolled. How much information do you receive on being told that it is even? That it is at least $5$? That it is a $6$?
+      \item Two dice, $Y$ the first, $X$ the sum. Compute $I(\{Y=1\})$, $I(\{X=7\})$, $I(\{Y=1\}\cap\{X=7\})$ and explain the relation between the three. Repeat with $\{X=2\}$ in place of $\{X=7\}$ and explain the difference.
+      \item Using only $f(pq)=f(p)+f(q)$ and $f(\tfrac12)=1$, show that $f(1)=0$, $f(\tfrac18)=3$ and $f(1/\sqrt2)=\tfrac12$.
+      \item For which pmfs does some prefix-free code produce a stream in which every bit is a fair coin flip independent of the earlier bits? Prove your condition is necessary.
+    \end{enumerate}
+  \end{exercise}
+  \words{Information converts a probability into a count of fair coin tosses, and under independence the counts add.}
+  % royal flush: 19.31 bits; 2^-10; even: 1 bit; >=5: log2 3 = 1.585; six: 2.585
+  % P(Y=1)=1/6, P(X=7)=1/6, P(Y=1,X=7)=1/36 = product: 2.585+2.585=5.170. P(X=2)=1/36: I=5.170, I(Y=1,X=2)=5.170 < 2.585+5.170
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Entropy}
+  \small
+  What does one instruction cost on average at the ideal lengths? Weight each $I_X(x)$ by its probability.
+  \begin{block}{Definition}
+    The \textbf{entropy} of $X$ is the expected information of its value,
+    \[
+      H(X)=\E\big[I_X(X)\big]=\sum_{x\in S_X}p_X(x)\log\frac1{p_X(x)}\qquad\text{bits.}
+    \]
+    It depends on $X$ only through its pmf, so for a pmf $p$ we also write $H(p)$: $H\colon\Delta_n\to[0,\log n]$, $\Delta_n=\{p\in[0,1]^n:\sum_ip_i=1\}$ (upper bound: Section 5).
+  \end{block}
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      \words{The average number of bits per symbol when every symbol gets its ideal codeword length; equivalently, the average surprise on seeing the value of $X$.}
+      \begin{exampleblock}{The rover}
+        $H(\tfrac12,\tfrac14,\tfrac18,\tfrac18)=\tfrac12\cdot1+\tfrac14\cdot2+\tfrac18\cdot3+\tfrac18\cdot3=1.75$ bits: exactly the average length of the code $0,10,110,111$.
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \areabars{5.4}{0.4}{0.5/1/\up\ $\tfrac12$, 0.25/2/\down\ $\tfrac14$, 0.125/3/\lft, 0.125/3/\rgt}
+      \par
+      {\footnotesize Bar $i$: width $p_i$, height $\log(1/p_i)$, area $p_i\log(1/p_i)$. Total area $=H(p)$.}
+    \end{column}
+  \end{columns}
+  % H = 1.75 (deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{What Entropy Is Not}
+  \small
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{4.9cm}>{\raggedright\arraybackslash}p{5.2cm}@{}}
+    \toprule
+    not\dots & the fact & one number \\
+    \midrule
+    \dots a random variable &
+      $I_X(X)\colon\Omega\to[0,\infty)$ is the random variable; $H(X)=\E[I_X(X)]\in[0,\infty)$ is its mean &
+      rover: $I_X(X)\in\{1,2,3\}$; $H(X)=1.75$. \\
+    \dots about the values &
+      $H(g(X))=H(X)$ for injective $g$; entropy is not variance &
+      fair coin on $\{0,1\}$ or on $\{0,1000\}$: $H=1$ bit both times; variances $0.25$ and $250\,000$. \\
+    \dots negative &
+      $p\log\tfrac1p\ge0$, $=0$ iff $p\in\{0,1\}$; so $H(X)\ge0$, $=0$ iff $X$ is constant &
+      $H(1,0,0,0)=0$. \\
+    \dots more than $\log n$ &
+      $H(X)\le\log n$ for $n$ values, $=$ iff uniform (Section 5) &
+      fair die $\log6=2.585$; fair coin $1$. \\
+    \dots the number of values &
+      $H(X)<\log n$ unless $X$ is uniform &
+      sum of two dice: $11$ values, $\log11=3.459$, but $H=3.274$ (two slides on). \\
+    \dots the cost of one symbol &
+      $I_X(x)$ is that; $H(X)$ is the average over a long stream &
+      rover: \lft\ costs $3$ bits; the stream costs $1.75$ per instruction. \\
+    \bottomrule
+  \end{tabular}
+  \words{Entropy measures how spread out the probabilities are, not how spread out the values are.}
+  % log2 6 = 2.585; log2 11 = 3.459; H(sum) = 3.274; var of {0,1000} coin = 1000^2/4 (verify.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Binary Entropy Function ($h$)}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.58\textwidth}
+      \begin{block}{Definition}
+        The \textbf{binary entropy function} is
+        \[
+          h\colon[0,1]\to[0,1],\qquad h(p)=p\log\frac1p+(1-p)\log\frac1{1-p},
+        \]
+        the entropy of a coin with $\Prob(\text{H})=p$, i.e.\ of the pmf $(p,1-p)$.
+      \end{block}
+      \words{One curve covers every two-outcome random variable, since its entropy depends only on the probability of one outcome.}
+      \begin{itemize}
+        \item $h(0)=h(1)=0$; maximum $h(\tfrac12)=1$; symmetric, $h(p)=h(1-p)$; concave, with infinite slope at $0$ and $1$.
+        \item A coin showing heads $99\%$ of the time still has $h(0.01)=0.081$ bits: the rare tail costs $\log100=6.64$ bits when it comes.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \centering
+      \begin{tikzpicture}[x=3.4cm,y=2.4cm,font=\scriptsize]
+        \draw[->] (0,0) -- (1.08,0) node[right] {$p$};
+        \draw[->] (0,0) -- (0,1.12) node[above] {$h(p)$};
+        \draw[accent,very thick,domain=0.003:0.997,samples=120,smooth] plot (\x,{-\x*log2(\x)-(1-\x)*log2(1-\x)});
+        \draw[soft,dashed] (0.5,0) -- (0.5,1) -- (0,1);
+        \draw[soft,dashed] (0.1,0) -- (0.1,0.469) -- (0,0.469);
+        \node[below] at (0.5,0) {$\tfrac12$};
+        \node[below] at (0.1,0) {$0.1$};
+        \node[below] at (1,0) {$1$};
+        \node[left] at (0,1) {$1$};
+        \node[left] at (0,0.469) {$0.47$};
+      \end{tikzpicture}
+      \par\smallskip
+      {\footnotesize Values that recur below: $h(0.1)=0.469$, $h(0.2)=0.722$, $h(\tfrac14)=0.811$, $h(0.3)=0.881$.}
+    \end{column}
+  \end{columns}
+  % h(.01)=0.0808, log2 100 = 6.644, h(.1)=0.4690, h(.2)=0.7219, h(.25)=0.8113, h(.3)=0.8813 (more.py, deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Example: The Sum of Two Dice Costs $3.27$ Bits per Roll}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.6\textwidth}
+      Two fair dice, $Y$ the first, $Z$ the second, $X=Y+Z$: the two-dice table. What does it cost per roll to report the sum?
+      \begin{itemize}
+        \item Head-on: $11$ values, so $4$ bits with a fixed-length code; $\log11=3.459$ if fractional lengths were allowed. Both ignore that $7$ is six times as likely as $2$.
+        \item The pmf: $p_X(x)=n_x/36$, where $n_x$ is the number of cells on the anti-diagonal $\{X=x\}$: $n_x=1,2,3,4,5,6,5,4,3,2,1$ for $x=2,\dots,12$.
+        \item For comparison: one die, $H(Y)=\log6=2.585$; the pair $(Y,Z)$, uniform on $36$ cells, $\log36=5.170$.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \centering
+      \dtable[0.36]{0}{7}
+      \par\smallskip
+      {\footnotesize $\{X=7\}$: six cells. $\{X=2\}$: one cell.}
+    \end{column}
+  \end{columns}
+  \[
+    H(X)=\sum_{x=2}^{12}\frac{n_x}{36}\log\frac{36}{n_x}
+    =2\Big[\tfrac1{36}\log36+\tfrac2{36}\log18+\tfrac3{36}\log12+\tfrac4{36}\log9+\tfrac5{36}\log\tfrac{36}5\Big]+\tfrac6{36}\log6
+    =3.274 .
+  \]
+  \words{More than one die, less than the pair it is computed from: a function of the outcome can only lose information (Section 8).}
+  % H(X)=3.2744, log2 6 = 2.585, log2 36 = 5.170, log2 11 = 3.459 (deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: Entropy\quiz{Quiz 3 Part B, Section 3}}
+  \small
+  \begin{exercise}
+    \begin{enumerate}
+      \item Draw the area picture for the uniform pmf $(\tfrac14,\tfrac14,\tfrac14,\tfrac14)$ and read off $H$. Do the same for $(\tfrac12,\tfrac14,\tfrac14)$.
+      \item $X$ a fair die, $W=\ind_{\{X\text{ even}\}}$ and $V=\min(X,3)$. Compute $H(W)$ and $H(V)$.
+      \item Which has more entropy, the sum of two dice or the maximum of two dice? Compute both. Which is cheaper to transmit?
+      \item Prove from the definition that $H(X)\ge0$, with equality if and only if $X$ is constant.
+      \item A source emits A with probability $0.9$ and B with probability $0.1$. Its entropy is $h(0.9)=0.469$ bits per symbol, yet every codeword has at least one bit, so no code for single symbols averages under $1$ bit per symbol. Find a way to get below $1$. (Hint: code two symbols at a time.)
+    \end{enumerate}
+  \end{exercise}
+  \words{Entropy is the average ideal codeword length, so it is the number to compute before choosing what to transmit.}
+  % (2) H(W)=1; V pmf (1/6,1/6,4/6): 1.252 bits. (3) max pmf (1,3,5,7,9,11)/36: 2.320 bits < 3.274.
+  % (5) pairs (.81,.09,.09,.01) with code 0,10,110,111: 1.29 bits per pair = 0.645 per symbol (more.py)
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{The Source Coding Theorem}
+  \small
+  Let $L^*=\min\{L(c): c\text{ a prefix-free code for }S\}$, the best achievable average length.
+  \begin{block}{Theorem (Shannon, 1948)}
+    \[
+      H(X)\ \le\ L^*\ <\ H(X)+1 .
+    \]
+    The left inequality is an equality if and only if every $p_X(x)$ is a power of $2$, in which case the optimal code has $\ell(x)=-\log p_X(x)=I_X(x)$ for every $x\in S_X$.
+  \end{block}
+  \words{Entropy is the floor on the number of bits per symbol that any prefix-free code can average, and a code within one bit of the floor always exists.}
+  \begin{exampleblock}{Back to the rover}
+    $H=1.75$ and the code $0,10,110,111$ has $L=1.75$: it is optimal. No prefix-free code averages fewer than $1.75$ bits per instruction. That answers questions 1 and 2 of the opening slide.
+  \end{exampleblock}
+  \begin{itemize}
+    \item The bound $L^*\ge H$ is what makes entropy \emph{the} measure of information: not a convention, but the price no code can beat.
+    \item The proof of the lower bound needs one inequality, used again for relative entropy in Section 5. It comes first.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Gibbs' Inequality (Lemma)}
+  \small
+  \begin{block}{Lemma (Gibbs' inequality, general form)}
+    Let $p$ be a pmf on $S$ with support $S_p=\{x\in S:p(x)>0\}$ (for $p=p_X$ this is $S_X$), and let $a\colon S\to[0,\infty)$ satisfy $a>0$ on $S_p$ and $\sum_{x\in S}a(x)\le1$. Then
+    $\displaystyle\sum_{x\in S_p}p(x)\log\frac1{a(x)}\ \ge\ \sum_{x\in S_p}p(x)\log\frac1{p(x)}$,
+    with equality if and only if $a(x)=p(x)$ for every $x\in S$.
+  \end{block}
+  \words{Weights from $p$, lengths $\log(1/a)$ from anything that fits under Kraft: the average is smallest with $p$'s own lengths.}
+  \begin{block}{Proof}
+    For $t>0$, $\ln t\le t-1$, with equality only at $t=1$. Apply it at $t=a(x)/p(x)$ for $x\in S_p$:
+    \[
+      \sum_{x\in S_p}p(x)\ln\frac{a(x)}{p(x)}\ \le\ \sum_{x\in S_p}p(x)\Big(\frac{a(x)}{p(x)}-1\Big)=\sum_{x\in S_p}a(x)-1\ \le\ \sum_{x\in S}a(x)-1\ \le\ 0 .
+    \]
+    Divide by $\ln2$. Equality forces $a=p$ on $S_p$ (first inequality) and $\sum_{S_p}a=1$ (second and third), so $a=0=p$ off $S_p$. \hfill$\square$
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Source Coding Theorem: The Lower Bound}
+  \small
+  \begin{block}{Proof that $H(X)\le L(c)$ for every prefix-free code $c$}
+    Put $a(x)=2^{-\ell_c(x)}>0$ for $x\in S$. By Kraft, $\sum_xa(x)\le1$; and $\log\frac1{a(x)}=\ell_c(x)$. Gibbs' lemma with $p=p_X$ gives
+    \[
+      L(c)=\sum_{x\in S_X}p_X(x)\,\ell_c(x)=\sum_{x\in S_X}p_X(x)\log\frac1{a(x)}\ \ge\ \sum_{x\in S_X}p_X(x)\log\frac1{p_X(x)}=H(X),
+    \]
+    with equality if and only if $2^{-\ell_c(x)}=p_X(x)$ for all $x\in S$: the probabilities are powers of $2$ and the lengths are the informations. \hfill$\square$
+  \end{block}
+  \words{The lengths of any prefix-free code define ``probabilities'' $2^{-\ell(x)}$; coding with lengths made for those costs at least as much as coding with lengths made for the truth.}
+  \begin{exampleblock}{The rover, in numbers}
+    Any prefix-free code for four symbols has $a=(2^{-\ell_1},\dots,2^{-\ell_4})$ with $\sum a\le1$, so
+    $L(c)=\tfrac12\ell_1+\tfrac14\ell_2+\tfrac18\ell_3+\tfrac18\ell_4=\sum_xp_X(x)\log\tfrac1{a(x)}\ge\sum_xp_X(x)\log\tfrac1{p_X(x)}=1.75$.
+    The lengths $(1,2,3,3)$ give $a=p_X$ exactly, hence equality; no other lengths do.
+  \end{exampleblock}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Source Coding Theorem: The Upper Bound}
+  \small
+  \begin{block}{Proof that $L^*<H(X)+1$ (Shannon's construction)}
+    Take $S_X=S$ (a symbol of probability $0$ never occurs and needs no codeword). Round each ideal length up: $\ell(x)=\lceil\log\tfrac1{p_X(x)}\rceil$. Then $2^{-\ell(x)}\le p_X(x)$, so
+    $\sum_x2^{-\ell(x)}\le\sum_xp_X(x)=1$, and Kraft supplies a prefix-free code $c$ with these lengths. Its average length is
+    \[
+      L(c)=\sum_xp_X(x)\Big\lceil\log\frac1{p_X(x)}\Big\rceil\ <\ \sum_xp_X(x)\Big(\log\frac1{p_X(x)}+1\Big)=H(X)+1 .\qquad\square
+    \]
+  \end{block}
+  \words{Rounding every ideal length up to a whole number wastes less than one bit per symbol.}
+  \begin{exampleblock}{Example: $p=(0.4,0.3,0.2,0.1)$}
+    Ideal lengths $1.32,\,1.74,\,2.32,\,3.32$; rounded up: $2,2,3,4$; Kraft sum $\tfrac14+\tfrac14+\tfrac18+\tfrac1{16}=\tfrac{11}{16}$; code $00,\,01,\,100,\,1010$ by the converse of Kraft.
+    \[
+      L=0.4\cdot2+0.3\cdot2+0.2\cdot3+0.1\cdot4=2.4\ \text{bits},\qquad H=1.846,\qquad L<H+1=2.846 .
+    \]
+    Shannon's code is not the best one: lengths $(1,2,3,3)$ also satisfy Kraft and give $L=1.9$. The theorem only promises a code within one bit of $H$.
+  \end{exampleblock}
+  % ideal lengths 1.3219,1.7370,2.3219,3.3219; L=2.4; H=1.8464; Huffman 1.9 (more.py, deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Entropy Adds Under Independence}
+  \small
+  \begin{block}{Theorem}
+    If $X\indep Y$ then the pair $(X,Y)$, with pmf $p_{X,Y}(x,y)=\Prob(X=x,Y=y)$, has entropy $H(X,Y)=H(X)+H(Y)$.
+  \end{block}
+  \begin{block}{Proof}
+    $p_{X,Y}(x,y)=p_X(x)p_Y(y)$, so $\log\frac1{p_{X,Y}(x,y)}=\log\frac1{p_X(x)}+\log\frac1{p_Y(y)}$. Multiply by $p_{X,Y}(x,y)$ and sum over $(x,y)$.
+    In the first term, $\sum_yp_{X,Y}(x,y)=p_X(x)$, leaving $\sum_xp_X(x)\log\frac1{p_X(x)}=H(X)$; likewise the second term gives $H(Y)$. \hfill$\square$
+  \end{block}
+  \words{Independent symbols carry independent surprises, and expectations add.}
+  \begin{exampleblock}{Examples}
+    Two dice, $Y$ and $Z$: $H(Y,Z)=\log6+\log6=\log36=5.170$, the uniform pmf on the $36$ cells. \quad
+    $k$ source symbols: $H(X_1,\dots,X_k)=kH(X)$, by induction.
+  \end{exampleblock}
+  \begin{itemize}
+    \item The converse fails for the same reason it fails for expectations: Section 8 shows $H(X,Y)\le H(X)+H(Y)$ always, with equality only under independence.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Closing the Gap: Code Blocks of Symbols}
+  \small
+  Exercise 5 of Section 3: the A/B source has $h(0.9)=0.469$ bits per symbol, yet every codeword has at least one bit. Code several symbols at once.
+  \begin{block}{Theorem (entropy is exactly the limit)}
+    Let $L^*_k$ be the best average length of a prefix-free code for blocks $(X_1,\dots,X_k)$ of $k$ source symbols. Then
+    \[
+      H(X)\ \le\ \frac{L^*_k}{k}\ <\ H(X)+\frac1k .
+    \]
+  \end{block}
+  \begin{block}{Proof}
+    The block is a symbol of the alphabet $S^k$ with entropy $kH(X)$ (previous slide). Apply the source coding theorem to it: $kH(X)\le L^*_k<kH(X)+1$. Divide by $k$. \hfill$\square$
+  \end{block}
+  \words{Per symbol, the unavoidable rounding loss shrinks to $1/k$; the floor $H(X)$ never moves.}
+  \begin{exampleblock}{The A/B source}
+    Pairs have pmf $(0.81,0.09,0.09,0.01)$. The code $0,10,110,111$ costs $0.81+0.18+0.27+0.03=1.29$ bits per pair, i.e.\ $0.645$ bits per symbol, already below $1$; the floor is $0.469$.
+  \end{exampleblock}
+  % pairs: 1.29 per pair, 0.645 per symbol (more.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: Source Coding\quiz{Quiz 3 Part B, Section 4}}
+  \small
+  \begin{exercise}
+    \begin{enumerate}
+      \item A fair die: Shannon's lengths are $\lceil\log6\rceil=3$ for every face, $L=3$. The code with lengths $(2,2,3,3,3,3)$ averages $2.667$. Can any prefix-free code average $2.5$? Answer exercise 5 of Section 1.
+      \item Write out, for the rover's four probabilities, the three lines of the lower-bound proof with numbers, and conclude that no prefix-free code beats $1.75$ bits per instruction.
+      \item The theorem says $L^*<h(0.9)+1=1.469$ for the A/B source, and single-symbol codes cannot go below $1$. Why is there no contradiction? Compute the Shannon lengths for pairs of symbols and the resulting bits per symbol.
+      \item For the A/B source, how many symbols per block guarantee a Shannon code under $0.6$ bits per symbol? Why does the same argument fail to get under $h(0.9)=0.469$?
+      \item If every $p_X(x)$ is a power of $2$, show that the Shannon code has $L=H(X)$, and that every bit it emits is a fair coin flip independent of the earlier bits.
+    \end{enumerate}
+  \end{exercise}
+  \words{The source coding theorem is a floor no code can beat and a ceiling within one bit of it, and coding blocks closes the gap.}
+  % (3) pair Shannon lengths: ceil(-log2 .81)=1, ceil(-log2 .09)=4, 4, ceil(-log2 .01)=7: L = .81+.36+.36+.07 = 1.60 per pair = 0.80 per symbol (more.py)
+  % (4) 0.469 + 1/k < 0.6 iff k > 7.6, so k = 8
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Cross-Entropy}
+  \small
+  The rover's mission changes: \rgt\ is now the common instruction, $p=(\tfrac18,\tfrac18,\tfrac14,\tfrac12)$ for $(\up,\down,\lft,\rgt)$. The code $0,10,110,111$ stays installed.
+  \[
+    \text{cost}=\tfrac18\cdot1+\tfrac18\cdot2+\tfrac14\cdot3+\tfrac12\cdot3=2.625\ \text{bits per instruction},
+  \]
+  worse than the $2$ bits of the fixed-length code, while the new entropy is still $H(p)=1.75$.
+  \begin{block}{Definition}
+    Let $P,Q$ be pmfs on $S$, with $S_P=\{x:P(x)>0\}$. The \textbf{cross-entropy} of $P$ with $Q$ is
+    \[
+      H(P,Q)=\sum_{x\in S_P}P(x)\log\frac1{Q(x)}\qquad\text{bits, with }\log\tfrac10=\infty,
+    \]
+    a function $H\colon\Delta_n\times\Delta_n\to[0,\infty]$. The first argument $P$ is the \emph{truth}: it supplies the weights. The second, $Q$, is the \emph{code} or \emph{model}: it supplies the lengths $\log(1/Q(x))$.
+    Notation: $H$ of two \emph{pmfs} is cross-entropy; $H(X,Y)$ of two \emph{random variables} is the entropy of the pair (Section 4, Section 8).
+  \end{block}
+  \words{The average bits per symbol when the code was built for $Q$ but the symbols come from $P$.}
+  \begin{itemize}
+    \item Rover: $Q=(\tfrac12,\tfrac14,\tfrac18,\tfrac18)$ is what the code was built for, $P=(\tfrac18,\tfrac18,\tfrac14,\tfrac12)$ is the truth, and $H(P,Q)=2.625$.
+  \end{itemize}
+  % 1/8+2/8+3/4+3/2 = 21/8 = 2.625 (deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Cross-Entropy: Widths From $P$, Heights From $Q$}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.49\textwidth}
+      \centering
+      $H(P,Q)=2.625$: widths $P$, heights $\log\tfrac1Q$\par\smallskip
+      \areabars{5.2}{0.42}{0.125/1/\up, 0.125/2/\down, 0.25/3/\lft\ $\tfrac14$, 0.5/3/\rgt\ $\tfrac12$}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \centering
+      $H(P,P)=1.75$: widths $P$, heights $\log\tfrac1P$\par\smallskip
+      \areabars{5.2}{0.42}{0.125/3/\up, 0.125/3/\down, 0.25/2/\lft\ $\tfrac14$, 0.5/1/\rgt\ $\tfrac12$}
+    \end{column}
+  \end{columns}
+  \medskip
+  \begin{itemize}
+    \item $H(P,P)=H(P)$: the code built for the truth. The lower bound of Section 4 reads $H(P,Q)\ge H(P)$ for every $Q$ (Gibbs' lemma with $a=Q$).
+    \item $H(P,Q)\ne H(Q,P)$ in general: swapping truth and code swaps widths and heights, which changes the area.
+    \item $H(P,Q)=\infty$ if $Q(x)=0$ for some $x$ with $P(x)>0$: a code with no codeword for a symbol that does occur.
+  \end{itemize}
+  \words{The same bars, re-weighted: the wide bar now carries the tall height, and the area grows from $1.75$ to $2.625$.}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Cross-Entropy: Two Coins}
+  \small
+  \begin{exampleblock}{A hedging code on a lopsided truth}
+    $Q=(\tfrac12,\tfrac12)$, $P=(0.9,0.1)$. Lengths $\log2=1$ and $1$:
+    $H(P,Q)=0.9\cdot1+0.1\cdot1=1$ bit. The same for \emph{every} $P$: equal lengths cost $1$ bit whatever the truth. But $H(P)=h(0.1)=0.469$, so $0.531$ bits per symbol are wasted.
+  \end{exampleblock}
+  \begin{exampleblock}{A confident code on a fair truth}
+    $Q=(0.9,0.1)$, $P=(\tfrac12,\tfrac12)$. Lengths $\log\frac1{0.9}=0.152$ and $\log\frac1{0.1}=3.322$:
+    \[
+      H(P,Q)=\tfrac12\cdot0.152+\tfrac12\cdot3.322=1.737\ \text{bits},
+    \]
+    against $H(Q)=0.469$, what the code was designed to achieve, and $H(P)=1$, what the truth needs.
+  \end{exampleblock}
+  \begin{center}
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{@{}lccccc@{}}
+      \toprule
+      truth $P$ & code $Q$ & $H(P,Q)$ & $H(P)$ & waste $H(P,Q)-H(P)$ \\
+      \midrule
+      $(0.9,0.1)$ & $(\tfrac12,\tfrac12)$ & $1$ & $0.469$ & $0.531$ \\
+      $(\tfrac12,\tfrac12)$ & $(0.9,0.1)$ & $1.737$ & $1$ & $0.737$ \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \words{Hedging when the truth is lopsided wastes half a bit; being confidently wrong when the truth is fair wastes three quarters, because the rare-looking outcome costs $3.3$ bits and comes half the time.}
+  % CE(.9/.1 ; .5/.5)=1, h(.1)=0.4690; CE(.5/.5 ; .9/.1)=1.7370; -log2 .9=0.1520, -log2 .1=3.3219 (deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: Cross-Entropy\quiz{Quiz 3 Part B, Section 5}}
+  \small
+  \begin{exercise}
+    \begin{enumerate}
+      \item The rover keeps the code $0,10,110,111$. Compute the cost per instruction if the truth becomes $(\tfrac14,\tfrac14,\tfrac14,\tfrac14)$, and if it becomes $(\tfrac14,\tfrac12,\tfrac18,\tfrac18)$.
+      \item Show that for $Q$ uniform on $n$ symbols, $H(P,Q)=\log n$ for every $P$. Conclude that the fixed-length code is the only code whose cost does not depend on the truth.
+      \item $P=(\tfrac12,\tfrac12)$, $Q=(\tfrac14,\tfrac34)$. Compute $H(P,Q)$ and $H(Q,P)$. Say in words which code is being used on which truth in each case.
+      \item Deduce $H(P,Q)\ge H(P)$, with equality iff $Q=P$, from Gibbs' lemma. Which choice of $a$ is needed, and why does it satisfy $\sum a\le1$?
+      \item Every day a forecaster announces ``rain with probability $q$''; the truth is rain with probability $p$, independently each day. Write her average cost in bits per day if her announcements are used as a code, and find the $q$ that minimises it.
+    \end{enumerate}
+  \end{exercise}
+  \words{Cross-entropy prices a code, or a forecast, against a truth it was not built for.}
+  % (1) 9/4 = 2.25; 2.0. (3) H(P,Q)=1.2075, H(Q,P)=1. (5) H((p,1-p),(q,1-q)) minimised at q=p by Gibbs. (more.py, deck_numbers.py)
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Relative Entropy ($D$)}
+  \small
+  \begin{block}{Definition}
+    For pmfs $P,Q$ on $S$, the \textbf{relative entropy} (Kullback--Leibler divergence) of $P$ from $Q$ is
+    \[
+      D(P\,\|\,Q)=H(P,Q)-H(P)=\sum_{x\in S_P}P(x)\log\frac{P(x)}{Q(x)}\qquad\text{bits, with }\log\tfrac{P(x)}0=\infty,
+    \]
+    a function $D\colon\Delta_n\times\Delta_n\to[0,\infty]$; $P$ is the truth, $Q$ the code or model.
+  \end{block}
+  \words{The waste: the extra bits per symbol paid for coding with $Q$ when the truth is $P$, over the $H(P)$ that the truth needs.}
+  \begin{exampleblock}{The rover}
+    $D(P\|Q)=2.625-1.75=0.875$ bits per instruction wasted by keeping the old code. Bar by bar, $P(x)\big[\log\frac1{Q(x)}-\log\frac1{P(x)}\big]$:
+    $\tfrac18(1-3)+\tfrac18(2-3)+\tfrac14(3-2)+\tfrac12(3-1)=-0.25-0.125+0.25+1=0.875$.
+    Two bars got cheaper and two dearer; the dearer ones are the likely ones, so the total is positive.
+  \end{exampleblock}
+  \begin{itemize}
+    \item Two coins: $D\big((0.9,0.1)\,\|\,(\tfrac12,\tfrac12)\big)=0.531$ and $D\big((\tfrac12,\tfrac12)\,\|\,(0.9,0.1)\big)=0.737$, the waste column of the previous table.
+  \end{itemize}
+  % D(Pnew||Pold) = 0.875; bars -0.25-0.125+0.25+1 (deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Gibbs' Inequality}
+  \small
+  \begin{block}{Theorem (Gibbs' inequality)}
+    $D(P\,\|\,Q)\ge0$, with equality if and only if $P=Q$. Equivalently, $H(P,Q)\ge H(P)$, with equality iff $Q=P$.
+  \end{block}
+  \words{No code beats the code built for the truth, and no model predicts a source better on average than the source's own distribution.}
+  \begin{columns}[T]
+    \begin{column}{0.7\textwidth}
+      \begin{block}{Proof}
+        If $Q(x)=0<P(x)$ for some $x$ then $D=\infty>0$. Otherwise, with $\ln t\le t-1$ at $t=Q(x)/P(x)$ (the lemma of Section 4 with $a=Q$):
+        \begin{align*}
+          -D(P\|Q)\ln2&=\sum_{x\in S_P}P(x)\ln\frac{Q(x)}{P(x)}\le\sum_{x\in S_P}P(x)\Big(\frac{Q(x)}{P(x)}-1\Big)\\
+          &=\sum_{x\in S_P}Q(x)-1\le0,
+        \end{align*}
+        with equality iff $Q=P$ on $S_P$ and $\sum_{S_P}Q=1$, i.e.\ $Q=P$. \hfill$\square$
+      \end{block}
+    \end{column}
+    \begin{column}{0.28\textwidth}
+      \centering
+      \begin{tikzpicture}[x=1.1cm,y=1.1cm,font=\scriptsize]
+        \draw[->] (0,-1.3) -- (0,1.3);
+        \draw[->] (-0.2,0) -- (2.7,0) node[right] {$t$};
+        \draw[accent,very thick,domain=0.28:2.3,samples=80,smooth] plot (\x,{ln(\x)});
+        \draw[soft,thick] (-0.1,-1.1) -- (2.3,1.3) node[right] {$t-1$};
+        \node[accent,below right] at (2.0,0.65) {$\ln t$};
+        \fill (1,0) circle (1.2pt) node[below right] {$1$};
+      \end{tikzpicture}
+      \par\smallskip
+      {\footnotesize $\ln t\le t-1$, touching only at $t=1$: the whole proof.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Consequences of Gibbs' Inequality}
+  \small
+  \begin{block}{Corollary 1: the maximum of entropy}
+    If $X$ takes $n$ values then $H(X)\le\log n$, with equality iff $X$ is uniform.
+  \end{block}
+  \begin{block}{Proof}
+    Take $Q$ uniform, $Q(x)=\tfrac1n$: $0\le D(p_X\|Q)=\sum_xp_X(x)\log\big(n\,p_X(x)\big)=\log n-H(X)$, with equality iff $p_X=Q$. \hfill$\square$
+  \end{block}
+  \words{Spreading probability evenly maximises the average surprise; the fixed-length code is optimal exactly for the uniform source.}
+  \begin{block}{Corollary 2: cross-entropy is minimised by the truth}
+    For fixed $P$, the function $Q\mapsto H(P,Q)$ on $\Delta_n$ has its unique minimum at $Q=P$, where it equals $H(P)$. This is the whole reason cross-entropy can serve as a training loss (Section 6).
+  \end{block}
+  \begin{block}{Corollary 3, for Section 8}
+    Mutual information is non-negative: $I(X;Y)=D(p_{X,Y}\,\|\,p_Xp_Y)\ge0$, with equality iff $X\indep Y$.
+  \end{block}
+  \begin{itemize}
+    \item Exercise 3 of the next battery does Corollary 1 by hand; Section 8 proves Corollary 3.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{What Relative Entropy Is Not: A Distance}
+  \small
+  A distance $d$ has $d(P,Q)=d(Q,P)$, $d(P,R)\le d(P,Q)+d(Q,R)$, $d<\infty$, and $d(P,Q)=0$ iff $P=Q$. Relative entropy has only the last.
+  \begin{center}
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{6.6cm}@{}}
+      \toprule
+      property & fails at & numbers \\
+      \midrule
+      symmetry & $P=(\tfrac12,\tfrac12)$, $Q=(\tfrac14,\tfrac34)$ &
+        $D(P\|Q)=1.2075-1=0.2075$: the $2$-bit codeword comes half the time instead of a quarter. \newline
+        $D(Q\|P)=1-0.8113=0.1887$: $1$ bit always, against the $0.811$ needed. \\
+      triangle inequality & $P=(\tfrac12,\tfrac12)$, $Q=(0.9,0.1)$, $R=(0.99,0.01)$ &
+        $D(P\|Q)+D(Q\|R)=0.737+0.208=0.945<2.329=D(P\|R)$. \\
+      finiteness & $Q(x)=0<P(x)$ &
+        $D(P\|Q)=\infty$: the model said ``never'' and it happened; practical models never assign exactly $0$. \\
+      $D=0$ iff $P=Q$ & holds (Gibbs) &
+        $D$ detects difference, measured in bits of waste for one direction of use. \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \words{Relative entropy is a divergence: it says how costly it is to mistake $Q$ for $P$, and mistakes are not symmetric.}
+  % D(p||q)=0.20752, D(q||p)=0.18872, H(p,q)=1.20752, H(q)=0.81128; triangle: 0.7370+0.2084=0.9454 < 2.3292 (deck_numbers.py, more.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: Relative Entropy\quiz{Quiz 3 Part B, Section 5}}
+  \small
+  \begin{exercise}
+    \begin{enumerate}
+      \item Compute $D(P\|Q)$ and $D(Q\|P)$ for $P=(0.9,0.1)$, $Q=(\tfrac12,\tfrac12)$, once from $\sum P\log(P/Q)$ and once as $H(P,Q)-H(P)$. Check against the two-coins table.
+      \item Repeat for $P=(\tfrac12,\tfrac12)$, $Q=(\tfrac14,\tfrac34)$, and explain in one sentence why $D(P\|Q)>D(Q\|P)$ here.
+      \item Show that $D(P\|U)=\log n-H(P)$ for $U$ uniform, and read off the maximum of $H$ on $\Delta_n$ and where it is attained.
+      \item The rover's engineers propose a compromise code built for $Q=(\tfrac14,\tfrac14,\tfrac14,\tfrac14)$, to be used whether the truth is $(\tfrac12,\tfrac14,\tfrac18,\tfrac18)$ or $(\tfrac18,\tfrac18,\tfrac14,\tfrac12)$. Compute the waste in each case and compare with keeping the old code.
+      \item Show that $D(P\|Q)$ is unchanged by relabelling the symbols but that, unlike a distance, $D(P\|Q)\le\varepsilon$ does not imply $D(Q\|P)\le\varepsilon$: give $P,Q$ with $D(P\|Q)<0.1$ and $D(Q\|P)>1$.
+    \end{enumerate}
+  \end{exercise}
+  \words{Relative entropy is the number to compute when deciding which of several codes, or models, to install.}
+  % (1) 0.531, 0.737. (2) 0.2075, 0.1887. (4) uniform code: waste = 2 - 1.75 = 0.25 in both cases, vs 0 and 0.875.
+  % (5) P=(1-1e-12, 1e-12), Q=(0.95,0.05): D(P||Q)=0.074, D(Q||P)=1.71 (more2.py)
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Why the Loss Is a Logarithm}
+  \small
+  A classifier outputs a pmf $q\in\Delta_n$ over $n\ge3$ classes; the true class is drawn from $p\in\Delta_n$. When class $y$ occurs, charge $f(q_y)$, with $f\colon(0,1]\to\R$ decreasing and differentiable on $(0,1)$.
+  \begin{block}{Theorem}
+    Suppose $f$ is \textbf{honest}: for every truth $p$, the expected penalty $\sum_yp_y\,f(q_y)$ over $q\in\Delta_n$ is smallest at $q=p$ and nowhere else.
+    Then $f(t)=-c\log t+d$ on $(0,1)$ with $c>0$; normalised, $f(t)=-\log t$, the information of the outcome under the model.
+  \end{block}
+  \begin{block}{Proof}
+    Take $p$ with every $p_y>0$. Then $q=p$ is a minimiser in the interior of $\Delta_n$, so Lagrange applies there: $p_y\,f'(p_y)=\lambda$ for all $y$, i.e.\ $t\,f'(t)$ takes the same value at every coordinate $t=p_y$.
+    For $s,t>0$ with $s+t<1$ use $p=\big(s,t,\tfrac{1-s-t}{n-2},\dots,\tfrac{1-s-t}{n-2}\big)$ (possible as $n\ge3$): $s\,f'(s)=t\,f'(t)$. For $s+t\ge1$ compare both with a small $u$.
+    So $t\,f'(t)=-c$ is constant on $(0,1)$, $f(t)=-c\ln t+d$, and decreasing means $c>0$. \hfill$\square$
+  \end{block}
+  \words{A model that is to report what it believes must be charged the logarithm of the probability it gave to what happened; nothing else works.}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{What Goes Wrong With Any Other Penalty}
+  \small
+  \begin{exampleblock}{Linear penalty $f(t)=1-t$}
+    Expected penalty $1-\sum_yp_yq_y$, smallest when all of $q$ sits on the most probable class: for $p=(0.5,0.3,0.2)$ the minimiser is $q=(1,0,0)$, penalty $0.5$, while honesty costs $0.62$. The model learns to be overconfident.
+  \end{exampleblock}
+  \begin{exampleblock}{Squared penalty on the realised probability, $f(t)=(1-t)^2$}
+    Lagrange: $-2p_y(1-q_y)=\lambda$, so $q_y=1+\lambda/(2p_y)$. For $p=(0.5,0.3,0.2)$: $q=(0.613,0.355,0.032)\ne p$. Again the likely is exaggerated and the unlikely buried. (The Brier score penalises the whole vector $q$, not just $q_y$, and is honest.)
+  \end{exampleblock}
+  \begin{exampleblock}{Logarithmic penalty $f(t)=-\log t$}
+    Expected penalty $\sum_yp_y\log\frac1{q_y}=H(p,q)=H(p)+D(p\|q)$, minimised at $q=p$ by Gibbs, and only there. For $p=(0.5,0.3,0.2)$ the minimum is $H(p)=1.485$ bits.
+  \end{exampleblock}
+  \words{Only the logarithm makes honesty optimal; every other local penalty rewards some distortion of the truth.}
+  % linear at p: 1-(.25+.09+.04)=0.62; at e1: 0.5. squared: q=(0.6129,0.3548,0.0323). H(.5,.3,.2)=1.4855 (more.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Cross-Entropy Loss}
+  \small
+  \begin{block}{Definition (cross-entropy loss)}
+    Data $(x_1,y_1),\dots,(x_N,y_N)$, labels among $n$ classes; a model with parameters $\theta\in\Theta\subseteq\R^d$ outputs a pmf $q_\theta(\cdot\mid x)\in\Delta_n$ over the classes for each input $x$. Its loss is
+    \[
+      \mathcal L(\theta)=\frac1N\sum_{i=1}^N\log\frac1{q_\theta(y_i\mid x_i)}\qquad\text{bits per example.}
+    \]
+  \end{block}
+  \words{Each example is charged the information of its true label under the model: the codeword length the model would have used for it.}
+  \begin{block}{What minimising it does}
+    For an input $x$ whose true label has pmf $p(\cdot\mid x)$, the loss averages to
+    $H\big(p(\cdot\mid x),\,q_\theta(\cdot\mid x)\big)=H\big(p(\cdot\mid x)\big)+D\big(p(\cdot\mid x)\,\big\|\,q_\theta(\cdot\mid x)\big)$.
+    The first term does not depend on $\theta$. Minimising the loss is minimising $D$: making the model match the truth, and by Gibbs nothing else will do it.
+  \end{block}
+  \begin{itemize}
+    \item The loss cannot go below $H(p)$: a curve flat at $0.5$ bits is not stuck if the labels carry $0.5$ bits of genuine uncertainty per example.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Distillation: Training on a Whole Distribution}
+  \small
+  A large \emph{teacher} model gives, for each input $x$, a whole pmf $p(\cdot\mid x)$ over classes. A small \emph{student} $q_\theta$ is trained to minimise
+  \[
+    H\big(p(\cdot\mid x),\,q_\theta(\cdot\mid x)\big)=\sum_yp(y\mid x)\log\frac1{q_\theta(y\mid x)}\qquad\text{averaged over inputs}.
+  \]
+  \words{The same cross-entropy loss, with the teacher's soft probabilities in place of a single correct label.}
+  \begin{itemize}
+    \item A one-hot label has entropy $0$: it says which class, and nothing about how the alternatives rank. The teacher's pmf has $H(p)>0$ bits, and every one of them is information about the input that the student can learn from.
+    \item The loss floor is $H(p)$, not $0$; the student's distance from the teacher is $D(p\|q_\theta)$, the part it can actually reduce.
+  \end{itemize}
+  \begin{exampleblock}{Numbers}
+    Teacher $p=(0.7,0.2,0.1)$, student $q=(0.8,0.1,0.1)$:
+    $H(p,q)=0.7\log\tfrac1{0.8}+0.2\log\tfrac1{0.1}+0.1\log\tfrac1{0.1}=1.222$ bits $=H(p)+D(p\|q)=1.157+0.065$.
+    The student is $0.065$ bits from the teacher; the remaining $1.157$ is the teacher's own uncertainty.
+  \end{exampleblock}
+  % H(.7,.2,.1)=1.1568, H(P,q)=1.2219, D=0.0651 (more2.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Prediction and Compression Are the Same Thing}
+  \small
+  \begin{block}{Theorem (arithmetic coding; statement only)}
+    Let a model assign to a text $x_1\dots x_n$ the conditional probabilities $q(x_i\mid x_1\dots x_{i-1})>0$. There is a uniquely decodable encoding of the text in fewer than
+    \[
+      \sum_{i=1}^n\log\frac1{q(x_i\mid x_1\dots x_{i-1})}+2\quad\text{bits},
+    \]
+    decodable by anyone who has the same model.
+  \end{block}
+  \words{A predictor is a compressor: each symbol costs the information the model assigned to it, and the total is the model's cross-entropy loss on the text, plus two bits.}
+  \begin{itemize}
+    \item The training loss of a language model, in bits per token, is the size to which it compresses its training text, per token. Lower loss, smaller file, better predictions: one number.
+    \item Conversely a compressor defines a predictor: a symbol coded with $\ell$ bits has been assigned probability $2^{-\ell}$. No model gets below the source's entropy rate (Section 9) on average, by Gibbs.
+    \item The rover: the model ``\up\ $\tfrac12$, \down\ $\tfrac14$, \lft, \rgt\ $\tfrac18$'' compresses instructions to $1.75$ bits each; the reversed model costs $2.625$ on the same stream.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: The Log Loss\quiz{Quiz 3 Part B, Section 6}}
+  \small
+  \begin{exercise}
+    \begin{enumerate}
+      \item Two classes, truth $p=0.9$. Compute the expected log loss of models reporting $q=0.5$, $0.9$, $0.99$. Which is honest, and why is $0.99$ punished although it is ``more confident in the right answer''?
+      \item A forecaster believes rain has probability $0.3$ and is scored by log loss. Show her expected score is minimised by announcing $0.3$, and compute the expected cost of hedging with $0.5$.
+      \item A model's loss has flattened at $0.5$ bits per example. Describe two situations that produce this, one in which the model should be improved and one in which it cannot be.
+      \item For $p=(0.5,0.3,0.2)$, verify by Lagrange multipliers that the penalty $f(t)=(1-t)^2$ on the realised probability is minimised at $q=(0.613,0.355,0.032)$, and compute the penalty there and at $q=p$.
+      \item Explain why the theorem needs $n\ge3$: for two classes, show that $f(t)=(1-t)^2$ \emph{does} satisfy the honesty requirement.
+    \end{enumerate}
+  \end{exercise}
+  \words{The log loss is the only penalty on the realised probability that rewards a model for reporting what it believes.}
+  % (1) 1, 0.469, 0.677 bits. (2) h(0.3)=0.881 vs 1 bit. (4) 0.387 vs 0.400. (more.py, more2.py)
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Motivation: Which Wordle Opener?}
+  \small
+  Wordle: a five-letter answer is drawn from a list of $2315$ words. Each guess returns five colours, \cG\ right letter in the right place, \cY\ right letter in the wrong place, \cB\ letter absent: one of $3^5=243$ patterns.
+  \begin{block}{Head-on}
+    Before the first guess the answer is uniform on $2315$ words: $\log2315=11.18$ bits of uncertainty. A guess ``is worth'' as much as it reduces this. But the reduction depends on which pattern comes back, and there are $243$ of them.
+  \end{block}
+  \begin{block}{Questions we cannot yet answer}
+    \begin{enumerate}
+      \item Is \textsf{weary} a good first guess? Is \textsf{slate} better? Is anything better than that?
+      \item Can any strategy average fewer than $3$ guesses?
+      \item Why did the ``best opener'' change when people optimised for the actual score instead of information?
+    \end{enumerate}
+  \end{block}
+  \words{The tool is the entropy of the pattern distribution of a guess, which is the expected information the guess delivers, and which Section 8 will identify as a mutual information.}
+  \begin{itemize}
+    \item Source of the real-game numbers below: 3Blue1Brown, ``Solving Wordle using information theory'' (2022).
+  \end{itemize}
+  % log2 2315 = 11.177; 3^5 = 243 (deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{A Guess Is a Partition of the Remaining Answers}
+  \small
+  \begin{block}{Definition}
+    Let $W$ be the set of remaining possible answers, $|W|=N$, and let the answer $A\colon\Omega\to W$ be uniform on $W$: $\Prob(A=w)=\tfrac1N$.
+    Fix a guess $g$. The \textbf{pattern function} of $g$ is $\pi_g\colon W\to\{\cB,\cY,\cG\}^5$, sending each possible answer $w$ to the colours $g$ would receive if $w$ were the answer.
+    The \textbf{pattern} is the random variable $\Pi=\pi_g(A)\colon\Omega\to\{\cB,\cY,\cG\}^5$, with pmf
+    \[
+      p_\Pi(\pi)=\Prob(\Pi=\pi)=\frac{|\{w\in W:\pi_g(w)=\pi\}|}{N}=\frac{|\text{bucket of }\pi|}{N}.
+    \]
+  \end{block}
+  \words{A guess sorts the remaining answers into buckets, one per pattern; the pattern you get back tells you which bucket the answer is in, and nothing more.}
+  \begin{itemize}
+    \item Seeing pattern $\pi$ shrinks the candidate list from $N$ to $|\text{bucket of }\pi|=N\,p_\Pi(\pi)$. The information of the pattern is $I_\Pi(\pi)=\log\frac1{p_\Pi(\pi)}=\log\frac{N}{|\text{bucket}|}$: the number of halvings of the list.
+    \item The guess is fully described by its pattern distribution $p_\Pi$: a bar chart with $243$ bars. Two guesses with the same bar chart are equally informative, whatever the letters.
+    \item A pattern with a bucket of size $1$ carries $\log N$ bits and ends the game next turn; the all-grey pattern usually has a huge bucket and carries little.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Toy Wordle: Two-Letter Words, Done by Hand}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.6\textwidth}
+      $W=\{\textsf{AM},\textsf{IN},\textsf{NO},\textsf{OF},\textsf{ON},\textsf{TO}\}$, $N=6$, two-letter words, $3^2=9$ possible patterns. Guess $g=\textsf{IN}$; for each possible answer, the pattern:
+      \begin{center}
+        \renewcommand{\arraystretch}{1.15}
+        \begin{tabular}{@{}lll@{}}
+          \toprule
+          answer $w$ & $\pi_{\textsf{IN}}(w)$ & why \\
+          \midrule
+          \textsf{AM} & \cB\cB & no I, no N \\
+          \textsf{IN} & \cG\cG & the answer \\
+          \textsf{NO} & \cB\cY & N, wrong place \\
+          \textsf{OF} & \cB\cB & \\
+          \textsf{ON} & \cB\cG & N in place \\
+          \textsf{TO} & \cB\cB & \\
+          \bottomrule
+        \end{tabular}
+      \end{center}
+      Buckets: \cB\cB\ $\{\textsf{AM},\textsf{OF},\textsf{TO}\}$, and \cG\cG, \cB\cY, \cB\cG\ with one word each. So $p_\Pi=(\tfrac36,\tfrac16,\tfrac16,\tfrac16)$ on these four patterns, $0$ on the other five.
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \centering
+      \begin{tikzpicture}[x=0.48cm,y=0.7cm,font=\scriptsize]
+        \draw[->] (0,0) -- (0,3.6) node[above] {$|\text{bucket}|$};
+        \draw (0,0) -- (9.4,0);
+        \foreach \i/\h in {1/3,2/1,3/1,4/0,5/0,6/0,7/0,8/1,9/0}{
+          \fill[shade] (\i-0.35,0) rectangle (\i+0.35,\h);
+          \draw[accent] (\i-0.35,0) rectangle (\i+0.35,\h);
+        }
+        \foreach \i/\a/\b in {1/soft!60/soft!60,2/soft!60/amber,3/soft!60/leaf,4/amber/soft!60,5/amber/amber,6/amber/leaf,7/leaf/soft!60,8/leaf/leaf,9/leaf/amber}{
+          \fill[\a] (\i-0.3,-0.55) rectangle (\i-0.02,-0.25);
+          \fill[\b] (\i+0.02,-0.55) rectangle (\i+0.3,-0.25);
+        }
+        \foreach \h in {1,2,3}{\draw (-0.1,\h) -- (0.1,\h) node[left=3pt] {\h};}
+      \end{tikzpicture}
+      \par\smallskip
+      {\footnotesize The bar chart of the guess \textsf{IN}: all nine patterns, four of them possible. Bucket of $3$: $I=\log\frac63=1$ bit. Buckets of $1$: $I=\log6=2.585$ bits.}
+    \end{column}
+  \end{columns}
+  % patterns from wordle.py: IN -> AM:BB IN:GG NO:BY OF:BB ON:BG TO:BB
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{The Entropy of a Guess Is Its Expected Information}
+  \small
+  \begin{block}{Definition}
+    The \textbf{entropy of the guess} $g$ is the entropy of its pattern, $H(\Pi)=\sum_\pi p_\Pi(\pi)\log\frac1{p_\Pi(\pi)}=\E[I_\Pi(\Pi)]$, the expected number of halvings of the list.
+  \end{block}
+  \words{Average the information of each pattern you might get back: what the guess is worth before you make it.}
+  \begin{exampleblock}{Toy Wordle}
+    \begin{tabular}{@{}lll@{}}
+      \toprule
+      guess & bucket sizes & $H(\Pi)$ \\
+      \midrule
+      \textsf{NO} or \textsf{ON} & $1,1,1,1,1,1$ & $\log6=2.585$ bits, the maximum: each pattern names the answer \\
+      \textsf{OF} or \textsf{TO} & $2,2,1,1$ & $2\cdot\tfrac26\cdot1.585+2\cdot\tfrac16\cdot2.585=1.918$ bits \\
+      \textsf{IN} & $3,1,1,1$ & $\tfrac36\cdot1+3\cdot\tfrac16\cdot2.585=1.792$ bits \\
+      \textsf{AM} & $5,1$ & $\tfrac56\cdot0.263+\tfrac16\cdot2.585=0.650$ bits: wasted five times in six \\
+      \bottomrule
+    \end{tabular}
+  \end{exampleblock}
+  \begin{exampleblock}{Real Wordle, $N=2315$ (3Blue1Brown)}
+    \textsf{weary} $4.90$ bits; \textsf{slate} $5.87$; \textsf{soare} $5.89$, the best by this measure, leaving $2315/2^{5.89}\approx39$ candidates on average. The ceiling $\log243=7.92$ (one word per pattern) is unreachable since $2315>243$.
+  \end{exampleblock}
+  % IN 1.7925, NO/ON 2.585, OF/TO 1.9183, AM 0.6500; log2(6/5)=0.263; log2 243=7.925; 2315/2^5.89=39.0 (wordle.py, deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Back to the Openers: Two Guesses Almost Never Finish}
+  \small
+  Let $G\colon\Omega\to\{1,2,\dots\}$ be the number of guesses a strategy takes to hit the answer; the score of the strategy is $\E[G]$.
+  \begin{block}{Claim}
+    For every strategy, $\Prob(G\le2)\le\tfrac{243}{2315}=0.105$, and hence $\E[G]\ge3-2\Prob(G=1)-\Prob(G=2)\ge3-\tfrac{244}{2315}=2.89$.
+  \end{block}
+  \begin{block}{Proof}
+    $G=1$ for at most one answer, the first guess itself. $G=2$ requires the second guess to be the answer; the second guess is a function of the first pattern, which takes at most $242$ non-winning values, so at most $242$ answers have $G=2$. Then $\E[G]\ge1\cdot\Prob(G=1)+2\Prob(G=2)+3\Prob(G\ge3)$. \hfill$\square$
+  \end{block}
+  \words{A guess can only single out one answer per pattern it can receive, so two guesses cover at most $243$ of $2315$ answers.}
+  \begin{itemize}
+    \item In bits: $\log2315=11.18$; the best opening pair extracts $10.04$ bits on average (3Blue1Brown), leaving $1.14$ bits, i.e.\ $2^{1.14}\approx2.2$ candidates for guess three. The best strategy known averages $3.42$ guesses.
+    \item Toy Wordle: open \textsf{NO}, $\E[G]=\tfrac16\cdot1+\tfrac56\cdot2=1.83$; open \textsf{IN} then \textsf{OF} on \cB\cB, $\E[G]=\tfrac{1+2+2+2+3+3}6=2.17$. Here the entropy ranking and the score ranking agree.
+  \end{itemize}
+  % 243/2315=0.1050, 244/2315=0.1054, 3-244/2315=2.895; 11.177-10.04=1.137 bits, 2^1.137=2.20; NO: 11/6=1.833; IN then OF: 13/6=2.167 (verify.py, deck_numbers.py, more.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Back to the Openers: Entropy Is a Proxy for the Score}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      \begin{block}{Bits versus guesses}
+        $H(\Pi)$ is what the guess tells you; $\E[G]$ counts turns. They differ because
+        \begin{itemize}
+          \item a guess $g\in W$ can end the game now ($\Prob(G=\text{this turn})=\tfrac1N$); a guess $g\notin W$ cannot, however large $H(\Pi)$;
+          \item after the last turn, bits are worthless: only whether the list has size $1$ matters.
+        \end{itemize}
+        Maximising $H(\Pi)$ each turn is a proxy for minimising $\E[G]$.
+      \end{block}
+      \words{Entropy measures information gained per guess; the game counts guesses; the two agree closely, and not exactly.}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \renewcommand{\arraystretch}{1.2}
+      \begin{tabular}{@{}lcc@{}}
+        \toprule
+        opener & $H(\Pi)$ & $\E[G]$, best play \\
+        \midrule
+        \textsf{soare} & $5.89$ (max) & \\
+        \textsf{slate} & $5.87$ & \\
+        \textsf{salet} & $<5.89$ & $3.42$ (min) \\
+        \textsf{crane} & $<5.89$ & $3.43$ \\
+        \textsf{weary} & $4.90$ & \\
+        \bottomrule
+      \end{tabular}
+      \par\smallskip
+      {\footnotesize Scores by full game-tree search (3Blue1Brown, 2022): the best opener by score is not the best by entropy.}
+    \end{column}
+  \end{columns}
+  \begin{itemize}
+    \item Section 8 identifies $H(\Pi)$ as the mutual information $I(A;\Pi)$ between the answer and the pattern, which is what ``expected information of a guess'' means precisely.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: Wordle\quiz{Quiz 3 Part B, Section 7}}
+  \small
+  \begin{exercise}
+    \begin{enumerate}
+      \item On the toy list, write out the pattern table for the opener \textsf{OF} and compute its bucket sizes and $H(\Pi)$. Do the same for \textsf{AM}.
+      \item After \textsf{IN} returns \cB\cB, $W=\{\textsf{AM},\textsf{OF},\textsf{TO}\}$. Which second guesses from the list identify the answer for certain? Compute their entropies on the reduced list.
+      \item Show that $H(\Pi)\le\log N$ for every guess, with equality iff every bucket has size $1$; and that $H(\Pi)\le\log243$ in real Wordle. Which bound bites at the start, and which near the end?
+      \item A guess $g\in W$ has a bucket $\{g\}$ of size $1$ for the pattern \cG\cG\cG\cG\cG. Show that removing $g$ from $W$ and re-guessing changes $H(\Pi)$, and explain why a guess outside $W$ can have higher entropy than any guess inside $W$.
+      \item Explain, without computing, why the guess maximising $H(\Pi)$ need not minimise the expected number of guesses. What extra information about the buckets would you need to compute the expected number of guesses exactly?
+    \end{enumerate}
+  \end{exercise}
+  \words{The entropy of a guess is what it tells you, computable before you make it, not what it wins you.}
+  % (1) OF: (2,2,1,1) 1.918; AM: (5,1) 0.650. (2) OF and TO both split {AM,OF,TO} into singletons: log2 3 = 1.585 (wordle.py)
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{The Two-Dice Table, and Joint Entropy}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.58\textwidth}
+      Two fair dice, $\Prob(\{\omega\})=\tfrac1{36}$ on $\Omega=\{1,\dots,6\}^2$. $Y$ the first die (row), $Z$ the second (column), $X=Y+Z$ (the cell). The rows are the events $\{Y=y\}$.
+      \begin{block}{Definition}
+        The \textbf{joint entropy} of $X$ and $Y$ is the entropy of the pair, i.e.\ of $p_{X,Y}\colon S_X\times S_Y\to[0,1]$, $p_{X,Y}(x,y)=\Prob(X=x,Y=y)$:
+        \[
+          H(X,Y)=\sum_{x,y}p_{X,Y}(x,y)\log\frac1{p_{X,Y}(x,y)} .
+        \]
+      \end{block}
+      \words{The bits needed to report both values at once.}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \centering
+      \dtable[0.38]{4}{0}
+      \par
+      {\footnotesize Rows $y$, columns $z$, cell $x=y+z$. Row $4$ is the event $\{Y=4\}$.}
+    \end{column}
+  \end{columns}
+  \begin{exampleblock}{Two dice}
+    $p_{X,Y}(x,y)=\tfrac1{36}$ if $x-y\in\{1,\dots,6\}$, else $0$: one cell per pair that occurs. So $(X,Y)$ is uniform on $36$ pairs and $H(X,Y)=\log36=5.170$ bits: the sum and the first die together name the cell.
+  \end{exampleblock}
+  % log2 36 = 5.1699 (deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{$H(X\mid Y=y)$: The Entropy of a Row}
+  \small
+  \begin{block}{Definition}
+    For $y\in S_Y$, let $p_{X\mid Y}(\cdot\mid y)$ be the conditional pmf of $X$ given $Y=y$, the row's distribution: $p_{X\mid Y}(x\mid y)=p_{X,Y}(x,y)/p_Y(y)$. The \textbf{conditional entropy of $X$ given $Y=y$} is the function
+    \[
+      S_Y\to[0,\infty),\qquad y\mapsto H(X\mid Y=y)=\sum_xp_{X\mid Y}(x\mid y)\log\frac1{p_{X\mid Y}(x\mid y)} .
+    \]
+  \end{block}
+  \words{Restrict to row $y$ and take the entropy of what you see there: a number for each row.}
+  \begin{columns}[T]
+    \begin{column}{0.6\textwidth}
+      \begin{exampleblock}{Two dice, $X$ the sum}
+        Row $y$ contains the six distinct sums $y+1,\dots,y+6$, each with conditional probability $\tfrac16$. So $H(X\mid Y=y)=\log6=2.585$ bits for every $y$.
+      \end{exampleblock}
+      \begin{itemize}
+        \item The other way round: $\{X=x\}$ is an anti-diagonal of $n_x$ cells with $Y$ uniform on it, so $H(Y\mid X=x)=\log n_x$, which runs $0,1,1.585,2,2.322,2.585$ and back down as $x$ goes from $2$ to $12$.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \centering
+      \dtable[0.36]{0}{7}
+      \par\smallskip
+      {\footnotesize $\{X=7\}$: six cells, $H(Y\mid X=7)=\log6$.}
+    \end{column}
+  \end{columns}
+  % log2 n for n=1..6: 0,1,1.585,2,2.322,2.585 (deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{$H(X\mid Y)$: The Average Over the Rows}
+  \small
+  \begin{block}{Definition}
+    The \textbf{conditional entropy of $X$ given $Y$} is the row entropy averaged over the rows with their probabilities,
+    \[
+      H(X\mid Y)=\sum_{y\in S_Y}p_Y(y)\,H(X\mid Y=y)=\sum_{x,y}p_{X,Y}(x,y)\log\frac1{p_{X\mid Y}(x\mid y)}\qquad\text{a number.}
+    \]
+  \end{block}
+  \words{The uncertainty left in $X$ once $Y$ is known, averaged over what $Y$ turns out to be: total expectation applied to row entropies.}
+  \begin{itemize}
+    \item \textbf{What it is not.} Unlike $\E[X\mid Y]$, a random variable, $H(X\mid Y)$ is a \emph{number}: the row entropies have been averaged. The notation is parallel; the type is not.
+  \end{itemize}
+  \begin{exampleblock}{Two dice}
+    $H(X\mid Y)=\sum_y\tfrac16\log6=2.585$ bits: every row of sums is uniform on six values. \\
+    $H(Y\mid X)=\sum_{x}\frac{n_x}{36}\log n_x=2\big[\tfrac2{36}\cdot1+\tfrac3{36}\cdot1.585+\tfrac4{36}\cdot2+\tfrac5{36}\cdot2.322\big]+\tfrac6{36}\cdot2.585=1.896$ bits: the sum leaves less than a die's worth of doubt about the first die.
+  \end{exampleblock}
+  % H(Y|X) = sum (n/36) log2 n = 1.8955 (deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{The Chain Rule}
+  \small
+  \begin{block}{Theorem (chain rule)}
+    $H(X,Y)=H(Y)+H(X\mid Y)=H(X)+H(Y\mid X)$.
+  \end{block}
+  \begin{block}{Proof}
+    $p_{X,Y}(x,y)=p_Y(y)\,p_{X\mid Y}(x\mid y)$, so $\log\frac1{p_{X,Y}(x,y)}=\log\frac1{p_Y(y)}+\log\frac1{p_{X\mid Y}(x\mid y)}$. Multiply by $p_{X,Y}(x,y)$ and sum over $(x,y)$.
+    The first term: $\sum_y\log\frac1{p_Y(y)}\sum_xp_{X,Y}(x,y)=\sum_yp_Y(y)\log\frac1{p_Y(y)}=H(Y)$. The second term is $H(X\mid Y)$ by definition. Swap the roles of $X$ and $Y$ for the other form. \hfill$\square$
+  \end{block}
+  \words{To report the cell, report the row, then the position within the row: the bits add.}
+  \begin{exampleblock}{Two dice, both ways}
+    \[
+      \log36=5.170=\underbrace{2.585}_{H(Y)}+\underbrace{2.585}_{H(X\mid Y)}=\underbrace{3.274}_{H(X)}+\underbrace{1.896}_{H(Y\mid X)} .
+    \]
+  \end{exampleblock}
+  \begin{itemize}
+    \item Extremes: $X\indep Y$ gives $H(X\mid Y)=H(X)$ and $H(X,Y)=H(X)+H(Y)$ (Section 4); $X$ a function of $Y$ gives $H(X\mid Y)=0$ and $H(X,Y)=H(Y)$.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: Joint and Conditional Entropy\quiz{Quiz 3 Part B, Section 8}}
+  \small
+  \begin{exercise}
+    \begin{enumerate}
+      \item Two dice. Compute $H(Z\mid Y=y)$ for each row and hence $H(Z\mid Y)$. Check $H(Y,Z)=H(Y)+H(Z\mid Y)$. What does $H(Z\mid Y)=H(Z)$ say about the rows?
+      \item Two dice. Tabulate $x\mapsto H(Y\mid X=x)$ for $x=2,\dots,12$ and verify $H(Y\mid X)=1.896$ by averaging with $p_X$.
+      \item Let $M=\max(Y,Z)$. Compute $H(M\mid Y=y)$ for each $y$ (which cells of row $y$ have which maximum?) and hence $H(M\mid Y)$; then $H(M)$ from its pmf $(1,3,5,7,9,11)/36$; then $H(Y\mid M)$ by the chain rule.
+      \item Prove $H(g(X))\le H(X)$ for any function $g$, by writing the chain rule for the pair $(X,g(X))$ both ways and using $H(g(X)\mid X)=0$. When is it an equality?
+      \item A bit $X$ uniform on $\{0,1\}$ is sent down a wire that flips it with probability $\varepsilon$, independently, giving $Y$. Draw the $2\times2$ table of $p_{X,Y}$ (rows $\{X=0\},\{X=1\}$). Compute $H(Y\mid X=x)$, $H(Y\mid X)$, $H(X,Y)$ and $H(Y)$.
+    \end{enumerate}
+  \end{exercise}
+  \words{Conditional entropy is row-then-average on the table, and the chain rule is how the bits of a pair are split.}
+  % (3) row y: M=y on cells z<=y (y of them), M=z for z>y (one each). H(M|Y=y)=log... e.g. y=6: 0; computed in more3.py
+  % (5) H(Y|X=x)=h(eps); H(Y|X)=h(eps); H(X,Y)=1+h(eps); Y uniform so H(Y)=1
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Mutual Information ($I$)}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.64\textwidth}
+      \begin{block}{Definition}
+        The \textbf{mutual information} of $X$ and $Y$ is the uncertainty in $X$ removed by learning $Y$:
+        \[
+          I(X;Y)=H(X)-H(X\mid Y)\qquad\text{bits, a number.}
+        \]
+      \end{block}
+      \words{How many of $X$'s bits $Y$ carries: what you knew about the cell's number before seeing the row, minus what is left to learn once you have.}
+      \begin{exampleblock}{Two dice}
+        $I(X;Y)=H(X)-H(X\mid Y)=3.274-2.585=0.689$ bits: the first die tells you about two thirds of a bit about the sum.
+        The other way: $I(Y;X)=H(Y)-H(Y\mid X)=2.585-1.896=0.689$. The same number, and the next slide says why.
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.34\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=1.3,font=\tiny]
+        \begin{scope}
+          \clip (0,0) circle (1.1);
+          \fill[shade] (1.2,0) circle (1.1);
+        \end{scope}
+        \draw[accent,thick] (0,0) circle (1.1);
+        \draw[ink,thick,dashed] (1.2,0) circle (1.1);
+        \node at (-0.5,0) {$H(X\mid Y)$};
+        \node at (1.7,0) {$H(Y\mid X)$};
+        \node at (0.6,0) {$I(X;Y)$};
+        \node[accent,font=\scriptsize] at (-0.3,1.35) {$H(X)$};
+        \node[ink,font=\scriptsize] at (1.5,1.35) {$H(Y)$};
+      \end{tikzpicture}
+      \par\smallskip
+      {\footnotesize The whole picture is $H(X,Y)$. Left circle $H(X)$, right circle $H(Y)$, overlap $I(X;Y)$.}
+    \end{column}
+  \end{columns}
+  \begin{itemize}
+    \item Two dice in the picture: $H(X,Y)=5.170$, split as $2.585+0.689+1.896$.
+  \end{itemize}
+  % I = 3.2744-2.5850 = 0.6894 = 2.5850-1.8955 (deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Mutual Information: Properties}
+  \small
+  \begin{block}{Theorem}
+    \begin{enumerate}
+      \item $I(X;Y)=H(X)+H(Y)-H(X,Y)=I(Y;X)$.
+      \item $I(X;Y)=D\big(p_{X,Y}\,\|\,p_Xp_Y\big)=\sum_{x,y}p_{X,Y}(x,y)\log\dfrac{p_{X,Y}(x,y)}{p_X(x)\,p_Y(y)}\ \ge0$, with equality iff $X\indep Y$.
+      \item $H(X\mid Y)\le H(X)$, with equality iff $X\indep Y$; and $H(X,Y)\le H(X)+H(Y)$.
+      \item $I(X;X)=H(X)$, and $I(X;Y)\le\min\big(H(X),H(Y)\big)$.
+    \end{enumerate}
+  \end{block}
+  \begin{block}{Proof}
+    (1) Chain rule: $H(X\mid Y)=H(X,Y)-H(Y)$; substitute; the result is symmetric.
+    (2) $H(X)-H(X\mid Y)=\sum_{x,y}p_{X,Y}(x,y)\big[\log\frac1{p_X(x)}-\log\frac{p_Y(y)}{p_{X,Y}(x,y)}\big]$, the displayed sum, which is $D$ of the joint pmf from the product pmf; Gibbs gives $\ge0$, with equality iff $p_{X,Y}=p_Xp_Y$: independence.
+    (3) Rearrange (2) and (1). (4) $H(X\mid X)=0$; $H(X\mid Y)\ge0$ gives $I\le H(X)$, and symmetrically $I\le H(Y)$. \hfill$\square$
+  \end{block}
+  \words{Knowing $Y$ never increases the uncertainty about $X$ on average, though a single row can ($M=\max(Y,Z)$ of the last battery: $H(M)=2.320$ but $H(M\mid Y=1)=\log6=2.585$), and it leaves it unchanged only when every row looks like the whole table.}
+  % H(M)=2.3200 with pmf (1,3,5,7,9,11)/36; row Y=1 has M=Z uniform on 6 values: log2 6 = 2.585 (verify.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Example: The Binary Symmetric Channel}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.6\textwidth}
+      A bit $X$, uniform on $\{0,1\}$, is sent down a wire that flips it with probability $\varepsilon$, independently of $X$; $Y$ is what arrives. How many bits about $X$ does one received bit carry?
+      \begin{itemize}
+        \item Head-on: ``$1-\varepsilon$ of a bit'' is the natural guess. It is wrong.
+        \item Rows $\{X=0\}$ and $\{X=1\}$: each row's distribution for $Y$ is $(1-\varepsilon,\varepsilon)$ or $(\varepsilon,1-\varepsilon)$, entropy $h(\varepsilon)$. So $H(Y\mid X=x)=h(\varepsilon)$ for both rows and $H(Y\mid X)=h(\varepsilon)$.
+        \item $Y$ is uniform by symmetry: $H(Y)=1$.
+      \end{itemize}
+      \[
+        I(X;Y)=H(Y)-H(Y\mid X)=1-h(\varepsilon)\ \text{bits per received bit.}
+      \]
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \centering
+      \renewcommand{\arraystretch}{1.4}
+      \begin{tabular}{@{}c|cc@{}}
+        $p_{X,Y}$ & $Y=0$ & $Y=1$ \\ \hline
+        $X=0$ & $\tfrac{1-\varepsilon}2$ & $\tfrac{\varepsilon}2$ \\
+        $X=1$ & $\tfrac{\varepsilon}2$ & $\tfrac{1-\varepsilon}2$
+      \end{tabular}
+      \par\medskip
+      \begin{tabular}{@{}ccc@{}}
+        \toprule
+        $\varepsilon$ & $h(\varepsilon)$ & $I(X;Y)$ \\
+        \midrule
+        $0$ & $0$ & $1$ \\
+        $0.01$ & $0.081$ & $0.919$ \\
+        $0.1$ & $0.469$ & $0.531$ \\
+        $0.25$ & $0.811$ & $0.189$ \\
+        $0.5$ & $1$ & $0$ \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+  \end{columns}
+  \words{A wire that flips one bit in ten delivers about half a bit of information per bit sent, not nine tenths: the receiver does not know \emph{which} bits were flipped.}
+  \begin{itemize}
+    \item $1-h(\varepsilon)$ is the capacity of this channel (Shannon's channel coding theorem, not proved here): the rate at which reliable communication is possible over it.
+  \end{itemize}
+  % h(.01)=0.0808, h(.1)=0.4690, h(.25)=0.8113 (more.py, deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Back to Wordle: The Expected Information of a Guess Is $I(A;\Pi)$}
+  \small
+  Answer $A$ uniform on $W$, $|W|=N$; guess $g$; pattern $\Pi=\pi_g(A)$. Rows $\{A=w\}$, one per answer; the pattern is constant on each.
+  \begin{block}{Theorem}
+    $I(A;\Pi)=H(\Pi)$: the entropy of the guess (Section 7) is the mutual information between answer and pattern.
+  \end{block}
+  \begin{block}{Proof}
+    $\Pi$ is a function of $A$: row $\{A=w\}$ has the single pattern $\pi_g(w)$, so $H(\Pi\mid A=w)=0$ for every $w$, $H(\Pi\mid A)=0$, and $I(A;\Pi)=H(\Pi)-0$.
+    By symmetry also $I(A;\Pi)=H(A)-H(A\mid\Pi)=\log N-\sum_\pi p_\Pi(\pi)\log|\text{bucket of }\pi|$: the expected shrinkage of the list, in bits. \hfill$\square$
+  \end{block}
+  \words{The pattern has no randomness of its own, so what it tells you about the answer is all it has.}
+  \begin{exampleblock}{Toy Wordle, guess \textsf{IN}}
+    $H(A)=\log6=2.585$. With probability $\tfrac12$ the bucket has size $3$ (entropy $\log3=1.585$), else size $1$ (entropy $0$): $H(A\mid\Pi)=0.792$ and $I(A;\Pi)=2.585-0.792=1.792=H(\Pi)$, as in Section 7.
+  \end{exampleblock}
+  % H(A|Pi)=0.5*log2 3=0.7925; I=1.7925 (more.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: Mutual Information\quiz{Quiz 3 Part B, Section 8}}
+  \small
+  \begin{exercise}
+    \begin{enumerate}
+      \item Two dice. Compute $I(Y;Z)$, $I(X;Z)$ and $I\big(X;(Y,Z)\big)$, each in one line from quantities already known.
+      \item The wire with $\varepsilon=0.1$ is used twice on independent uniform bits. How many bits of information arrive in total? What if the same bit is sent twice (harder: find $H(X\mid Y_1,Y_2)$ by listing the four rows $\{(Y_1,Y_2)=(y_1,y_2)\}$)?
+      \item Show $I(X;Y)=H(Y)$ iff $Y$ is a function of $X$, and $I(X;Y)=H(X)=H(Y)$ iff each is a function of the other.
+      \item $X$ a fair die, $N$ an independent fair coin in $\{0,1\}$, $Y=X+N$. Compute $H(Y\mid X)$, $H(Y)$ and $I(X;Y)$. Why is $I(X;Y)<H(X)$ here although $Y$ is ``$X$ plus a little noise''?
+      \item In real Wordle, prove $I(A;\Pi)\le\log243$ for every guess, and $I(A;\Pi)\le\log N$. Which of the two bounds explains why no opener can reach $11.18$ bits?
+    \end{enumerate}
+  \end{exercise}
+  \words{Mutual information is the number of bits about one variable that actually arrive through another.}
+  % (1) 0; 0.689; H(X)=3.274. (2) 2*0.531 = 1.062. (4) H(Y|X)=1, pmf of Y (1,2,2,2,2,2,1)/12: H(Y)=2.752, I=1.752 (more.py)
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Motivation: Why Thirty Letters Break a Substitution Cipher}
+  \small
+  A \textbf{substitution cipher} replaces each letter by another under a fixed bijection $k$ of the alphabet: $26!\approx4\cdot10^{26}$ keys, $\log26!=88.4$ bits. Trying them all is hopeless. Yet a ciphertext of twenty-five to thirty letters usually has a unique sensible decryption, and a longer one falls to frequency counts in minutes.
+  \begin{block}{Questions we cannot yet answer}
+    \begin{enumerate}
+      \item How many bits does one letter of English carry? The head-on answer $\log27=4.75$ (26 letters and a space) is too big by a factor of four or five.
+      \item How does a model of text turn that number into a decryption, a compression ratio, or a language-model score?
+      \item Why thirty letters, and not three or three hundred?
+    \end{enumerate}
+  \end{block}
+  \words{The tools are a Markov model of letters, its entropy rate, and the cross-entropy of a model on real text.}
+  \begin{itemize}
+    \item Shannon, ``Prediction and Entropy of Printed English'' (1951), is the source of every English figure quoted below.
+  \end{itemize}
+  % log2 26! = 88.38 (more.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Three Models of Text}
+  \small
+  Text is a sequence of random variables $X_1,X_2,\dots\colon\Omega\to S$, $|S|=27$ (letters and space). A model specifies the joint pmf of every stretch $X_1\dots X_n$.
+  \begin{block}{Definition}
+    \begin{enumerate}
+      \item \textbf{Monographic (order 1).} A pmf $p\colon S\to[0,1]$ of single letters; the $X_i$ are i.i.d.\ with pmf $p$: $\Prob(X_1=x_1,\dots,X_n=x_n)=\prod_ip(x_i)$.
+      \item \textbf{Digraphic (order 2).} A pmf $p_2\colon S\times S\to[0,1]$ of adjacent pairs, $p_2(x,x')=\Prob(X_i=x,X_{i+1}=x')$, the same for every $i$; its marginal is $p$.
+      \item \textbf{Markov.} A \textbf{transition matrix} $Q\colon S\times S\to[0,1]$ with $\sum_{x'}Q(x,x')=1$ for every $x$, where $Q(x,x')=\Prob(X_{i+1}=x'\mid X_i=x)=p_2(x,x')/p(x)$ for $p(x)>0$ (any row for $p(x)=0$), and
+        \[
+          \Prob(X_1=x_1,\dots,X_n=x_n)=p(x_1)\,Q(x_1,x_2)\,Q(x_2,x_3)\cdots Q(x_{n-1},x_n).
+        \]
+    \end{enumerate}
+  \end{block}
+  \words{The first model knows E is common and Z rare; the second knows TH and HE are common and Q is followed by U; the third turns the pair table into a rule for writing text one letter at a time.}
+  \begin{itemize}
+    \item $Q$ is a table of the two-dice kind: row $x$ is the event $\{X_i=x\}$, and the numbers along row $x$ are the conditional pmf of the next letter. Conditioning on the previous letter is restricting to a row.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Entropy Rate of a Markov Model}
+  \small
+  \begin{block}{Definition}
+    A pmf $\pi$ on $S$ is \textbf{stationary} for $Q$ if $\sum_x\pi(x)Q(x,x')=\pi(x')$ for all $x'$: letter frequencies do not drift. For the Markov model started from $\pi$, the \textbf{entropy rate} is
+    \[
+      H(X_{i+1}\mid X_i)=\sum_{x\in S}\pi(x)\,H(X_{i+1}\mid X_i=x)=\sum_{x\in S}\pi(x)\,H\big(Q(x,\cdot)\big)\qquad\text{bits per letter},
+    \]
+    the entropy of row $x$ of $Q$, averaged over rows with the row probabilities $\pi(x)$.
+  \end{block}
+  \words{The bits needed for the next letter when the previous one is known: row-then-average, as for $H(X\mid Y)$, applied to the transition table.}
+  \begin{itemize}
+    \item \textbf{What it is not.} Not $H(\pi)$, the entropy of a letter seen alone; and not the entropy of any one row. It is the average row entropy, and it is $H(X_{i+1}\mid X_i)$ for every $i$ because $\pi$ is stationary.
+    \item $n$ letters have entropy $H(X_1,\dots,X_n)=H(\pi)+(n-1)H(X_{i+1}\mid X_i)$, by the chain rule for $n$ variables (exercise 4 below, by induction) and the Markov property $H(X_{k+1}\mid X_1,\dots,X_k)=H(X_{k+1}\mid X_k)$: each letter depends on the past only through the last letter (stated without proof). Per letter this tends to the entropy rate, the floor for compressing the model's text (Section 4 applied to blocks).
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Context Never Hurts: Entropy Rate at Most Monographic Entropy}
+  \small
+  \begin{block}{Theorem}
+    $H(X_{i+1}\mid X_i)\le H(\pi)$, with equality if and only if every row of $Q$ equals $\pi$, i.e.\ consecutive letters are independent.
+  \end{block}
+  \begin{block}{Proof}
+    ``Conditioning reduces entropy'' (Section 8, property 3) with $X=X_{i+1}$ and $Y=X_i$, both of which have pmf $\pi$ by stationarity: $H(X_{i+1}\mid X_i)\le H(X_{i+1})=H(\pi)$, with equality iff $X_{i+1}\indep X_i$, i.e.\ $Q(x,\cdot)=\pi$ for every $x$. \hfill$\square$
+  \end{block}
+  \words{A model that looks at the previous letter can only lower the bits per letter, and it lowers them exactly when the previous letter carries information about the next.}
+  \begin{itemize}
+    \item The saving $H(\pi)-H(X_{i+1}\mid X_i)=I(X_i;X_{i+1})$ is the mutual information between consecutive letters.
+    \item Same argument with longer contexts: $H(X_{i+1}\mid X_i,X_{i-1})\le H(X_{i+1}\mid X_i)$, and so on. Shannon's table on the slide after next is this chain of inequalities, measured on English.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Worked Example: Vowels and Consonants}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.6\textwidth}
+      $S=\{\mathrm V,\mathrm C\}$. After a vowel the next letter is a vowel with probability $0.2$; after a consonant, $0.5$.
+      \begin{block}{Stationary pmf}
+        Balance the flows $\mathrm V\to\mathrm C$ and $\mathrm C\to\mathrm V$: $\pi(\mathrm V)\cdot0.8=\pi(\mathrm C)\cdot0.5$, $\pi(\mathrm V)+\pi(\mathrm C)=1$:
+        \[
+          \pi=\big(\tfrac5{13},\tfrac8{13}\big)=(0.385,\,0.615).
+        \]
+      \end{block}
+      \begin{block}{Entropy rate versus monographic entropy}
+        \vspace{-2pt}
+        \begin{align*}
+          H(X_{i+1}\mid X_i)&=\tfrac5{13}\,h(0.2)+\tfrac8{13}\,h(0.5)=\tfrac5{13}(0.722)+\tfrac8{13}(1)\\
+          &=0.893\ \text{bits},\qquad H(\pi)=h\big(\tfrac5{13}\big)=0.961\ \text{bits}.
+        \end{align*}
+        \vspace{-8pt}
+      \end{block}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \centering
+      \renewcommand{\arraystretch}{1.4}
+      \begin{tabular}{@{}c|cc@{}}
+        $Q$ & $\mathrm V$ & $\mathrm C$ \\ \hline
+        $\mathrm V$ & $0.2$ & $0.8$ \\
+        $\mathrm C$ & $0.5$ & $0.5$
+      \end{tabular}
+      \par\medskip
+      \begin{tikzpicture}[->,>=Stealth,font=\scriptsize,node distance=2cm,state/.style={circle,draw=accent,thick,minimum size=6mm}]
+        \node[state] (V) {V};
+        \node[state,right of=V] (C) {C};
+        \path (V) edge[bend left=25] node[above] {$0.8$} (C)
+              (C) edge[bend left=25] node[below] {$0.5$} (V)
+              (V) edge[loop left] node {$0.2$} (V)
+              (C) edge[loop right] node {$0.5$} (C);
+      \end{tikzpicture}
+      \par
+      {\footnotesize Row entropies: $h(0.2)=0.722$ and $h(0.5)=1$.}
+    \end{column}
+  \end{columns}
+  \words{Knowing the previous letter saves $0.07$ bits per letter here; in English the saving from context is several bits.}
+  \begin{itemize}
+    \item Digraph check: Markov $\Prob(\mathrm{VV})=\pi(\mathrm V)Q(\mathrm V,\mathrm V)=\tfrac1{13}=0.077$; monographic $\pi(\mathrm V)^2=0.148$, twice too often.
+  \end{itemize}
+  % pi=(5/13,8/13); rate 0.8930; h(5/13)=0.9612; P(VV)=1/13 vs 25/169 (deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: Markov Models and Entropy Rate\quiz{Quiz 3 Part B, Section 9}}
+  \small
+  \begin{exercise}
+    \begin{enumerate}
+      \item Suppose every row of $Q$ is the same pmf $\pi$. Show that $\pi$ is stationary, that the entropy rate equals $H(\pi)$, and that consecutive letters are independent. Which of the three models of text is this?
+      \item In the Markov model, write $\Prob(X_i=\mathrm Q,X_{i+1}=\mathrm U)$ in terms of $p$ and $Q$; do the same in the monographic model. Which is larger for English, and by roughly what factor if $Q(\mathrm Q,\mathrm U)\approx1$ and $p(\mathrm U)\approx0.03$?
+      \item Change the vowel/consonant rule so that after a consonant the next letter is a vowel with probability $0.9$. Recompute $\pi$ and the entropy rate. Is this text more or less predictable than before, and than its own monographic model?
+      \item Prove the chain rule for $n$ variables, $H(X_1,\dots,X_n)=\sum_{k=1}^nH(X_k\mid X_1,\dots,X_{k-1})$, by induction from the two-variable rule (treat $(X_1,\dots,X_{k-1})$ as one random variable). With the Markov property, deduce $H(X_1,\dots,X_n)=H(\pi)+(n-1)H(X_{i+1}\mid X_i)$, and check it for three letters of the vowel/consonant model by listing the eight probabilities.
+    \end{enumerate}
+  \end{exercise}
+  \words{The entropy rate is row-then-average on the transition table, and it is the floor for compressing text from the model.}
+  % (3) pi=(9/17,8/17), rate 0.603, h(9/17)=0.998. (4) 0.961+2*0.893=2.747; brute force over 8 triples: 2.747 (verify.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Shannon's Estimates for English}
+  \small
+  \begin{block}{Bits per letter, $27$ symbols (Shannon 1951)}
+    \centering
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabular}{@{}lccccc@{}}
+      \toprule
+      model & uniform & monographic & digraphic & trigraphic & long context \\
+      bits per letter & $4.75$ & $4.03$ & $3.32$ & $3.1$ & about $1$ \\
+      \bottomrule
+    \end{tabular}
+  \end{block}
+  \words{Each better model of the past lowers the bits needed for the next letter; with a hundred letters of context a human needs about one bit.}
+  \begin{block}{The guessing game (the ``long context'' entry)}
+    Predictor: a person who sees the preceding $100$ letters and guesses the next until right. Encoding: $x_1\dots x_n\mapsto(g_1,\dots,g_n)$, $g_i=$ number of guesses at position $i$.
+    A decoder with the same predictor recovers the text, so
+    \[
+      H(\text{English})\ \le\ H(\text{guess counts})\ \in\ [0.6,\,1.3]\ \text{bits per letter (Shannon's bounds).}
+    \]
+  \end{block}
+  \begin{itemize}
+    \item ``Prediction is compression'' (Section 6) with a human predictor, twenty-five years before arithmetic coding.
+    \item Redundancy $1-H/\log27$: $79\%$ at $H=1$, $73\%$ at $H=1.3$; Shannon's stated figure is ``roughly $75\%$''.
+  \end{itemize}
+  % log2 27 = 4.755; 1-1/4.755=0.790; 1-1.3/4.755=0.727 (verify.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Evaluating a Model: Cross-Entropy on Real Text, and Perplexity}
+  \small
+  \begin{block}{Definition}
+    A model $q$ gives a pmf $q(\cdot\mid\text{context}_i)$ for the letter at each position $i$. Its \textbf{cross-entropy on the text} $x_1\dots x_n$ is
+    \[
+      \frac1n\sum_{i=1}^n\log\frac1{q(x_i\mid\text{context}_i)}\quad\text{bits per letter},
+    \]
+    and its \textbf{perplexity} is $\mathrm{PP}=2^{\text{cross-entropy}}\in[1,\infty)$.
+  \end{block}
+  \words{The bits per letter the model would need to compress this text; perplexity is the same number as an effective count of equally likely letters.}
+  \begin{itemize}
+    \item On long text from a stationary source $P$ the average tends to the \emph{cross-entropy rate} $\lim_{n}H(P_n,q_n)/n$ ($P_n,q_n$: pmfs of $n$-letter blocks), at least the entropy rate of $P$ by Gibbs.
+    \item A model giving probability $0$ to a letter that occurs has infinite cross-entropy; practical models never assign exactly $0$.
+  \end{itemize}
+  \begin{exampleblock}{Perplexities of Shannon's models}
+    Uniform: $4.75$ bits, $\mathrm{PP}=27$. Monographic: $4.03$, $\mathrm{PP}=16$. Digraphic: $3.32$, $\mathrm{PP}=10$, as if choosing among ten equally likely letters. Trigraphic: $3.1$, $\mathrm{PP}=8.6$. A model at $1$ bit: $\mathrm{PP}=2$.
+  \end{exampleblock}
+  % 2^4.75=26.9, 2^4.03=16.3, 2^3.32=9.99, 2^3.1=8.57 (deck_numbers.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Back to the Cipher: Frequency Analysis}
+  \small
+  \begin{block}{Theorem (statistics survive a substitution)}
+    Key $k\colon S\to S$ a bijection; ciphertext $k(X_1),k(X_2),\dots$ Its monographic and digraphic pmfs are those of the plaintext with the letters relabelled:
+    \[
+      p_{\text{cipher}}(k(x))=p(x),\qquad p_{2,\text{cipher}}\big(k(x),k(x')\big)=p_2(x,x')\qquad\text{for all }x,x'\in S .
+    \]
+  \end{block}
+  \begin{block}{Proof}
+    $\Prob(k(X_i)=k(x))=\Prob(X_i=x)$ since $k$ is injective; likewise for pairs. \hfill$\square$
+  \end{block}
+  \words{The cipher hides which letter is which; it cannot hide how often each occurs or which follows which.}
+  \begin{itemize}
+    \item The most frequent ciphertext letter is $k(\mathrm E)$; the ciphertext letter that is always followed by the same letter is $k(\mathrm Q)$, and what follows it is $k(\mathrm U)$; the frequent pairs are $k(\mathrm T)k(\mathrm H)$, $k(\mathrm H)k(\mathrm E)$, $k(\mathrm I)k(\mathrm N)$, $k(\mathrm E)k(\mathrm R)$.
+    \item Entropies survive too: $H(p_{\text{cipher}})=H(p)$, and the entropy rate of the ciphertext is that of English. A substitution hides nothing about the redundancy; the next slide turns that into a length.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Back to the Cipher: Unicity Distance}
+  \small
+  \begin{block}{Unicity distance (Shannon)}
+    Redundancy per letter $R=\log26-H$; key entropy $H(K)$; the key is determined after about $U=H(K)/R$ letters.
+    \begin{center}
+      \renewcommand{\arraystretch}{1.15}
+      \begin{tabular}{@{}lcccc@{}}
+        \toprule
+        cipher & keys & $H(K)$ bits & $U$ at $H=1.5$ ($R=3.2$) & $U$ at $H=1$ ($R=3.7$) \\
+        \midrule
+        substitution & $26!$ & $88.4$ & $28$ letters & $24$ letters \\
+        Caesar shift & $26$ & $4.7$ & $1.5$ & $1.3$ \\
+        Vigen\`ere, key length $5$ & $26^5$ & $23.5$ & $7.3$ & $6.4$ \\
+        \bottomrule
+      \end{tabular}
+    \end{center}
+  \end{block}
+  \words{Each ciphertext letter leaks $R$ bits about the key, so after $H(K)/R$ letters there is no key entropy left.}
+  \begin{itemize}
+    \item $H=1.5$ is Shannon's working value from short-context estimates on $26$ letters; $H=1$ is the long-context figure of two slides back. The unicity distance is a rough figure either way.
+    \item Below $U$ several keys give plausible English; above it the decryption is unique. Question 3 is answered by two entropies, the key's and the language's.
+  \end{itemize}
+  % log2 26 = 4.7004; log2 26! = 88.38; H=1.5: R=3.200, U=27.6, caesar 1.47, vigenere 7.34; H=1: R=3.700, U=23.9, caesar 1.27, vigenere 6.35 (verify.py)
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Exercises: Evaluating Models, Redundancy, Ciphers\quiz{Quiz 3 Part B, Section 9}}
+  \small
+  \begin{exercise}
+    \begin{enumerate}
+      \item A language model reports perplexity $20$ per word. How many bits per word is that? If a text has $10^4$ words, how large is the compressed file in bytes?
+      \item An attacker who uses only letter frequencies is, in effect, modelling English monographically, at $4.03$ bits per letter on $27$ symbols. Compute the redundancy $\log27-4.03$ and the resulting unicity distance for the $88.4$-bit substitution key. Why do frequency counts need over a hundred letters when the unicity distance is under thirty?
+      \item Show that for any model $q$ and any stationary source $P$, the cross-entropy rate is at least the entropy rate of $P$, and say exactly which inequality is used and where.
+      \item Estimate the unicity distance of a substitution cipher on a language whose letters are independent and uniform. What does this say about the security of encrypting compressed text?
+    \end{enumerate}
+  \end{exercise}
+  \words{Cross-entropy on real text scores a model in bits, and the redundancy of a language is what a cipher leaks per letter.}
+  % (1) log2 20 = 4.32 bits; 4.32e4 bits = 5.4 kB. (2) R = 4.755-4.03 = 0.725; U = 88.38/0.725 = 122. (4) redundancy 0: infinite. (verify.py)
+\end{frame}
+
+% ===========================================================================
+\begin{frame}{Answers to the In-Slide Exercises (1)}
+  \footnotesize
+  \begin{itemize}
+    \item \textbf{Codes.} (1) $110\,|\,0\,|\,111\,|\,0\,|\,10$: \lft, \up, \rgt, \up, \down. \ $111\,0\,0\,10$: $7$ bits.
+      (2) $(1,2,2,3)$: $\tfrac98>1$, impossible. $(1,2,3,4)$: $0,10,110,1110$, $L=1.875$. $(2,2,2,2)$: $L=2$. $(1,3,3,3)$: $0,100,101,110$, $L=2$.
+      (3) $0,10,11$: $L=1.5$. (4) Not prefix-free ($0$ begins $01$), but decodable: a new codeword starts at every $0$. $\sum2^{-\ell}=\tfrac{15}{16}$; $0,10,110,1110$.
+      (5) $6\cdot\tfrac14>1$. $00,01,100,101,110,111$: $L=\tfrac{16}6=2.667$. Not $2.5$: $H=\log6=2.585$ is a lower bound (Section 4).
+    \item \textbf{Information.} (1) $4$ bits; $19.3$ bits; $2^{-10}\approx0.001$. (2) $1$; $\log3=1.585$; $\log6=2.585$ bits.
+      (3) $2.585$, $2.585$, $\log36=5.170$: the events $\{Y=1\},\{X=7\}$ are independent, so the informations add. $I(\{X=2\})=5.170=I(\{Y=1\}\cap\{X=2\})$: $\{X=2\}\subseteq\{Y=1\}$, no independence, no additivity.
+      (4) $f(1)=f(1)+f(1)$; $f(\tfrac18)=3f(\tfrac12)$; $2f(1/\sqrt2)=f(\tfrac12)$. (5) Exactly when $p_X(x)=2^{-\ell(x)}$ for all $x$: if every bit is a fair flip, a codeword of length $\ell$ is emitted with probability $2^{-\ell}$.
+    \item \textbf{Entropy.} (1) Four bars of width $\tfrac14$, height $2$: $H=2$. Widths $\tfrac12,\tfrac14,\tfrac14$, heights $1,2,2$: $H=1.5$. (2) $H(W)=1$; $V$ has pmf $(\tfrac16,\tfrac16,\tfrac46)$, $H(V)=1.252$.
+      (3) Sum $3.274$, maximum (pmf $(1,3,5,7,9,11)/36$) $2.320$ bits; the maximum is cheaper. (4) $p\log\tfrac1p\ge0$, $=0$ iff $p\in\{0,1\}$; all terms vanish iff one $p_x=1$.
+      (5) Pairs $(0.81,0.09,0.09,0.01)$ with code $0,10,110,111$: $1.29$ bits per pair, $0.645$ per symbol.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Answers to the In-Slide Exercises (2)}
+  \footnotesize
+  \begin{itemize}
+    \item \textbf{Source coding.} (1) No: $2.5<2.585=H$. (2) $a=(2^{-\ell_1},\dots)$, Kraft, then Gibbs with $p=(\tfrac12,\tfrac14,\tfrac18,\tfrac18)$: $L\ge1.75$.
+      (3) $L^*=1$ is consistent with $L^*<1.469$. Pair lengths $\lceil\log\tfrac1{0.81}\rceil,\dots=1,4,4,7$: $1.60$ bits per pair, $0.80$ per symbol. (4) $0.469+\tfrac1k<0.6$ needs $k\ge8$; the lower bound $H$ holds for every $k$.
+      (5) Then $\ell(x)=\log\tfrac1{p_X(x)}$ exactly, $\sum2^{-\ell}=1$ and $L=H$; each internal node halves the probability beneath it.
+    \item \textbf{Cross-entropy.} (1) $\tfrac14(1+2+3+3)=2.25$; $\tfrac14\cdot1+\tfrac12\cdot2+\tfrac18\cdot3+\tfrac18\cdot3=2.0$. (2) Every length is $\log n$. Conversely, if $\sum_xP(x)\ell(x)$ is constant in $P$, then $P$ concentrated on $x$, then on $x'$, gives $\ell(x)=\ell(x')$; equal lengths with Kraft sum $1$ force $\ell=\log n$. (3) $H(P,Q)=1.2075$ (fair coin, $\tfrac14/\tfrac34$ code); $H(Q,P)=1$ ($\tfrac14/\tfrac34$ coin, fair code).
+      (4) $a=Q$, $\sum Q=1$. (5) Cost $p\log\tfrac1q+(1-p)\log\tfrac1{1-q}=H\big((p,1-p),(q,1-q)\big)$, minimised at $q=p$ by Gibbs, value $h(p)$.
+    \item \textbf{Relative entropy.} (1) $D(P\|Q)=1-0.469=0.531$; $D(Q\|P)=1.737-1=0.737$. (2) $0.2075$ and $0.1887$: the fair coin sends its $2$-bit codeword half the time instead of a quarter.
+      (3) $\sum P\log(nP)=\log n-H(P)\ge0$; maximum $\log n$, at the uniform pmf only. (4) Uniform code: cost $2$ under either truth, waste $0.25$ and $0.25$; the old code wastes $0$ and $0.875$.
+      (5) Relabelling permutes the terms of the sum. $P=(1-10^{-12},10^{-12})$, $Q=(0.95,0.05)$: $D(P\|Q)=0.074$, $D(Q\|P)=1.71$.
+    \item \textbf{Log loss.} (1) $1$, $0.469$, $0.677$ bits; $0.9$ is honest; at $0.99$ the $10\%$ tail costs $\log100=6.64$ bits each time.
+      (2) Cost $0.3\log\tfrac1q+0.7\log\tfrac1{1-q}$, minimised at $q=0.3$ (Gibbs), value $h(0.3)=0.881$; hedging with $0.5$ costs $1$.
+      (3) Labels with $H(p)=0.5$ bits of noise and a perfect model; or noiseless labels and $D=0.5$ still to remove; the curve alone cannot tell.
+      (4) $q_y=1+\lambda/(2p_y)$, $\lambda=-4/\sum1/p_y=-0.387$: $q=(0.613,0.355,0.032)$; penalty $0.387$ there, $0.400$ at $q=p$.
+      (5) With $q_2=1-q_1$, $p(1-q)^2+(1-p)q^2$ has derivative $-2p(1-q)+2(1-p)q$, zero at $q=p$.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Answers to the In-Slide Exercises (3)}
+  \footnotesize
+  \begin{itemize}
+    \item \textbf{Wordle.} (1) \textsf{OF}: buckets \cB\cB$\{$AM,IN$\}$, \cY\cB$\{$NO,TO$\}$, \cG\cG$\{$OF$\}$, \cG\cB$\{$ON$\}$: $1.918$ bits. \textsf{AM}: $(5,1)$, $0.650$.
+      (2) \textsf{OF} and \textsf{TO} (also \textsf{NO}, \textsf{ON}, from outside the reduced set $\{$AM,OF,TO$\}$) give three distinct patterns: $\log3=1.585$ bits; \textsf{AM} gives $(2,1)$, $0.918$.
+      (3) $\Pi$ has at most $N$ non-empty buckets and at most $243$ values; $H\le\log(\text{number of values})$, equality iff uniform. $\log243=7.92$ bites at the start, $\log N$ once $N<243$.
+      (4) Removing $g$ removes a bucket of size $1$ and changes $N$; a guess outside $W$ is not obliged to spend a pattern on itself and can split $W$ more evenly.
+      (5) The score depends on whether the guess can win now and on how each bucket resolves later, not only on bucket sizes; you need the game tree below each bucket.
+    \item \textbf{Joint and conditional entropy.} (1) Each row: $Z$ uniform, $\log6$; $H(Z\mid Y)=\log6=H(Z)$: every row has the table's distribution, $Z\indep Y$. (2) $\log n_x$: $0,1,1.585,2,2.322,2.585,2.322,2,1.585,1,0$; weighted by $n_x/36$: $1.896$.
+      (3) Row $y$: $M=y$ on $y$ cells, $M=z$ on one cell each for $z>y$. $H(M\mid Y=y)=2.585,2.252,1.792,1.252,0.650,0$; $H(M\mid Y)=1.422$; $H(M)=2.320$; $H(Y\mid M)=2.585+1.422-2.320=1.687$.
+      (4) $H(X,g(X))=H(X)+H(g(X)\mid X)=H(X)$ and $=H(g(X))+H(X\mid g(X))\ge H(g(X))$; equality iff $H(X\mid g(X))=0$, i.e.\ $g$ injective on $S_X$.
+      (5) Cells $\tfrac{1-\varepsilon}2$ on the diagonal, $\tfrac\varepsilon2$ off it. $H(Y\mid X=x)=h(\varepsilon)$, $H(Y\mid X)=h(\varepsilon)$, $H(X,Y)=1+h(\varepsilon)$, $H(Y)=1$.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Answers to the In-Slide Exercises (4)}
+  \footnotesize
+  \begin{itemize}
+    \item \textbf{Mutual information.} (1) $I(Y;Z)=0$ (independent); $I(X;Z)=0.689$ by symmetry; $I(X;(Y,Z))=H(X)-0=3.274$.
+      (2) Independent bits: $2\cdot0.531=1.062$ bits. Same bit twice: rows $(0,0),(1,1)$ have probability $0.41$ each and $H(X\mid\cdot)=h(0.81/0.82)=0.094$; rows $(0,1),(1,0)$ have $0.09$ each and entropy $1$. $H(X\mid Y_1,Y_2)=0.258$, $I=0.742$: less than two independent uses, more than one.
+      (3) $I=H(Y)$ iff $H(Y\mid X)=0$ iff every row $\{X=x\}$ has one value of $Y$. Both iff each is a function of the other.
+      (4) $H(Y\mid X)=1$; $Y$ has pmf $(1,2,2,2,2,2,1)/12$, $H(Y)=2.752$; $I=1.752<2.585$. Given $Y=4$, say, $X$ is $3$ or $4$: the noise hides one bit's worth of $X$ almost everywhere.
+      (5) $I(A;\Pi)=H(\Pi)\le\log243$ since $\Pi$ has $243$ values; $I\le H(A)=\log N$. The first: $7.92<11.18$.
+    \item \textbf{Markov models and entropy rate.} (1) $\sum_x\pi(x)Q(x,x')=\pi(x')\sum_x\pi(x)=\pi(x')$; every row entropy is $H(\pi)$, so the average is $H(\pi)$; $\Prob(X_{i+1}=x'\mid X_i=x)=\pi(x')$ does not depend on $x$: the monographic model.
+      (2) Markov: $p(\mathrm Q)\,Q(\mathrm Q,\mathrm U)\approx p(\mathrm Q)$; monographic: $p(\mathrm Q)p(\mathrm U)\approx0.03\,p(\mathrm Q)$, about $33$ times smaller.
+      (3) $\pi(\mathrm V)\cdot0.8=\pi(\mathrm C)\cdot0.9$: $\pi=(\tfrac9{17},\tfrac8{17})$; rate $\tfrac9{17}h(0.2)+\tfrac8{17}h(0.9)=0.603$ bits, against $0.893$ before and $h(\tfrac9{17})=0.998$ for its own monographic model: much more predictable, since letters now nearly alternate.
+      (4) $H(X_1,\dots,X_k)=H(X_1,\dots,X_{k-1})+H(X_k\mid X_1,\dots,X_{k-1})$ is the two-variable rule for the pair $\big((X_1,\dots,X_{k-1}),X_k\big)$; sum over $k$. Markov replaces each term by $H(X_k\mid X_{k-1})=$ the rate, for $k\ge2$. Vowel/consonant, $n=3$: $0.961+2\cdot0.893=2.747$, and the eight triple probabilities $\pi(a)Q(a,b)Q(b,c)$ give $2.747$ directly.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Answers to the In-Slide Exercises (5)}
+  \footnotesize
+  \begin{itemize}
+    \item \textbf{Evaluating models, redundancy, ciphers.} (1) $\log20=4.32$ bits per word; $4.32\cdot10^4$ bits $\approx5.4$ kB.
+      (2) $R=4.755-4.03=0.725$ bits per letter; $U=88.4/0.725\approx122$ letters. Frequency counts use only the monographic redundancy, $0.7$ of the $3.7$ bits per letter that English actually leaks; the rest is in digraphs, words and grammar, which a human decrypter uses and a letter count does not.
+      (3) On a block of $n$ letters, $H(P_n,q_n)\ge H(P_n)$ by Gibbs ($a=q_n$, a pmf, so $\sum a=1$); divide by $n$ and let $n\to\infty$; the right side tends to the entropy rate.
+      (4) Redundancy $\log26-\log26=0$: unicity distance infinite, the ciphertext never determines the key. Compressed text has almost no redundancy, so encrypting it is far harder to break by statistics; compress first, then encrypt.
+  \end{itemize}
+\end{frame}

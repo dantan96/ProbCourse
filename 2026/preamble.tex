@@ -1,0 +1,40 @@
+% Shared preamble for all decks. Each deck: \documentclass{beamer}\input{preamble} ...
+\usetheme{default}
+\usecolortheme{seagull}
+\usefonttheme{professionalfonts}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+
+\definecolor{ink}{RGB}{30,40,70}
+\definecolor{accent}{RGB}{0,90,160}
+\definecolor{shade}{RGB}{200,220,245}
+\definecolor{soft}{RGB}{110,110,110}
+\definecolor{amber}{RGB}{190,120,0}
+\definecolor{leaf}{RGB}{40,120,70}
+
+\setbeamercolor{structure}{fg=accent}
+\setbeamercolor{normal text}{fg=ink}
+\setbeamercolor{frametitle}{fg=accent}
+\setbeamerfont{frametitle}{series=\bfseries,size=\large}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \hfill\textcolor{soft}{\scriptsize \insertshorttitle\ \insertframenumber/\inserttotalframenumber}\hspace{2em}\vspace{1ex}}
+\setbeamertemplate{blocks}[rounded][shadow=false]
+\setbeamercolor{block title}{bg=accent!12,fg=accent}
+\setbeamercolor{block body}{bg=accent!4}
+\setbeamercolor{block title example}{bg=leaf!14,fg=leaf!80!black}
+\setbeamercolor{block body example}{bg=leaf!5}
+\setbeamertemplate{itemize items}[circle]
+
+% Exercise block (amber). Usage: \begin{exercise} ... \end{exercise}
+\newenvironment{exercise}{%
+  \setbeamercolor{block title}{bg=amber!18,fg=amber!80!black}%
+  \setbeamercolor{block body}{bg=amber!6}%
+  \begin{block}{Exercise}}{\end{block}}
+
+\input{refresher-macros}

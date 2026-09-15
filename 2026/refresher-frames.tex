@@ -1,0 +1,257 @@
+% ---------------------------------------------------------------------------
+% Refresher frames. Requires amsmath, amssymb, booktabs, array, tikz and
+% refresher-macros.tex.
+% ---------------------------------------------------------------------------
+
+\begin{frame}{Refresher}
+  \footnotesize
+  Throughout, $(\Omega,\F,\Prob)$ is a probability space: outcomes $\omega\in\Omega$, events $A\in\F$, probabilities $\Prob(A)$.
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{@{}r@{\ \ }>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{10.1cm}@{}}
+    1. & \textbf{Random variable} & $X\colon\Omega\to\R$ with $\ev{X(\omega)\le x}\in\F$ for every $x$. \words{A number determined by the outcome.} \\
+    2. & \textbf{Indicator} & $\ind_A\colon\Omega\to\{0,1\}$, equal to $1$ on $A$ and $0$ off $A$. \words{Records whether $A$ occurred.} \\
+    3. & \textbf{Distribution function} & $F_X(x)=\Prob(X\le x)$. \words{Probability accumulated up to $x$.} \\
+    4. & \textbf{Probability mass function} & $p_X(x)=\Prob(X=x)$. \words{Probability of each value.} \\
+    5. & \textbf{Probability density function} & $f_X\colon\R\to[0,\infty)$ with $\Prob(a\le X\le b)=\int_a^b f_X(x)\dd x$. \words{Probability is area under $f_X$.} \\
+    6. & \textbf{Joint density} & $f_{X,Y}\colon\R^2\to[0,\infty)$ with $\Prob(a\le X\le b,\ c\le Y\le d)=\int_a^b\!\int_c^d f_{X,Y}\dd y\dd x$. \words{Probability is volume under $f_{X,Y}$.} \\
+    7. & \textbf{Expected value} & $\E[X]=\sum_x x\,p_X(x)$ or $\int_\R x\,f_X(x)\dd x$. \words{Average of the values, weighted by probability.} \\
+    8. & \textbf{Conditional probability} & $\Prob(A\mid B)=\Prob(A\cap B)/\Prob(B)$. \words{Probability of $A$ when $B$ is known to occur.} \\
+    9. & \textbf{Conditional density} & $f_{X\mid Y}(x\mid y)=f_{X,Y}(x,y)/f_Y(y)$. \words{Density of $X$ when $Y=y$ is known.} \\
+  \end{tabular}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Random Variables}
+  \small
+  \begin{block}{Definition}
+    A \textbf{random variable} is a function $X\colon\Omega\to\R$ such that $\ev{X(\omega)\le x}\in\F$ for every $x\in\R$.
+  \end{block}
+  \words{$X$ is a number determined by the outcome $\omega$. The condition says that ``$X\le x$'' is an event, so it has a probability.}
+  \begin{block}{Notation}
+    For a statement about $X$, we write the event and its probability without $\omega$:
+    \[
+      \{X\in A\}:=\ev{X(\omega)\in A},\qquad
+      \Prob(X\in A):=\Prob\big(\ev{X(\omega)\in A}\big),
+    \]
+    and likewise $\Prob(X=x)$, $\Prob(a\le X\le b)$, $\Prob(X\le x)$.
+  \end{block}
+  \begin{block}{Example}
+    Two dice: $\Omega=\{1,\dots,6\}^2$, each outcome having probability $\tfrac1{36}$, and $X(\omega)=\omega_1+\omega_2$.
+    Then $\{X=7\}=\{(1,6),(2,5),(3,4),(4,3),(5,2),(6,1)\}$, so $\Prob(X=7)=\tfrac{6}{36}$.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Indicator Functions}
+  \begin{block}{Definition}
+    For an event $A\in\F$, the \textbf{indicator} of $A$ is the random variable $\ind_A\colon\Omega\to\{0,1\}$,
+    \[
+      \ind_A(\omega)=\begin{cases}1 & \omega\in A,\\ 0 & \omega\notin A.\end{cases}
+    \]
+  \end{block}
+  \words{$\ind_A$ turns the event $A$ into a number: it is $1$ exactly when $A$ occurs. Its only values are $0$ and $1$, with $\Prob(\ind_A=1)=\Prob(A)$.}
+  \begin{itemize}
+    \item $\ind_{A\cap B}=\ind_A\,\ind_B$, \qquad $\ind_{A^c}=1-\ind_A$, \qquad $\ind_{A\cup B}=\ind_A+\ind_B-\ind_A\ind_B$.
+    \item If $X$ is the number of the events $A_1,\dots,A_n$ that occur, then $X=\ind_{A_1}+\dots+\ind_{A_n}$.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Distribution Function (cdf)}
+  \begin{block}{Definition}
+    The \textbf{cumulative distribution function} of $X$ is $F_X\colon\R\to[0,1]$,
+    \[
+      F_X(x)=\Prob(X\le x).
+    \]
+  \end{block}
+  \words{$F_X(x)$ is the probability that $X$ lands at or below $x$. It exists for every random variable, discrete or continuous.}
+  \begin{itemize}
+    \item $F_X$ is non-decreasing, $F_X(x)\to0$ as $x\to-\infty$ and $F_X(x)\to1$ as $x\to\infty$.
+    \item $\Prob(a<X\le b)=F_X(b)-F_X(a)$.
+    \item $F_X$ determines every probability $\Prob(X\in A)$. The pmf and the pdf are two convenient ways of describing it.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Probability Mass Function (pmf)}
+  \begin{block}{Definition}
+    Let $X$ take countably many values. The \textbf{pmf} of $X$ is $p_X\colon\R\to[0,1]$,
+    \[
+      p_X(x)=\Prob(X=x).
+    \]
+  \end{block}
+  \words{$p_X$ lists the probability of each possible value. Everything about $X$ follows by adding these up.}
+  \begin{itemize}
+    \item $\sum_x p_X(x)=1$, the sum running over the values of $X$.
+    \item $\Prob(X\in A)=\sum_{x\in A}p_X(x)$; in particular $F_X(x)=\sum_{t\le x}p_X(t)$.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Probability Density Function (pdf)}
+  \begin{columns}[T]
+    \begin{column}{0.62\textwidth}
+      \begin{block}{Definition}
+        A \textbf{pdf} of $X$ is a function $f_X\colon\R\to[0,\infty)$ such that
+        \[
+          \Prob(a\le X\le b)=\int_a^b f_X(x)\dd x\qquad\text{for all } a\le b .
+        \]
+      \end{block}
+      \words{Probability is area under $f_X$. The height $f_X(x)$ is probability per unit length near $x$, not a probability.}
+      \begin{itemize}
+        \item $\int_{-\infty}^{\infty}f_X(x)\dd x=1$, \quad $F_X(x)=\int_{-\infty}^x f_X(t)\dd t$, \quad $f_X=F_X'$ where $F_X$ is differentiable.
+        \item $\Prob(X=x)=\int_x^x f_X=0$ for every $x$, so $f_X(x)$ may exceed $1$: uniform on $[0,\tfrac12]$ has $f_X=2$ there.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.36\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.62, domain=-3:3, samples=80]
+        \fill[shade, domain=0.4:1.8] plot (\x,{2.2*exp(-\x*\x/2)}) -- (1.8,0) -- (0.4,0) -- cycle;
+        \draw[->] (-3.2,0) -- (3.4,0) node[right] {$x$};
+        \draw[accent,very thick] plot (\x,{2.2*exp(-\x*\x/2)});
+        \node[accent] at (-2.0,1.6) {$f_X$};
+        \node[below] at (0.4,0) {$a$};
+        \node[below] at (1.8,0) {$b$};
+      \end{tikzpicture}
+      \par\smallskip
+      {\footnotesize Shaded area $=\Prob(a\le X\le b)$.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Joint Probability Density Function}
+  \small
+  \begin{block}{Definition}
+    A \textbf{joint pdf} of $X$ and $Y$ is a function $f_{X,Y}\colon\R^2\to[0,\infty)$ such that, for all $a\le b$ and $c\le d$,
+    \[
+      \Prob(a\le X\le b,\ c\le Y\le d)=\int_a^b\!\!\int_c^d f_{X,Y}(x,y)\dd y\dd x .
+    \]
+  \end{block}
+  \words{$(X,Y)$ is a random point in the plane; probability is volume under the surface $f_{X,Y}$, and $\iint_{\R^2}f_{X,Y}=1$.}
+  \begin{itemize}
+    \item \textbf{Marginals.} Integrating out one variable leaves the pdf of the other: $f_X(x)=\int_{\R}f_{X,Y}(x,y)\dd y$, $f_Y(y)=\int_{\R}f_{X,Y}(x,y)\dd x$.
+    \item \textbf{Independence.} $X\indep Y$ means $\Prob(X\in A,\,Y\in B)=\Prob(X\in A)\Prob(Y\in B)$ for all $A,B$; equivalently $f_{X,Y}(x,y)=f_X(x)f_Y(y)$.
+  \end{itemize}
+  \begin{block}{Example: breaking a stick twice. The marginal density of $X$ is unbounded.}
+    Break a unit stick at a uniform point $Y$, then the left piece at a uniform point $X$. Then
+    $f_{X,Y}(x,y)=\frac1y$ for $0<x<y<1$, \ $f_Y(y)=1$, \ and $f_X(x)=\int_x^1\frac{\dd y}{y}=-\ln x$.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Discrete and Continuous Side by Side}
+  \begin{center}
+    \renewcommand{\arraystretch}{1.6}
+    \begin{tabular}{@{}lcc@{}}
+      \toprule
+        & \textbf{$X$ with pmf $p_X$} & \textbf{$X$ with pdf $f_X$} \\
+      \midrule
+      $\Prob(a\le X\le b)$ & $\displaystyle\sum_{a\le x\le b}p_X(x)$ & $\displaystyle\int_a^b f_X(x)\dd x$ \\
+      $F_X(x)=\Prob(X\le x)$ & $\displaystyle\sum_{t\le x}p_X(t)$ & $\displaystyle\int_{-\infty}^x f_X(t)\dd t$ \\
+      total mass & $\displaystyle\sum_x p_X(x)=1$ & $\displaystyle\int_\R f_X(x)\dd x=1$ \\
+      $\E[X]$ & $\displaystyle\sum_x x\,p_X(x)$ & $\displaystyle\int_\R x\,f_X(x)\dd x$ \\
+      $\E[g(X)]$ & $\displaystyle\sum_x g(x)\,p_X(x)$ & $\displaystyle\int_\R g(x)\,f_X(x)\dd x$ \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Expected Value}
+  \small
+  \begin{block}{Definition}
+    \[
+      \E[X]=\sum_x x\,p_X(x)\ \text{ if $X$ has pmf $p_X$},
+      \qquad
+      \E[X]=\int_{-\infty}^{\infty} x\,f_X(x)\dd x\ \text{ if $X$ has pdf $f_X$},
+    \]
+  \end{block}
+  \words{$\E[X]$ is the average of the possible values of $X$, each weighted by its probability.}
+  \begin{itemize}
+    \item $\E[g(X)]=\sum_x g(x)\,p_X(x)$, respectively $\int_\R g(x)\,f_X(x)\dd x$.
+    \item Linearity: $\E[aX+bY]=a\,\E[X]+b\,\E[Y]$ for any random variables $X,Y$.
+    \item Indicators: $\E[\ind_A]=1\cdot\Prob(\ind_A=1)+0\cdot\Prob(\ind_A=0)=\Prob(A)$.
+  \end{itemize}
+  \begin{block}{Example: the hat-check problem}
+    $n$ hats are returned to their $n$ owners in uniformly random order. With $A_i=\{\text{person $i$ gets their own hat}\}$, $\Prob(A_i)=\tfrac1n$, and the number of
+    correct returns is $X=\sum_{i}\ind_{A_i}$, so $\E[X]=\sum_{i}\Prob(A_i)=n\cdot\tfrac1n=1$ for every $n$.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Conditional Probability}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.70\textwidth}
+      \begin{block}{Definition}
+        For events $A,B\in\F$ with $\Prob(B)>0$,
+        \[
+          \Prob(A\mid B)=\frac{\Prob(A\cap B)}{\Prob(B)} .
+        \]
+      \end{block}
+      \words{The probability of $A$ when $B$ is known to occur.}
+      \begin{itemize}
+        \item Conditional probabilities obey the usual rules, e.g.\ $\Prob(A^c\mid B)=1-\Prob(A\mid B)$.
+        \item $\Prob(A\cap B)=\Prob(A\mid B)\,\Prob(B)$.
+        \item $A\indep B$ iff $\Prob(A\cap B)=\Prob(A)\Prob(B)$ iff $\Prob(A\mid B)=\Prob(A)$.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.27\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.55]
+        \draw[soft] (0,0) rectangle (4.2,3);
+        \node[soft,anchor=north west] at (0.05,2.95) {$\Omega$};
+        \begin{scope}
+          \clip (1.6,1.5) ellipse (1.3 and 1.05);
+          \fill[shade] (2.7,1.4) ellipse (1.2 and 0.9);
+        \end{scope}
+        \draw[accent,thick] (1.6,1.5) ellipse (1.3 and 1.05);
+        \draw[ink,thick,dashed] (2.7,1.4) ellipse (1.2 and 0.9);
+        \node[accent] at (0.8,2.1) {$B$};
+        \node[ink] at (3.5,0.9) {$A$};
+        \node at (2.2,1.5) {\footnotesize $A\cap B$};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+  \begin{block}{Example: a rare disease}
+    $1\%$ of people have disease $D$. A test $T$ is positive for $99\%$ of the sick and $5\%$ of the healthy. Then
+    $\Prob(D\mid T)=\Prob(D\cap T)/\Prob(T)=0.01\cdot0.99\,/\,(0.01\cdot0.99+0.99\cdot0.05)\approx0.17$.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Conditional Density}
+  \small
+  \begin{block}{Definition}
+    Let $X,Y$ have joint pdf $f_{X,Y}$ and $S_Y=\{y\in\R : f_Y(y)>0\}$. The \textbf{conditional pdf} of $X$ given $Y$ is the function
+    \[
+      f_{X\mid Y}\colon\R\times S_Y\to[0,\infty),\qquad
+      f_{X\mid Y}(x\mid y)=\frac{f_{X,Y}(x,y)}{f_Y(y)} .
+    \]
+  \end{block}
+  \words{The density of $X$ when $Y=y$ is known: slice the surface $f_{X,Y}$ along the line $Y=y$ and rescale the slice to area $1$.}
+  \begin{itemize}
+    \item Two arguments, two roles: $y$ is the \emph{observed} value, allowed only where $f_Y(y)>0$; $x$ is the variable of the resulting density.
+    \item For each fixed $y\in S_Y$, the function $x\mapsto f_{X\mid Y}(x\mid y)$, $\R\to[0,\infty)$, is a pdf: it is $\ge0$ and integrates to $f_Y(y)/f_Y(y)=1$.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Conditional Density: Discrete Version and Example}
+  \small
+  \begin{block}{Definition (discrete version)}
+    Let $X,Y$ have joint pmf $p_{X,Y}$ and $S_Y=\{y : p_Y(y)>0\}$. The \textbf{conditional pmf} of $X$ given $Y$ is the function
+    \[
+      p_{X\mid Y}\colon\R\times S_Y\to[0,1],\qquad
+      p_{X\mid Y}(x\mid y)=\frac{p_{X,Y}(x,y)}{p_Y(y)}=\Prob(X=x\mid Y=y).
+    \]
+  \end{block}
+  \words{Each value is an ordinary conditional probability, of the event $\{X=x\}$ given the event $\{Y=y\}$. For fixed $y$, $x\mapsto p_{X\mid Y}(x\mid y)$ is a pmf.}
+  \begin{block}{Example: two dice}
+    $Y$ the first die, $X$ the sum, $S_Y=\{1,\dots,6\}$. For $y\in S_Y$: $p_{X\mid Y}(x\mid y)=\frac{1/36}{1/6}=\frac16$ if $x\in\{y+1,\dots,y+6\}$, else $0$.
+  \end{block}
+  \begin{block}{Example: the stick, continued}
+    $S_Y=(0,1)$; for $y\in S_Y$, $f_{X\mid Y}(x\mid y)=(1/y)/1=1/y$ if $0<x<y$, else $0$: given the first break at $y$, the second is uniform on $[0,y]$.
+  \end{block}
+\end{frame}

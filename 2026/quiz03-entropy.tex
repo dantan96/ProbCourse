@@ -1,0 +1,346 @@
+% Quiz 3, Part B: Entropy. Included by quiz03.tex (solutions hidden) and
+% quiz03_solutions.tex (solutions shown). Problems B1--B22, grouped by the
+% section of the Entropy lecture they practise; within a group they get harder.
+% Every number was computed in python3 (scratchpad/quizB.py); the values are
+% quoted in comments where they appear.
+\providecolor{leaf}{RGB}{40,120,70}
+\providecolor{amber}{RGB}{190,120,0}
+\providecommand{\cG}{\textcolor{leaf}{\textsf{G}}}
+\providecommand{\cY}{\textcolor{amber}{\textsf{Y}}}
+\providecommand{\cB}{\textcolor{soft}{\textsf{B}}}
+\providecommand{\Var}{\operatorname{Var}}
+\providecommand{\up}{\textsf{up}}
+\providecommand{\down}{\textsf{down}}
+\providecommand{\lft}{\textsf{left}}
+\providecommand{\rgt}{\textsf{right}}
+
+\noindent Logarithms are base $2$, the unit is the bit, and $0\log0=0$. Notation as in the Entropy lecture: $p_X$ is the pmf of $X$ and $S_X$ its support; $I_X(x)=\log\frac1{p_X(x)}$; $H(X)$ is entropy and $h(p)$ the binary entropy function; $H(P,Q)$ is the cross-entropy of the truth $P$ with the code or model $Q$, $D(P\,\|\,Q)=H(P,Q)-H(P)$; $H(X\mid Y)$ and $I(X;Y)$ are conditional entropy and mutual information. Two dice are always $Y$ (first), $Z$ (second), $X=Y+Z$, the two-dice table.
+
+\begin{enumerate}[label=B\arabic*.,leftmargin=2.6em]
+\subsection*{Codes and Kraft's inequality \hfill\normalfont\small\color{soft}Lecture Section 1}
+\item A source emits one of five symbols $a,b,c,d,e$ with probabilities $\tfrac12,\tfrac14,\tfrac18,\tfrac1{16},\tfrac1{16}$.
+(a) Check that the lengths $(1,2,3,4,4)$ satisfy Kraft's inequality with equality and write down a prefix-free code $c$ with these lengths.
+(b) Compute $L(c)$ and $H(X)$.
+(c) Decode $111001011111100$ with your code.
+(d) Compute $\Var(\ell_c(X))$ and the mean and standard deviation of the number of bits needed for $1000$ symbols.
+\begin{solution}
+(a) $\tfrac12+\tfrac14+\tfrac18+\tfrac1{16}+\tfrac1{16}=1$. Code: $a\mapsto0$, $b\mapsto10$, $c\mapsto110$, $d\mapsto1110$, $e\mapsto1111$; no codeword begins another.
+(b) $L(c)=\tfrac12\cdot1+\tfrac14\cdot2+\tfrac18\cdot3+\tfrac1{16}\cdot4+\tfrac1{16}\cdot4=\tfrac{15}8=1.875$ bits, and $H(X)=\tfrac12\cdot1+\tfrac14\cdot2+\tfrac18\cdot3+2\cdot\tfrac1{16}\cdot4=1.875$: the lengths are the informations, so $L=H$ and the code is optimal.
+(c) Read left to right, stopping at each leaf: $1110\,|\,0\,|\,10\,|\,1111\,|\,110\,|\,0$: $d\,a\,b\,e\,c\,a$.
+(d) $\E[\ell_c(X)^2]=\tfrac12+\tfrac44+\tfrac98+\tfrac{16}{16}+\tfrac{16}{16}=4.625$, so $\Var=4.625-1.875^2=1.109$. For $1000$ independent symbols: mean $1875$ bits, standard deviation $\sqrt{1000\cdot1.109}=33.3$ bits. A fixed-length code needs $3000$ bits.
+% python3: Kraft 1, L = 15/8, H = 1.875, Var = 1.109375, sd = 33.3
+\end{solution}
+
+\item (a) Which of the following can be the lengths of a prefix-free code: $(1,2,3,3,4)$ for five symbols; $(2,2,2,3,3,3)$ for six; $(2,2,3,3,3,3)$ for six; $(1,3,3,3,3)$ for five; $(1,2,3,4,5,5)$ for six? For each admissible profile write down a code.
+(b) Show that if a prefix-free code has $\sum_i2^{-\ell_i}<1$, then there is a bit string that is neither a prefix of a codeword nor has a codeword as a prefix, so a further symbol could be added to the code without lengthening any existing codeword.
+\begin{solution}
+(a) Kraft sums: $\tfrac12+\tfrac14+\tfrac18+\tfrac18+\tfrac1{16}=\tfrac{17}{16}>1$, impossible. $3\cdot\tfrac14+3\cdot\tfrac18=\tfrac98>1$, impossible. $2\cdot\tfrac14+4\cdot\tfrac18=1$: $00,01,100,101,110,111$. $\tfrac12+4\cdot\tfrac18=1$: $0,100,101,110,111$. $\tfrac12+\tfrac14+\tfrac18+\tfrac1{16}+\tfrac2{32}=1$: $0,10,110,1110,11110,11111$.
+(b) Let $L=\max_i\ell_i$. Of the $2^L$ strings of length $L$, exactly $2^{L-\ell_i}$ have codeword $i$ as a prefix, and these sets are disjoint (prefix-free), so they cover $2^L\sum_i2^{-\ell_i}<2^L$ strings. Any uncovered string $w$ of length $L$ has no codeword as a prefix; and since $|w|=L\ge\ell_i$, $w$ is a prefix of a codeword only if it equals one, which it does not. Adding $w$ as a codeword keeps the code prefix-free.
+% python3: 17/16, 9/8, 1, 1, 1
+\end{solution}
+
+\item Optimality of the rover's code. Let $p=(\tfrac12,\tfrac14,\tfrac18,\tfrac18)$.
+(a) Using Kraft's inequality and Gibbs' lemma, show that every prefix-free code for four symbols has $L(c)\ge1.75$ under $p$, so $0,10,110,111$ is optimal.
+(b) Show that the only length profiles for four symbols with Kraft sum exactly $1$ are $(2,2,2,2)$ and $(1,2,3,3)$, up to order. (Consider the shortest length.)
+(c) Take as given that an optimal code has Kraft sum $1$ (otherwise a codeword can be shortened). Deduce that for \emph{every} pmf on four symbols the optimal code is either the fixed-length code or $0,10,110,111$ with the symbols assigned in decreasing order of probability, whichever has the smaller $L$.
+(d) Apply (c) to $p=(0.45,0.25,0.15,0.15)$ and to $p=(0.3,0.3,0.2,0.2)$, and compare $L^*$ with $H$ in each case. Why can the source coding theorem alone not decide which code is optimal here?
+\begin{solution}
+(a) Put $a(x)=2^{-\ell_c(x)}$; Kraft gives $\sum a\le1$ and $\ell_c(x)=\log\frac1{a(x)}$. Gibbs' lemma: $L(c)=\sum_xp(x)\log\frac1{a(x)}\ge\sum_xp(x)\log\frac1{p(x)}=H(p)=1.75$, with equality iff $a=p$, i.e.\ lengths $(1,2,3,3)$.
+(b) Order $\ell_1\le\ell_2\le\ell_3\le\ell_4$. If $\ell_1\ge2$ then $\sum2^{-\ell_i}\le4\cdot\tfrac14=1$ with equality only for $(2,2,2,2)$. If $\ell_1=1$, the other three sum to $\tfrac12$; $\ell_2=1$ is impossible (two words of length $1$ already fill the Kraft sum and leave nothing for $\ell_3,\ell_4$), and if $\ell_2\ge3$ they sum to at most $\tfrac38$, so $\ell_2=2$ and $2^{-\ell_3}+2^{-\ell_4}=\tfrac14$ with $\ell_3,\ell_4\ge3$, forcing $(3,3)$. Hence $(1,2,3,3)$.
+(c) An optimal code has one of the two profiles of (b). For $(1,2,3,3)$, $L=\ell_1p_{(1)}+\ell_2p_{(2)}+3p_{(3)}+3p_{(4)}$ is smallest when the shortest words go to the most probable symbols (swapping two assignments that violate this can only lower $L$). So $L^*=\min\big(2,\ p_{(1)}+2p_{(2)}+3p_{(3)}+3p_{(4)}\big)$ with $p_{(1)}\ge\dots\ge p_{(4)}$.
+(d) $(0.45,0.25,0.15,0.15)$: $L(1,2,3,3)=0.45+0.5+0.45+0.45=1.85<2$, so $0,10,110,111$ is optimal, $L^*=1.85$, while $H=1.840$. $(0.3,0.3,0.2,0.2)$: $L(1,2,3,3)=0.3+0.6+0.6+0.6=2.1>2$, so the fixed-length code is optimal, $L^*=2$, $H=1.971$.
+The theorem only says $H\le L^*<H+1$, i.e.\ $L^*\in[1.84,2.84)$ and $[1.97,2.97)$: both candidates lie in the window. Deciding needs the enumeration of full trees, not the entropy bound.
+% python3: H(.45,.25,.15,.15)=1.8395, L=1.85; H(.3,.3,.2,.2)=1.9710, L(1,2,3,3)=2.1
+\end{solution}
+
+\subsection*{Information \hfill\normalfont\small\color{soft}Lecture Section 2}
+\item Let $f\colon(0,1]\to[0,\infty)$ be non-increasing with $f(pq)=f(p)+f(q)$ and $f(\tfrac12)=1$.
+(a) Compute $f(\tfrac14)$, $f(\tfrac1{64})$ and $f(2^{-1/3})$.
+(b) Using $2^7<3^5<2^8$, show $\tfrac75\le f(\tfrac13)\le\tfrac85$.
+(c) Using $2^{19}<3^{12}<2^{20}$, sharpen this to $\tfrac{19}{12}\le f(\tfrac13)\le\tfrac{20}{12}$, and compare with $\log3=1.585$.
+(d) $g(p)=\tfrac1p-1$ is decreasing with $g(\tfrac12)=1$. Which requirement does it fail, and at which numbers?
+\begin{solution}
+(a) $f(\tfrac14)=2f(\tfrac12)=2$; $f(\tfrac1{64})=6$; $3f(2^{-1/3})=f(\tfrac12)=1$, so $f(2^{-1/3})=\tfrac13$.
+(b) $f(3^{-5})=5f(\tfrac13)$. Since $2^{-8}<3^{-5}<2^{-7}$ and $f$ is non-increasing, $f(2^{-7})\le f(3^{-5})\le f(2^{-8})$, i.e.\ $7\le5f(\tfrac13)\le8$.
+(c) Likewise $2^{-20}<3^{-12}<2^{-19}$ gives $19\le12f(\tfrac13)\le20$, so $f(\tfrac13)\in[1.583,1.667]$; indeed $\log3=1.585$.
+(d) Additivity: $g(\tfrac14)=3\ne2=g(\tfrac12)+g(\tfrac12)$. Two independent fair coin tosses would carry $3$ units of information, not $2$.
+% python3: 3^5=243 in (128,256); 3^12=531441 in (524288,1048576); log2 3 = 1.58496
+\end{solution}
+
+\item Two dice. Let $A=\{\text{at least one six}\}$, $B=\{Y=Z\}$, $C=\{Y\text{ even}\}$, $D=\{X\text{ odd}\}$, $E=\{X\ge10\}$, $F=\{Y=6\}$.
+(a) Compute $I(A)$, $I(B)$ and $I(A\cap B)$. Do the informations add? Why not?
+(b) Compute $I(C)$, $I(D)$ and $I(C\cap D)$, and explain the result by listing the cells of $C\cap D$.
+(c) Compute $I(E)$, $I(F)$ and $I(E\cap F)$. Check that $I(E\cap F)=I(F)+\log\frac1{\Prob(E\mid F)}$ and say in words why $E\cap F$ is less surprising than $I(E)+I(F)$ would suggest.
+\begin{solution}
+(a) $\Prob(A)=\tfrac{11}{36}$, $I(A)=1.710$; $\Prob(B)=\tfrac6{36}$, $I(B)=2.585$; $A\cap B=\{(6,6)\}$, $I(A\cap B)=\log36=5.170\ne1.710+2.585=4.295$. They do not add because $A,B$ are not independent: $\Prob(A\cap B)=\tfrac1{36}\ne\tfrac{11}{36}\cdot\tfrac16$.
+(b) $I(C)=I(D)=1$ bit. $X$ is odd iff $Y$ and $Z$ have different parities, so $C\cap D=\{Y\text{ even},Z\text{ odd}\}$: $3\times3=9$ cells, probability $\tfrac14$, $I(C\cap D)=2=1+1$. The events are independent.
+(c) $E$ has the six cells $(4,6),(5,5),(6,4),(5,6),(6,5),(6,6)$: $I(E)=\log6=2.585=I(F)$. $E\cap F=\{(6,4),(6,5),(6,6)\}$: $I(E\cap F)=\log12=3.585$, against $5.170$. Indeed $\Prob(E\mid F)=\tfrac36=\tfrac12$ and $2.585+1=3.585$. Once the first die is a six, a sum of at least $10$ is an even chance, so learning $E$ on top of $F$ adds only one bit.
+% python3: -log2(11/36)=1.7105, log2 6=2.585, log2 36=5.170, log2 12=3.585
+\end{solution}
+
+\item The rover's source, $p=(\tfrac12,\tfrac14,\tfrac18,\tfrac18)$, coded with $0,10,110,111$. Let $L=\ell_c(X)$ be the codeword length of one instruction.
+(a) Write down the pmf of $L$ and compute $\E[L]$ and $\Var(L)$.
+(b) For $1000$ instructions, give the mean and standard deviation of the total number of bits, and compare with the fixed-length code.
+(c) Show that a stream of independent fair bits cannot be compressed: any prefix-free code for blocks of $k$ bits has average length at least $k$. Why does it follow that compressing the rover's coded stream a second time gains nothing?
+\begin{solution}
+(a) $\Prob(L=1)=\tfrac12$, $\Prob(L=2)=\tfrac14$, $\Prob(L=3)=\tfrac14$. $\E[L]=1.75=H(X)$; $\E[L^2]=\tfrac12+1+\tfrac94=3.75$, $\Var(L)=3.75-1.75^2=0.6875$.
+(b) Mean $1750$ bits, standard deviation $\sqrt{1000\cdot0.6875}=26.2$ bits, so the total is within about $1700$--$1800$ with high probability, against $2000$ for the fixed-length code.
+(c) A block of $k$ independent fair bits is uniform on $2^k$ values, so its entropy is $k$; the source coding lower bound gives $L(c)\ge k$ for every prefix-free code of blocks. The lecture showed that every bit of the rover's coded stream is a fair coin flip independent of the earlier bits, so the coded stream is exactly such a source: no code for it averages under one bit per bit.
+% python3: E[L]=1.75, Var=0.6875, sd(1000)=26.22
+\end{solution}
+
+\subsection*{Entropy \hfill\normalfont\small\color{soft}Lecture Section 3}
+\item Compute the following entropies.
+(a) $H(0.4,0.3,0.2,0.1)$.
+(b) $N=$ the number of heads in three tosses of a fair coin. Compute $H(N)$ and compare with the entropy of the three tosses themselves. Where did the missing bits go? (Compute $H(\text{tosses}\mid N)$.)
+(c) $M=\min(Y,Z)$ for two dice. Compute $H(M)$ from its pmf and compare it with $H(Y)$ and with $H(\max(Y,Z))$.
+\begin{solution}
+(a) $0.4\log2.5+0.3\log\tfrac{10}3+0.2\log5+0.1\log10=0.529+0.521+0.464+0.332=1.846$ bits.
+(b) $p_N=(\tfrac18,\tfrac38,\tfrac38,\tfrac18)$: $H(N)=2\cdot\tfrac18\cdot3+2\cdot\tfrac38\log\tfrac83=0.75+0.75\cdot1.415=1.811$ bits. The tosses have $H=3$ bits. Given $N=n$ the tosses are uniform on the $\binom3n$ orderings, so $H(\text{tosses}\mid N)=2\cdot\tfrac38\log3=1.189$; by the chain rule $3=H(N)+1.189$: the missing bits are the order of the heads, which the count forgets.
+(c) $\Prob(M=m)=\frac{13-2m}{36}$: pmf $(11,9,7,5,3,1)/36$ and $H(M)=2.320$ bits, less than $H(Y)=\log6=2.585$ (a function of the pair that is far from uniform). $\max(Y,Z)$ has the mirror pmf $(1,3,5,7,9,11)/36$, hence the same entropy $2.320$.
+% python3: 1.8464; 1.8113, 3-1.8113=1.1887=0.75*log2 3; H(min)=2.3200
+\end{solution}
+
+\item Coin $\mathsf A$ shows heads with probability $0.9$, coin $\mathsf B$ is fair. One coin is chosen uniformly at random ($C\in\{\mathsf A,\mathsf B\}$) and tossed once, giving $X\in\{\mathsf H,\mathsf T\}$.
+(a) Compute the pmf of $X$ and $H(X)$.
+(b) Compute $H(X\mid C=\mathsf A)$, $H(X\mid C=\mathsf B)$ and $H(X\mid C)$.
+(c) Compare $H(X)$ with $H(X\mid C)$ and state the property of $h$ that this illustrates. What is $I(X;C)$?
+(d) Compute $\Prob(C=\mathsf A\mid X=\mathsf H)$ and $\Prob(C=\mathsf A\mid X=\mathsf T)$, then $H(C\mid X)$, and check $H(C)-H(C\mid X)=I(X;C)$.
+\begin{solution}
+(a) $\Prob(X=\mathsf H)=\tfrac12\cdot0.9+\tfrac12\cdot0.5=0.7$; $H(X)=h(0.7)=0.881$ bits.
+(b) $h(0.9)=0.469$, $h(0.5)=1$, $H(X\mid C)=\tfrac12(0.469+1)=0.734$.
+(c) $H(X)=0.881>0.734=H(X\mid C)$: the entropy of a mixture exceeds the average of the entropies, which is the concavity of $h$: $h(\tfrac{0.9+0.5}2)\ge\tfrac12h(0.9)+\tfrac12h(0.5)$. The difference $I(X;C)=0.147$ bits is what one toss tells you about which coin was chosen.
+(d) $\Prob(\mathsf A\mid\mathsf H)=\frac{0.45}{0.7}=\tfrac9{14}=0.643$, $\Prob(\mathsf A\mid\mathsf T)=\frac{0.05}{0.3}=\tfrac16$. $H(C\mid X)=0.7\,h(\tfrac9{14})+0.3\,h(\tfrac16)=0.7\cdot0.940+0.3\cdot0.650=0.853$, and $H(C)-H(C\mid X)=1-0.853=0.147=I(X;C)$.
+% python3: h(.7)=0.8813, H(X|C)=0.7345, I=0.1468, H(C|X)=0.8532
+\end{solution}
+
+\item Roll a fair die until the first six; $N$ is the number of rolls, so $\Prob(N=k)=(\tfrac56)^{k-1}\tfrac16$ for $k\ge1$.
+(a) Write $I_N(k)$ as a function of $k$.
+(b) Compute $H(N)=\E[I_N(N)]$ without summing a series, using $\E[N]=6$.
+(c) Show that for a geometric variable with success probability $p$, $H(N)=h(p)/p$, and check the case $p=\tfrac12$.
+(d) Compute $H(\min(N,6))$, the entropy of reporting the value only up to ``$6$ or more'', and compare.
+\begin{solution}
+(a) $I_N(k)=\log6+(k-1)\log\tfrac65$.
+(b) $H(N)=\E\big[\log6+(N-1)\log\tfrac65\big]=\log6+(\E[N]-1)\log\tfrac65=2.585+5\cdot0.263=3.900$ bits.
+(c) $I_N(k)=\log\frac1p+(k-1)\log\frac1q$ with $q=1-p$, and $\E[N]-1=\frac qp$, so $H(N)=\log\frac1p+\frac qp\log\frac1q=\frac1p\big(p\log\frac1p+q\log\frac1q\big)=\frac{h(p)}p$. For $p=\tfrac12$: $h(\tfrac12)/\tfrac12=2$ bits (rolls until the first head).
+(d) Pmf $\big(\tfrac16,\tfrac5{36},\tfrac{25}{216},\tfrac{125}{1296},\tfrac{625}{7776},(\tfrac56)^5\big)$ with $(\tfrac56)^5=0.402$: $H=2.333$ bits. Reporting the exact value costs $1.57$ bits more, almost all of it spent on the rare long waits.
+% python3: H(N)=3.9001 = h(1/6)/(1/6); log2 6=2.585, 5*log2(6/5)=1.3152; H(min(N,6))=2.3328
+\end{solution}
+
+\subsection*{The source coding theorem \hfill\normalfont\small\color{soft}Lecture Section 4}
+\item Let $p=(0.5,0.2,0.2,0.1)$.
+(a) Compute $H(p)$.
+(b) Compute Shannon's lengths $\lceil\log\frac1{p(x)}\rceil$, their Kraft sum, a code with these lengths, and its average length.
+(c) Using B3(c), find the optimal code and $L^*$.
+(d) Verify $H\le L^*\le L_{\text{Shannon}}<H+1$. Which of these would be an equality if fractional lengths were allowed?
+\begin{solution}
+(a) $H=0.5\cdot1+2\cdot0.2\cdot2.322+0.1\cdot3.322=1.761$ bits.
+(b) Ideal lengths $1$, $2.32$, $2.32$, $3.32$, rounded up to $(1,3,3,4)$; Kraft sum $\tfrac12+\tfrac18+\tfrac18+\tfrac1{16}=\tfrac{13}{16}$; code $0,100,101,1100$; $L=0.5+0.6+0.6+0.4=2.1$.
+(c) Profile $(1,2,3,3)$ in decreasing order of probability: $L=0.5\cdot1+0.2\cdot2+0.2\cdot3+0.1\cdot3=1.8<2$, so $L^*=1.8$ with the code $0,10,110,111$.
+(d) $1.761\le1.8\le2.1<2.761$. With fractional lengths $\log\frac1{p(x)}$ the average length would be exactly $H$: the first inequality would be an equality.
+% python3: H=1.7610, Shannon (1,3,3,4), Kraft 13/16, L=2.1, L(1,2,3,3)=1.8
+\end{solution}
+
+\item A fair die is rolled repeatedly and the results are to be transmitted. Take as given that for $M$ equiprobable symbols the optimal prefix-free code uses only the lengths $\lfloor\log M\rfloor$ and $\lceil\log M\rceil$ and has Kraft sum $1$.
+(a) Single rolls, $M=6$: find how many codewords have each length and compute $L^*$ per roll.
+(b) Pairs of rolls, $M=36$: the same; give the cost per roll.
+(c) Triples, $M=216$: the same.
+(d) Compare with Shannon's construction (all lengths $\lceil\log M\rceil$) for each block size, and with the floor $\log6=2.585$. Which theorem guarantees that the cost per roll tends to $2.585$?
+\begin{solution}
+Let $\ell=\lfloor\log M\rfloor$ and let $k$ codewords have length $\ell$, the other $M-k$ length $\ell+1$. Kraft sum $1$: $\frac k{2^\ell}+\frac{M-k}{2^{\ell+1}}=1$, so $k=2^{\ell+1}-M$.
+(a) $M=6$, $\ell=2$: $k=2$ words of length $2$, $4$ of length $3$; $L^*=\frac{2\cdot2+4\cdot3}6=\tfrac83=2.667$ bits per roll.
+(b) $M=36$, $\ell=5$: $k=28$ of length $5$, $8$ of length $6$; $L^*=\frac{140+48}{36}=\tfrac{47}9=5.222$ per pair, $2.611$ per roll.
+(c) $M=216$, $\ell=7$: $k=40$ of length $7$, $176$ of length $8$; $L^*=\frac{280+1408}{216}=\tfrac{211}{27}=7.815$ per triple, $2.605$ per roll.
+(d) Shannon's lengths $\lceil\log M\rceil=3,6,8$ give $3,\,3,\,2.667$ bits per roll: worse than the optimal codes, and for pairs no better than single rolls. The optimal costs $2.667,2.611,2.605$ descend towards $2.585$; the block-coding theorem $H\le L^*_k/k<H+\tfrac1k$ guarantees the limit.
+% python3: (2,4) 8/3; (28,8) 47/9=5.2222 -> 2.6111; (40,176) 211/27=7.8148 -> 2.6049; log2 6 = 2.585
+\end{solution}
+
+\subsection*{Cross-entropy and relative entropy \hfill\normalfont\small\color{soft}Lecture Section 5}
+\item $P=(\tfrac12,\tfrac14,\tfrac14)$ and $Q=(\tfrac18,\tfrac18,\tfrac34)$ on $\{a,b,c\}$.
+(a) Compute $H(P)$ and $H(Q)$.
+(b) Compute $H(P,Q)$ and $D(P\,\|\,Q)$.
+(c) Compute $H(Q,P)$ and $D(Q\,\|\,P)$.
+(d) Say in words which code is used on which source in (b) and in (c).
+(e) $P$'s ideal lengths $(1,2,2)$ are integers, $Q$'s are not. Find the best prefix-free code for $Q$ (B3(b) for three symbols: the only complete profile is $(1,2,2)$), its cost on $Q$, and its cost on $P$. Why is the last number smaller than $H(P,Q)$?
+\begin{solution}
+(a) $H(P)=\tfrac12+\tfrac24+\tfrac24=1.5$. $H(Q)=2\cdot\tfrac18\cdot3+\tfrac34\log\tfrac43=0.75+0.311=1.061$.
+(b) $H(P,Q)=\tfrac12\cdot3+\tfrac14\cdot3+\tfrac14\log\tfrac43=1.5+0.75+0.104=2.354$; $D(P\|Q)=2.354-1.5=0.854$.
+(c) $H(Q,P)=\tfrac18\cdot1+\tfrac18\cdot2+\tfrac34\cdot2=1.875$; $D(Q\|P)=1.875-1.061=0.814$.
+(d) In (b) the code built for $Q$ (short word for $c$, three-bit words for $a,b$) is used on a source that emits $a$ half the time: $0.854$ bits per symbol wasted. In (c) the code built for $P$ ($a\mapsto0$, $b\mapsto10$, $c\mapsto11$) is used on a source that emits $c$ three quarters of the time and pays two bits for it each time.
+(e) Profile $(1,2,2)$ with the short word on $c$: $c\mapsto0$, $a\mapsto10$, $b\mapsto11$. On $Q$: $\tfrac34\cdot1+\tfrac18\cdot2+\tfrac18\cdot2=1.25$ bits (against $H(Q)=1.061$). On $P$: $\tfrac12\cdot2+\tfrac14\cdot2+\tfrac14\cdot1=1.75$ bits, waste $0.25$ over $H(P)$. This is less than $D(P\|Q)=0.854$ because the integer code corresponds to $a'=(\tfrac14,\tfrac14,\tfrac12)$, a less lopsided distribution than $Q$: rounding the lengths hedged the bet.
+% python3: H(Q)=1.0613, H(P,Q)=2.3538, D=0.8538, H(Q,P)=1.875, D=0.8137; integer code: 1.25 on Q, 1.75 on P
+\end{solution}
+
+\item (a) $P=(0.9,0.05,0.05)$ and $U=(\tfrac13,\tfrac13,\tfrac13)$. Compute $H(P)$, $H(P,U)$, $D(P\,\|\,U)$, $H(U,P)$ and $D(U\,\|\,P)$. The lecture exercises gave $D(P\,\|\,U)=\log n-H(P)$ for the uniform $U$ on $n$ symbols; show that the other direction is $D(U\,\|\,P)=-\log n-\frac1n\sum_x\log P(x)$, and say which of the two is unbounded as $P$ moves towards the boundary of $\Delta_n$.
+(b) Two coins, $A=(0.99,0.01)$ and $B=(0.9,0.1)$. Compute $D(A\,\|\,B)$ and $D(B\,\|\,A)$ and explain the asymmetry in one sentence each way.
+(c) A model $Q$ is to be scored against the truth $P$. Which of $D(P\,\|\,Q)$, $D(Q\,\|\,P)$ measures the bits it wastes, and why must the truth be the first argument?
+\begin{solution}
+(a) $H(P)=0.9\log\tfrac1{0.9}+0.1\log20=0.137+0.432=0.569$. $H(P,U)=\log3=1.585$ (every length is $\log3$), so $D(P\|U)=1.016$. $H(U,P)=\tfrac13(0.152+4.322+4.322)=2.932$, $D(U\|P)=2.932-1.585=1.347$. In general $D(U\|P)=\sum_x\tfrac1n\log\frac{1/n}{P(x)}=-\log n-\tfrac1n\sum_x\log P(x)$; here $-1.585+\tfrac13(0.152+4.322+4.322)=1.347$ again. $D(P\|U)=\log n-H(P)\le\log n$ is bounded, while $D(U\|P)\to\infty$ as any $P(x)\to0$: coding the uniform source with a code that has given some symbol a very long word is arbitrarily wasteful.
+(b) $D(A\|B)=0.99\log\tfrac{0.99}{0.9}+0.01\log\tfrac{0.01}{0.1}=0.136-0.033=0.103$; $D(B\|A)=0.9\log\tfrac{0.9}{0.99}+0.1\log\tfrac{0.1}{0.01}=-0.124+0.332=0.208$. Coding the nearly-certain coin $A$ with $B$'s lengths overpays slightly on the common outcome ($0.152$ instead of $0.014$ bits) almost every time. Coding $B$ with $A$'s lengths charges $\log100=6.64$ bits for the tail, which comes one time in ten, and that is where the larger waste comes from.
+(c) $D(P\|Q)=\sum_xP(x)\log\frac{P(x)}{Q(x)}$: the weights must be the frequencies with which symbols actually occur, and those come from $P$; $Q$ only supplies the lengths $\log\frac1{Q(x)}$ that the model's code would use.
+% python3: H(P)=0.5690, H(P,U)=1.585, D=1.0160; H(U,P)=2.9320, D=1.3470; D(A||B)=0.1029, D(B||A)=0.2084
+\end{solution}
+
+\item The rover has two missions, equally likely: $P_1=(\tfrac12,\tfrac14,\tfrac18,\tfrac18)$ and $P_2=(\tfrac18,\tfrac18,\tfrac14,\tfrac12)$ for $(\up,\down,\lft,\rgt)$. One code, built for a pmf $Q$, must be installed before the mission is known; its cost is $\tfrac12H(P_1,Q)+\tfrac12H(P_2,Q)$ bits per instruction.
+(a) Show that this cost equals $H(\bar P,Q)$ with $\bar P=\tfrac12(P_1+P_2)$, and compute $\bar P$.
+(b) Find the $Q$ that minimises the cost and the minimal cost. Compare with keeping the old code ($Q=P_1$), with the fixed-length code, and with the $1.75$ bits achievable if the mission were known.
+(c) Show that the average waste $\tfrac12D(P_1\|\bar P)+\tfrac12D(P_2\|\bar P)$ equals $I(M;X)$, the mutual information between the mission $M\in\{1,2\}$ and one instruction $X$, and compute it.
+(d) Codeword lengths must be integers. Using B3(b), find the best single-symbol code for the two-mission problem. What must be done to approach the cost in (b)?
+\begin{solution}
+(a) $\tfrac12\sum_xP_1(x)\log\frac1{Q(x)}+\tfrac12\sum_xP_2(x)\log\frac1{Q(x)}=\sum_x\bar P(x)\log\frac1{Q(x)}$: cross-entropy is linear in its first argument. $\bar P=(\tfrac5{16},\tfrac3{16},\tfrac3{16},\tfrac5{16})$.
+(b) By Gibbs, $H(\bar P,Q)\ge H(\bar P)$ with equality iff $Q=\bar P$. Minimal cost $H(\bar P)=2\cdot\tfrac5{16}\log\tfrac{16}5+2\cdot\tfrac3{16}\log\tfrac{16}3=1.049+0.906=1.954$ bits. Old code: $\tfrac12(1.75+2.625)=2.1875$. Fixed-length: $2$. Known mission: $1.75$.
+(c) The average waste is $H(\bar P,\bar P)-\tfrac12H(P_1)-\tfrac12H(P_2)=H(\bar P)-\tfrac12\big(H(P_1)+H(P_2)\big)$. With $M$ uniform, $X$ has pmf $\bar P$ and $H(X\mid M=m)=H(P_m)$, so this is $H(X)-H(X\mid M)=I(M;X)=1.954-1.75=0.204$ bits: what one instruction reveals about the mission, and exactly the price of not knowing it.
+(d) Profiles $(2,2,2,2)$: cost $2$. Profile $(1,2,3,3)$ with the short words on the two probable symbols: $\tfrac5{16}\cdot1+\tfrac5{16}\cdot2+\tfrac3{16}\cdot3+\tfrac3{16}\cdot3=\tfrac{33}{16}=2.0625$. The fixed-length code wins. To approach $1.954$, code blocks of instructions with lengths built for $\bar P$ (block coding theorem).
+% python3: Pbar=(5,3,3,5)/16, H(Pbar)=1.9544, avg waste 0.2044, old code 2.1875, integer (1,2,3,3) 33/16=2.0625
+\end{solution}
+
+\subsection*{The log loss \hfill\normalfont\small\color{soft}Lecture Section 6}
+\item A three-class classifier. For a certain input the true label has pmf $p=(0.6,0.3,0.1)$. Five models report $q_1=(0.6,0.3,0.1)$, $q_2=(0.8,0.15,0.05)$, $q_3=(\tfrac13,\tfrac13,\tfrac13)$, $q_4=(0.98,0.01,0.01)$, $q_5=(0.5,0.4,0.1)$.
+(a) Compute the expected log loss $H(p,q_i)$ of each.
+(b) Decompose each as $H(p)+D(p\,\|\,q_i)$.
+(c) $q_4$ puts the most probability on the most likely class, yet scores worst. Explain with one number.
+(d) A validation loss curve for such inputs has flattened at $1.30$ bits per example. Is further training worthwhile? What is the perplexity at the floor?
+\begin{solution}
+(a) $H(p,q_1)=1.295$, $H(p,q_2)=0.6\cdot0.322+0.3\cdot2.737+0.1\cdot4.322=1.446$, $H(p,q_3)=\log3=1.585$, $H(p,q_4)=0.6\cdot0.029+0.3\cdot6.644+0.1\cdot6.644=2.675$, $H(p,q_5)=1.329$ bits.
+(b) $H(p)=1.295$; $D=0,\ 0.151,\ 0.290,\ 1.380,\ 0.033$. The honest model $q_1$ has zero waste; $q_5$, which merely shuffles $0.1$ between the two likely classes, wastes little.
+(c) When class $2$ or $3$ occurs, which happens $40\%$ of the time, $q_4$ charges $\log100=6.64$ bits. Confidence in the right answer is punished by the price of the wrong ones.
+(d) The floor is $H(p)=1.295$; at most $0.005$ bits per example remain to be gained, so no. Perplexity $2^{1.295}=2.45$: the labels are as unpredictable as a choice among $2.45$ equally likely classes.
+% python3: losses 1.2955, 1.4464, 1.585, 2.6750, 1.3288; D 0, .1510, .2895, 1.3796, .0333; 2^H = 2.4546
+\end{solution}
+
+\subsection*{Wordle \hfill\normalfont\small\color{soft}Lecture Section 7}
+\item Toy Wordle with three-letter words. $W=\{\textsf{ART},\textsf{RAT},\textsf{TAR},\textsf{CAT},\textsf{ACT},\textsf{TIN},\textsf{NIT},\textsf{RIB}\}$, $N=8$, answer $A$ uniform on $W$. Colours: \cG\ right letter in the right place, \cY\ right letter in the wrong place, \cB\ absent.
+(a) Write the pattern table $w\mapsto\pi_{\textsf{TIN}}(w)$ for the guess \textsf{TIN}, list the buckets and compute $H(\Pi)$.
+(b) The same for \textsf{RIB}.
+(c) Show that \textsf{CAT} gives eight distinct patterns, so $H(\Pi)=3=\log N$, the maximum possible.
+(d) \textsf{TAN} is not on the list. Compute its bucket sizes and entropy. Can any guess, on the list or off it, beat \textsf{CAT}?
+(e) Compute the expected number of guesses $\E[G]$ for the strategy ``\textsf{CAT}, then the word it identifies'' and for ``\textsf{TIN}, then \textsf{CAT} if the bucket has four words, otherwise the identified word''. Do the entropy ranking and the score ranking agree?
+\begin{solution}
+The pattern tables of the four guesses, one row per possible answer:
+\begin{center}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+answer $w$ & $\pi_{\textsf{TIN}}(w)$ & $\pi_{\textsf{RIB}}(w)$ & $\pi_{\textsf{CAT}}(w)$ & $\pi_{\textsf{TAN}}(w)$ \\
+\midrule
+\textsf{ART} & \cY\cB\cB & \cY\cB\cB & \cB\cY\cG & \cY\cY\cB \\
+\textsf{RAT} & \cY\cB\cB & \cG\cB\cB & \cB\cG\cG & \cY\cG\cB \\
+\textsf{TAR} & \cG\cB\cB & \cY\cB\cB & \cB\cG\cY & \cG\cG\cB \\
+\textsf{CAT} & \cY\cB\cB & \cB\cB\cB & \cG\cG\cG & \cY\cG\cB \\
+\textsf{ACT} & \cY\cB\cB & \cB\cB\cB & \cY\cY\cG & \cY\cY\cB \\
+\textsf{TIN} & \cG\cG\cG & \cB\cG\cB & \cB\cB\cY & \cG\cB\cG \\
+\textsf{NIT} & \cY\cG\cY & \cB\cG\cB & \cB\cB\cG & \cY\cB\cY \\
+\textsf{RIB} & \cB\cG\cB & \cG\cG\cG & \cB\cB\cB & \cB\cB\cB \\
+\midrule
+bucket sizes & $4,1,1,1,1$ & $2,2,2,1,1$ & $1,\dots,1$ & $2,2,1,1,1,1$ \\
+$H(\Pi)$ & $2$ & $2.25$ & $3$ & $2.5$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+(a) \textsf{TIN}: bucket $\{\textsf{ART},\textsf{RAT},\textsf{CAT},\textsf{ACT}\}$ and four singletons; $H(\Pi)=\tfrac48\log2+4\cdot\tfrac18\log8=0.5+1.5=2$ bits.
+(b) \textsf{RIB}: buckets $\{\textsf{ART},\textsf{TAR}\}$, $\{\textsf{CAT},\textsf{ACT}\}$, $\{\textsf{TIN},\textsf{NIT}\}$, $\{\textsf{RAT}\}$, $\{\textsf{RIB}\}$; $H=3\cdot\tfrac28\cdot2+2\cdot\tfrac18\cdot3=2.25$ bits.
+(c) \textsf{CAT}: eight distinct patterns, $H=\log8=3$.
+(d) \textsf{TAN}: sizes $2,2,1,1,1,1$; $H=2\cdot\tfrac28\cdot2+4\cdot\tfrac18\cdot3=2.5$. No guess beats \textsf{CAT}: $H(\Pi)\le\log N=3$ always.
+(e) \textsf{CAT} first: $G=1$ with probability $\tfrac18$, else $G=2$: $\E[G]=\tfrac18+\tfrac78\cdot2=1.875$. \textsf{TIN} first: $\tfrac18$ it is the answer ($G=1$); $\tfrac38$ a singleton ($G=2$); $\tfrac48$ the four-word bucket, where \textsf{CAT} produces four distinct patterns (\cB\cY\cG, \cB\cG\cG, \cG\cG\cG, \cY\cY\cG), so $G=2$ with probability $\tfrac14$ and $3$ otherwise: $\E[G]=\tfrac18+\tfrac68+\tfrac48\big(\tfrac24+\tfrac94\big)=2.25$. Here more bits means fewer guesses; the lecture's real-Wordle table shows the two rankings need not agree exactly.
+% python3 (wordle rule, duplicates handled): TIN sizes (4,1,1,1,1) H=2; RIB (2,2,2,1,1) 2.25; CAT all singletons 3; TAN (2,2,1,1,1,1) 2.5; E[G]: 1.875, 2.25
+\end{solution}
+
+\item Real Wordle, $N=2315$ answers, $243$ patterns.
+(a) A guess produces only five patterns, with bucket sizes $1000,800,400,100,15$. Compute $H(\Pi)$ and the expected size of the remaining list, $\E[\,|\text{bucket of }\Pi|\,]=\sum_\pi|\text{bucket}|\cdot p_\Pi(\pi)$.
+(b) Another guess splits the list as evenly as $243$ patterns allow: $128$ buckets of size $10$ and $115$ of size $9$. Compute $H(\Pi)$ and the expected remaining size.
+(c) Is the expected remaining size equal to $2^{\log N-H(\Pi)}$? Check with (a) and (b) and explain the discrepancy.
+(d) After a pattern whose bucket has $39$ words, how many bits of uncertainty remain, and what is the largest amount of information the next guess could deliver?
+\begin{solution}
+(a) $H=\sum_s\frac sN\log\frac Ns=1.733$ bits, and the expected remaining size is
+\[
+  \sum_s s\cdot\frac sN=\frac{1000^2+800^2+400^2+100^2+15^2}{2315}=782\ \text{words}.
+\]
+(b) $H=128\cdot\frac{10}{2315}\log\frac{2315}{10}+115\cdot\frac9{2315}\log\frac{2315}9=7.923$ bits, just under $\log243=7.925$; expected remaining size $\frac{128\cdot100+115\cdot81}{2315}=9.55$.
+(c) No. $2^{\log N-H}$ is $696$ in (a) against $782$, and $9.54$ against $9.55$ in (b) (nearly equal because the buckets are nearly equal). $\log N-H(\Pi)=\E[\log|\text{bucket}|]$, and the exponential of an average is at most the average of the exponentials (Jensen); the gap grows with the unevenness of the buckets.
+(d) $\log39=5.29$ bits. A guess delivers $I(A;\Pi)=H(\Pi)\le H(A)=\log39$, so at most $5.29$ bits; a guess achieving it would put each of the $39$ words in its own bucket (possible in principle since $39\le243$) and end the game on the following turn.
+% python3: (a) H=1.7334, E size=781.95, 2^(11.177-1.733)=696; (b) H=7.9228, log2 243=7.9248, E size=9.553; log2 39=5.285
+\end{solution}
+
+\subsection*{Joint and conditional entropy, mutual information \hfill\normalfont\small\color{soft}Lecture Section 8}
+\item Let $X$ be the sum of two dice, $H(X)=3.274$ bits.
+(a) The lecture exercises proved $H(g(X))\le H(X)$ for every function $g$. Show, from the chain rule for the pair $(X,g(X))$, that the gap is $H(X)-H(g(X))=H(X\mid g(X))$, and say in words what this conditional entropy measures.
+(b) $g(X)=$ the parity of $X$. Compute $H(g(X))$ and $H(X\mid g(X))$.
+(c) $g(X)=X\bmod3$. Compute $H(g(X))$ and $H(X\mid g(X))$ from (a). Then compute $H(X\mid g(X))$ directly, as the average of the three row entropies $H(X\mid g(X)=r)$, $r=0,1,2$, and check that the two agree.
+(d) $g(X)=\ind\{X\ge7\}$. Compute $H(g(X))$.
+(e) Among all functions $g$ of $X$ with two values, which have the largest entropy, and what is it?
+\begin{solution}
+(a) $H(X,g(X))=H(X)+H(g(X)\mid X)=H(X)$ since $g(X)$ is determined by $X$; also $H(X,g(X))=H(g(X))+H(X\mid g(X))$. Subtracting, $H(X)-H(g(X))=H(X\mid g(X))$: the bits of $X$ that are lost by keeping only $g(X)$, i.e.\ the remaining uncertainty about $X$ once $g(X)$ is known.
+(b) $\Prob(X\text{ even})=\frac{1+3+5+5+3+1}{36}=\tfrac12$: $H=1$ bit; $H(X\mid\text{parity})=3.274-1=2.274$.
+(c) $X\bmod3$: residue $0$ is $X\in\{3,6,9,12\}$ with weights $\frac{2+5+4+1}{36}$, residue $1$ is $\{4,7,10\}$ with $\frac{3+6+3}{36}$, residue $2$ is $\{2,5,8,11\}$ with $\frac{1+4+5+2}{36}$: each $\tfrac13$, so $H(g(X))=\log3=1.585$ and $H(X\mid X\bmod3)=3.274-1.585=1.689$.
+Directly: row $0$ has conditional pmf $(\tfrac2{12},\tfrac5{12},\tfrac4{12},\tfrac1{12})$, entropy $1.784$; row $1$ has $(\tfrac14,\tfrac12,\tfrac14)$, entropy $1.5$; row $2$ has $(\tfrac1{12},\tfrac4{12},\tfrac5{12},\tfrac2{12})$, entropy $1.784$. Average with weights $\tfrac13$: $\tfrac13(1.784+1.5+1.784)=1.689$, agreeing.
+(d) $\Prob(X\ge7)=\tfrac{21}{36}$, $H=h(\tfrac7{12})=0.980$ bits.
+(e) A two-valued $g$ has $H=h(\Prob(g=1))\le1$, with equality iff $\Prob(g(X)=1)=\tfrac12$: any split of $\{2,\dots,12\}$ into two sets of probability $\tfrac12$, such as the parity in (b); $1$ bit.
+% python3: H(X)=3.2744; parity 1/2 -> 1, H(X|par)=2.2744; mod 3 uniform, H(X|mod3)=1.6894; P(X>=7)=21/36, h=0.9799
+\end{solution}
+
+\item Two dice, $D=|Y-Z|$.
+(a) Write the pmf of $D$ and compute $H(D)$.
+(b) Compute $H(D\mid Y=y)$ for each row $y$ and hence $H(D\mid Y)$.
+(c) Compute $I(D;Y)$ and $H(Y\mid D)$.
+(d) Let $X=Y+Z$. Show that the pair $(X,D)$ determines the unordered pair $\{Y,Z\}$ and nothing more, compute $H(X,D)$ from that, and hence $I(X;D)$. Explain where at least one of those bits comes from.
+(e) Compare $I(X;D)$ with $I(X;Y)=0.689$ from the lecture.
+\begin{solution}
+(a) $D=0,1,2,3,4,5$ on $6,10,8,6,4,2$ cells: pmf $(6,10,8,6,4,2)/36$; $H(D)=2.441$ bits.
+(b) Row $1$: $D=0,1,2,3,4,5$ once each, $H=\log6=2.585$; row $6$ the same. Row $2$: $D=1$ twice, $0,2,3,4$ once each: pmf $(\tfrac26,\tfrac16,\tfrac16,\tfrac16,\tfrac16)$, $H=2.252$; row $5$ the same. Rows $3,4$: $D=1,2$ twice each, $0,3$ once: $H=1.918$. $H(D\mid Y)=\tfrac16(2\cdot2.585+2\cdot2.252+2\cdot1.918)=2.252$.
+(c) $I(D;Y)=2.441-2.252=0.189$ bits; $H(Y\mid D)=H(Y)+H(D\mid Y)-H(D)=2.585+2.252-2.441=2.396$.
+(d) $\{Y,Z\}=\{\tfrac{X+D}2,\tfrac{X-D}2\}$, and conversely $X,D$ are functions of the unordered pair. The unordered pair takes $6$ values (doubles) with probability $\tfrac1{36}$ and $15$ values with probability $\tfrac2{36}$: $H(X,D)=\tfrac6{36}\log36+\tfrac{30}{36}\log18=0.862+3.475=4.337$. Then $I(X;D)=H(X)+H(D)-H(X,D)=3.274+2.441-4.337=1.379$ bits. One full bit is the parity: $X$ and $D$ are always both even or both odd.
+(e) The difference tells you twice as much about the sum as the first die does ($1.379$ against $0.689$): $D$ constrains both the parity and the range of $X$ ($D=5$ forces $X=7$), while $Y$ leaves the sum uniform over six values.
+% python3: H(D)=2.4411; rows 2.585,2.2516,1.9183; H(D|Y)=2.2516; I=0.1894; H(Y|D)=2.3955; H(X,D)=4.3366; I(X;D)=1.3789
+\end{solution}
+
+\item A bit $X$ with $\Prob(X=1)=0.3$ is sent down a wire that flips it with probability $\varepsilon=0.2$, independently of $X$; $Y$ is received.
+(a) Write the $2\times2$ table of $p_{X,Y}$, rows $\{X=0\},\{X=1\}$.
+(b) Compute $H(Y\mid X=0)$, $H(Y\mid X=1)$ and $H(Y\mid X)$.
+(c) Compute $\Prob(Y=1)$, $H(Y)$ and $I(X;Y)$.
+(d) Compute $I(X;Y)$ for a uniform input and show that, for fixed $\varepsilon<\tfrac12$, $I(X;Y)$ is maximised by the uniform input.
+(e) Compute $\Prob(X=1\mid Y=1)$, $\Prob(X=1\mid Y=0)$ and $H(X\mid Y)$, and check $I(X;Y)=H(X)-H(X\mid Y)$.
+\begin{solution}
+(a) Rows $\{X=0\}$ (probability $0.7$) and $\{X=1\}$ (probability $0.3$), each split $0.8/0.2$ between the transmitted and the flipped value:
+\begin{center}
+\begin{tabular}{@{}c|cc@{}}
+$p_{X,Y}$ & $Y=0$ & $Y=1$ \\ \hline
+$X=0$ & $0.56$ & $0.14$ \\
+$X=1$ & $0.06$ & $0.24$
+\end{tabular}
+\end{center}
+(b) Each row, rescaled, is $(0.8,0.2)$ or $(0.2,0.8)$: $H(Y\mid X=x)=h(0.2)=0.722$ for both, so $H(Y\mid X)=0.722$.
+(c) $\Prob(Y=1)=0.14+0.24=0.38$; $H(Y)=h(0.38)=0.958$; $I(X;Y)=0.958-0.722=0.236$ bits.
+(d) Uniform input: $H(Y)=1$, $I=1-h(0.2)=0.278$. In general $\Prob(Y=1)=a(1-\varepsilon)+(1-a)\varepsilon=\varepsilon+a(1-2\varepsilon)$ with $a=\Prob(X=1)$, and $I=h(\Prob(Y=1))-h(\varepsilon)$; $h$ is maximal at $\tfrac12$, reached exactly when $a=\tfrac12$.
+(e) $\Prob(X=1\mid Y=1)=\frac{0.24}{0.38}=0.632$, $\Prob(X=1\mid Y=0)=\frac{0.06}{0.62}=0.097$; $H(X\mid Y)=0.38\,h(0.632)+0.62\,h(0.097)=0.645$; $H(X)=h(0.3)=0.881$, and $0.881-0.645=0.236$.
+% python3: h(.2)=0.7219, h(.38)=0.9580, I=0.2361, uniform 0.2781; P(X=1|Y=1)=0.6316, P(X=1|Y=0)=0.0968, H(X|Y)=0.6452, h(.3)=0.8813
+\end{solution}
+
+\subsection*{Markov models, entropy rate, perplexity \hfill\normalfont\small\color{soft}Lecture Section 9}
+\item A binary text source is modelled as a Markov chain on $S=\{0,1\}$ with transition matrix $Q=\begin{pmatrix}0.9&0.1\\0.3&0.7\end{pmatrix}$ (the chain of C12).
+(a) Find the stationary pmf $\pi$.
+(b) Compute the entropy rate $H(X_{i+1}\mid X_i)$ and the monographic entropy $H(\pi)$, and identify their difference.
+(c) Compute $H(X_1,X_2,X_3)$ for the chain started from $\pi$, once by the chain rule and once by listing the eight probabilities.
+(d) Give the perplexity of the Markov model, of the monographic model and of the uniform model.
+(e) What does a compressor built on the monographic model pay per symbol on this text, and how much of it is waste?
+\begin{solution}
+(a) Balance $0\to1$ against $1\to0$: $0.1\pi_0=0.3\pi_1$, so $\pi=(\tfrac34,\tfrac14)$.
+(b) Rate $=\tfrac34h(0.1)+\tfrac14h(0.3)=0.75\cdot0.469+0.25\cdot0.881=0.572$ bits per symbol; $H(\pi)=h(\tfrac14)=0.811$. The difference $0.239=I(X_i;X_{i+1})$ is what the previous symbol tells you about the next.
+(c) Chain rule with the Markov property: $H(\pi)+2\cdot0.572=1.955$. Listing: $\pi(a)Q(a,b)Q(b,c)$ over the eight triples is $0.6075,\,0.0675,\,0.0225,\,0.0525,\,0.0675,\,0.0075,\,0.0525,\,0.1225$ (for $000,001,010,011,100,101,110,111$), whose entropy is $1.955$.
+(d) $2^{0.572}=1.49$; $2^{0.811}=1.75$; $2^1=2$.
+(e) Its cost is $\sum_x\pi(x)\log\frac1{\pi(x)}=H(\pi)=0.811$ bits per symbol, since the symbol frequencies really are $\pi$; the waste is $0.811-0.572=0.239$ bits per symbol, the mutual information of (b).
+% python3: rate 0.5721, h(1/4)=0.8113, I=0.2392, H3=1.9554 (brute force agrees), 2^rate=1.487, 2^h=1.755
+\end{solution}
+
+\item Perplexity, compression and a cipher.
+(a) A letter-level model scores $3.5$ bits per letter on $27$-symbol English. Give its perplexity and compare with Shannon's digraphic model ($3.32$ bits, perplexity $10$).
+(b) A word-level model reports perplexity $40$ per word. English words average $5.5$ letters including the following space. Convert to bits per letter and perplexity per letter. Which of the two models is better?
+(c) How many kilobytes does each model need to compress a text of $10^6$ letters, and how many would the uniform model ($\log27=4.75$ bits) need?
+(d) A Vigen\`ere cipher with key length $10$ has $26^{10}$ keys. Compute $H(K)$ and the unicity distance for $H(\text{English})=1.5$ and for $1$ bit per letter (redundancy $R=\log26-H$). Why does a longer key need a longer ciphertext to be determined?
+\begin{solution}
+(a) $2^{3.5}=11.3$: as unpredictable as a choice among $11.3$ equally likely letters, slightly worse than the digraphic model's $10$.
+(b) $\log40=5.32$ bits per word, $5.32/5.5=0.968$ bits per letter, perplexity $2^{0.968}=1.96$. The word model is much better: under one bit per letter, close to Shannon's long-context estimate.
+(c) $10^6\cdot0.968/8=121$\,kB; $10^6\cdot3.5/8=437$\,kB; $10^6\cdot4.75/8=594$\,kB.
+(d) $H(K)=10\log26=47.0$ bits. $R=4.70-1.5=3.20$: $U=47.0/3.20=14.7$ letters; $R=3.70$: $U=12.7$ letters. Each ciphertext letter leaks $R$ bits about the key, so a key with more bits of entropy needs proportionally more letters before none is left.
+% python3: 2^3.5=11.31; log2 40=5.322, /5.5=0.9676, 2^0.9676=1.956; 121.0 kB, 437.5 kB, 594.4 kB; 10 log2 26=47.00; U=14.69, 12.70
+\end{solution}
+\end{enumerate}
