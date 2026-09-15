@@ -1,113 +1,17 @@
 % Quiz 3, Part C: Stochastic Processes. Included by quiz03.tex (solutions
-% hidden) and quiz03_solutions.tex (solutions shown). Problems C1--C22, grouped
-% by the battery of the Stochastic Processes lecture they practise; within a
-% group they get harder. Every number was computed in python3
-% (scratchpad/quizC.py, sympy/fractions/numpy); values are quoted in comments.
+% hidden) and quiz03_solutions.tex (solutions shown). Problems 9--12 of the
+% quiz (the numbering resumes from Part B). Formerly problems C7, C10, C16 and
+% C19 of the 64-problem version, which remains in git history. Every number
+% was computed in python3 (scratchpad/quizC.py, sympy/fractions/numpy); values
+% are quoted in comments.
 \providecommand{\Var}{\operatorname{Var}}
 \providecommand{\Cov}{\operatorname{Cov}}
 \providecommand{\PP}{\mathbf{P}}
 \providecommand{\st}[1]{\mathsf{#1}}
-\providecommand{\Z}{\mathbb{Z}}
 
-\noindent Notation as in the Stochastic Processes lecture: $\xi_1,\xi_2,\dots$ are the $\pm1$ steps, $S_n=\xi_1+\dots+\xi_n$, and $\Prob_i,\E_i$ refer to a start at $i$. $\PP=(p(i,j))$ is the transition matrix, row $i$ the conditional pmf of the next state given the current state $i$; $p^{(n)}(i,j)$ are the entries of $\PP^n$; $\pi$ is a stationary distribution; $T_A$ is the hitting time of $A$, $h^A_i=\Prob_i(T_A<\infty)$, $k^A_i=\E_i[T_A]$; $\mathbf N=(\mathbf I-\mathbf Q)^{-1}$ is the fundamental matrix. $\Phi$ is the $N(0,1)$ cdf; values used below:
-\begin{center}\small
-\begin{tabular}{@{}l*{9}{c}@{}}
-\toprule
-$x$ & $0.100$ & $0.500$ & $0.577$ & $0.674$ & $0.707$ & $0.905$ & $1.000$ & $1.155$ & $1.225$ \\
-$\Phi(x)$ & $0.540$ & $0.691$ & $0.718$ & $0.750$ & $0.760$ & $0.817$ & $0.841$ & $0.876$ & $0.890$ \\
-\bottomrule
-\end{tabular}
-\qquad $\Phi(1.414)=0.921$.
-\end{center}
+\noindent Notation as in the Stochastic Processes lecture: $B$ is a standard Brownian motion; $\Prob_i,\E_i$ refer to a start at $i$; $p=1-q$ is the probability of winning a round, $r=q/p$. $\PP=(p(i,j))$ is the transition matrix, row $i$ the conditional pmf of the next state given the current state $i$; $\pi$ is a stationary distribution; $h_i=\Prob_i(\text{reach the target})$ and $k_i=\E_i[\text{time to absorption}]$ are hitting probabilities and times. $\Phi$ is the $N(0,1)$ cdf; values used below: $\Phi(0.100)=0.540$, $\Phi(0.500)=0.691$, $\Phi(0.674)=0.750$, $\Phi(1.000)=0.841$.
 
-\begin{enumerate}[label=C\arabic*.,leftmargin=2.6em]
-\subsection*{Processes and the random walk \hfill\normalfont\small\color{soft}Lecture batteries 1--2}
-\item Three fair coin tosses, $\xi_t=\pm1$, $S_t=\xi_1+\dots+\xi_t$: the eight-row table of the lecture.
-(a) Write the joint pmf of $(S_1,S_3)$ as a table and check that $S_1$ and $S_3$ are not independent.
-(b) Read $\E[S_3\mid S_1=s]$ and $\E[S_3\mid S_2=s]$ off the rows, for every $s$, and explain the answers by independent increments.
-(c) Compute $\E[S_3^2\mid S_2=s]$ for $s=-2,0,2$ and write $\E[S_3^2\mid S_2]$ as a random variable.
-\begin{solution}
-(a) Each row has probability $\tfrac18$; $(S_1,S_3)$ takes $(1,3)$ on $\st{HHH}$, $(1,1)$ on $\st{HHT},\st{HTH}$, $(1,-1)$ on $\st{HTT}$, $(-1,1)$ on $\st{THH}$, $(-1,-1)$ on $\st{THT},\st{TTH}$, $(-1,-3)$ on $\st{TTT}$:
-\begin{center}
-\begin{tabular}{@{}c|cccc@{}}
-$p_{S_1,S_3}$ & $S_3=-3$ & $S_3=-1$ & $S_3=1$ & $S_3=3$ \\ \hline
-$S_1=1$ & $0$ & $\tfrac18$ & $\tfrac28$ & $\tfrac18$ \\
-$S_1=-1$ & $\tfrac18$ & $\tfrac28$ & $\tfrac18$ & $0$
-\end{tabular}
-\end{center}
-So $\Prob(S_1=1,S_3=1)=\tfrac28\ne\Prob(S_1=1)\Prob(S_3=1)=\tfrac12\cdot\tfrac38$.
-(b) Rows with $S_1=1$: $S_3=3,1,1,-1$, average $1$; with $S_1=-1$: average $-1$. Rows with $S_2=2$: $S_3=3,1$, average $2$; $S_2=0$: $S_3=1,-1,1,-1$, average $0$; $S_2=-2$: average $-2$. In each case $\E[S_3\mid S_m=s]=s$, because $S_3=S_m+(\xi_{m+1}+\dots+\xi_3)$ and the increment is independent of $S_m$ with mean $0$.
-(c) $S_3^2$ on the rows with $S_2=2$: $9,1$, average $5$; $S_2=0$: $1,1,1,1$, average $1$; $S_2=-2$: $5$. So $\E[S_3^2\mid S_2=s]=s^2+1$ and $\E[S_3^2\mid S_2]=S_2^2+1$: the square of the known position plus the variance of one step.
-% python3: joint counts (1,3):1,(1,1):2,(1,-1):1,(-1,1):1,(-1,-1):2,(-1,-3):1; E[S3^2|S2=2]=5, =0:1
-\end{solution}
-
-\item A walk with $p=0.55$ (a slightly favourable game), $n=100$ steps.
-(a) Compute $\E[S_{100}]$, $\Var(S_{100})$ and the standard deviation.
-(b) Compute $\Prob(S_{100}=10)$ and $\Prob(S_{100}=11)$.
-(c) Approximate $\Prob(S_{100}>0)$ by the normal distribution (use $\{S_{100}\ge2\}$ and the midpoint $1$ as the cut).
-(d) Compute $\Cov(S_{30},S_{100})$ and the correlation of $S_{30}$ and $S_{100}$.
-(e) Fair walk: compute $\Prob(S_8=0)$, $\Prob(S_8=4)$ and $\Prob(S_9=0)$.
-\begin{solution}
-(a) $\E[S_{100}]=100(0.55-0.45)=10$; $\Var(S_{100})=4\cdot100\cdot0.55\cdot0.45=99$; standard deviation $9.95$.
-(b) $S_{100}=10$ iff $H_{100}=55$: $\binom{100}{55}0.55^{55}0.45^{45}=0.080$. $S_{100}=11$ is impossible: $S_{100}$ is even.
-(c) $\Prob(S_{100}\ge2)\approx\Prob\big(N(10,99)>1\big)=1-\Phi\big(\tfrac{1-10}{9.95}\big)=\Phi(0.905)=0.817$; the exact binomial sum is $0.817$.
-(d) $S_{100}=S_{30}+(S_{100}-S_{30})$ with the increment independent of $S_{30}$, so $\Cov(S_{30},S_{100})=\Var(S_{30})=4\cdot30\cdot0.55\cdot0.45=29.7$; correlation $29.7/\sqrt{29.7\cdot99}=\sqrt{30/100}=0.548$.
-(e) $\Prob(S_8=0)=\binom84/256=\tfrac{70}{256}=\tfrac{35}{128}$; $\Prob(S_8=4)=\binom86/256=\tfrac{28}{256}=\tfrac7{64}$; $\Prob(S_9=0)=0$ by parity.
-% python3: C(8,4)/256=35/128, C(8,6)/256=7/64
-% python3: P(S100=10)=0.07999; exact P(S100>0)=0.81727, normal with cut at 1: 0.81714; Cov 29.7, corr 0.5477
-\end{solution}
-
-\item Fair walk, $M_8=\max_{k\le8}S_k$.
-(a) Compute $\Prob(M_8\ge2)$ by the reflection principle.
-(b) Compute $\Prob(M_8=0)$.
-(c) Tabulate $\Prob(M_8\ge m)$ for $m=1,\dots,8$ and deduce the pmf of $M_8$.
-(d) Compute $\E[M_8]=\sum_{m\ge1}\Prob(M_8\ge m)$. What would the head-on computation require?
-\begin{solution}
-(a) $\Prob(M_8\ge2)=2\Prob(S_8>2)+\Prob(S_8=2)=2\Prob(S_8\ge4)+\Prob(S_8=2)=2\cdot\frac{28+8+1}{256}+\frac{56}{256}=\frac{130}{256}=\frac{65}{128}$.
-(b) $\Prob(M_8=0)=\Prob(S_8=0)+\Prob(S_8=1)=\frac{70}{256}+0=\frac{35}{128}$: over a quarter of all paths never rise above their start.
-(c) $\Prob(M_8\ge m)$ for $m=1,\dots,8$: $\frac{93}{128},\frac{65}{128},\frac{37}{128},\frac{23}{128},\frac{9}{128},\frac{5}{128},\frac{1}{128},\frac{1}{256}$. Differences give the pmf of $M_8$ on $0,1,\dots,8$: $\frac{70,\,56,\,56,\,28,\,28,\,8,\,8,\,1,\,1}{256}$, which is $\Prob(S_8=m)+\Prob(S_8=m+1)$ as in the lecture's corollary.
-(d) $\E[M_8]=\frac{186+130+74+46+18+10+2+1}{256}=\frac{467}{256}=1.824$. Head-on: track the running maximum along each of the $256$ paths.
-% python3: brute force over 256 paths agrees: pmf (70,56,56,28,28,8,8,1,1)/256, E = 467/256
-\end{solution}
-
-\item A fair walk on $\{0,1,\dots,a\}$ with a reflecting wall: from $0$ the next position is $1$ with probability one; from $0<i<a$ it moves to $i\pm1$ with probability $\tfrac12$ each; $a$ is absorbing. Let $m_i=\E_i[\text{time to reach }a]$.
-(a) Write the first-step equations for $m_0,\dots,m_a$.
-(b) Solve them for $a=3$.
-(c) Show that $m_i=a^2-i^2$ for every $a$, and explain the agreement with the lecture's exit time from $(-a,a)$.
-\begin{solution}
-(a) $m_a=0$; $m_0=1+m_1$; $m_i=1+\tfrac12m_{i-1}+\tfrac12m_{i+1}$ for $0<i<a$.
-(b) $a=3$: $m_3=0$, $m_2=1+\tfrac12m_1$, $m_1=1+\tfrac12m_0+\tfrac12m_2$, $m_0=1+m_1$. Substituting, $m_1=1+\tfrac12(1+m_1)+\tfrac12(1+\tfrac12m_1)$, so $\tfrac14m_1=2$: $m_1=8$, $m_0=9$, $m_2=5$.
-(c) $m_i=a^2-i^2$: at $i=a$ it is $0$; at $0<i<a$, $1+\tfrac12(a^2-(i-1)^2)+\tfrac12(a^2-(i+1)^2)=a^2-i^2$; at $0$, $1+(a^2-1)=a^2$. Uniqueness as in the lecture. If $X_n$ is the unrestricted fair walk started at $i$, then $|X_n|$ is exactly this reflected walk, and $|X_n|$ reaches $a$ when $X_n$ leaves $(-a,a)$: the same random time, so the same expectation $a^2-i^2$.
-% python3 sympy: a=3 -> (9,8,5,0); a=5 -> (25,24,21,16,9,0)
-\end{solution}
-
-\subsection*{Brownian motion \hfill\normalfont\small\color{soft}Lecture battery 3}
-\item Let $B$ be a standard Brownian motion.
-(a) Give the distribution of $B_3-B_1$ and compute $\Prob(B_3-B_1>2)$.
-(b) Compute $\Prob(B_4>1\mid B_1=2)$ and $\Prob(B_4>1\mid B_1=-1)$ by splitting into increments.
-(c) Write $\E[B_4\mid B_1]$ and $\E[B_4^2\mid B_1]$ as random variables.
-(d) Now condition the other way. Explain by symmetry between the three increments $B_1$, $B_2-B_1$, $B_3-B_2$ why $\E[B_1\mid B_3]=B_3/3$. Then, by completing the square in the joint pdf of $(B_1,B_3)$, show that given $B_3=x$, $B_1\sim N(\tfrac x3,\tfrac23)$, and compute $\Prob(B_1>0\mid B_3=3)$.
-\begin{solution}
-(a) $B_3-B_1\sim N(0,2)$; $\Prob(B_3-B_1>2)=1-\Phi(2/\sqrt2)=1-\Phi(1.414)=0.079$.
-(b) $B_4=B_1+(B_4-B_1)$ with $B_4-B_1\sim N(0,3)$ independent of $B_1$. Given $B_1=2$: $B_4\sim N(2,3)$, $\Prob(B_4>1)=\Prob(N(0,1)>-1/\sqrt3)=\Phi(0.577)=0.718$. Given $B_1=-1$: $B_4\sim N(-1,3)$, $\Prob=1-\Phi(2/\sqrt3)=1-\Phi(1.155)=0.124$.
-(c) $\E[B_4\mid B_1]=B_1+\E[B_4-B_1]=B_1$; $\E[B_4^2\mid B_1]=B_1^2+2B_1\E[B_4-B_1]+\E[(B_4-B_1)^2]=B_1^2+3$.
-(d) The three increments are i.i.d.\ $N(0,1)$ and $B_3$ is their sum, so given $B_3$ each has the same conditional mean and the three means add to $B_3$: $\E[B_1\mid B_3]=B_3/3$ (as $\E[S_5\mid S_8]=\tfrac58S_8$ in the Conditional Expectation lecture, battery 4, exercise 4). Joint pdf: $f(x,y)=\frac1{2\pi\sqrt2}e^{-x^2/2}e^{-(y-x)^2/4}$. As a function of $x$ the exponent is $-\tfrac{x^2}2-\tfrac{(y-x)^2}4=-\tfrac34\big(x-\tfrac y3\big)^2+\text{const}(y)$, so $f_{B_1\mid B_3}(x\mid y)\propto e^{-(x-y/3)^2/(2\cdot2/3)}$: $N(\tfrac y3,\tfrac23)$. Then $\Prob(B_1>0\mid B_3=3)=\Prob\big(N(1,\tfrac23)>0\big)=\Phi(1/\sqrt{2/3})=\Phi(1.225)=0.890$.
-% python3: 1-Phi(sqrt2)=0.0786; Phi(1/sqrt3)=0.7181; 1-Phi(2/sqrt3)=0.1241; sympy conditional pdf integrates to 0.88966
-\end{solution}
-
-\item Use $\Cov(B_s,B_t)=\E[B_sB_t]=\min(s,t)$ throughout.
-(a) Compute $\Var(B_1+B_2+B_3)$.
-(b) Compute $\Var(B_2-2B_1)$ and $\Cov(B_2-2B_1,B_1)$. For which constant $c$ is $B_2-cB_1$ uncorrelated with $B_1$? Which property of Brownian motion says that for this $c$ it is in fact independent of $B_1$?
-(c) Show $\operatorname{Corr}(B_s,B_t)=\sqrt{s/t}$ for $s<t$, and evaluate it for $(1,4)$ and $(1,100)$.
-(d) Let $X_t=B_{t+1}-B_t$ for $t\ge0$. Show that $X_t\sim N(0,1)$ for every $t$ and that $\Cov(X_s,X_t)=\max(0,\,1-|t-s|)$. In what sense is $X$ stationary although $B$ is not?
-\begin{solution}
-(a) $\sum_{s,t\in\{1,2,3\}}\min(s,t)=(1+2+3)+2(1+1+2)=14$.
-(b) $\Var(B_2-2B_1)=\Var(B_2)-4\Cov(B_2,B_1)+4\Var(B_1)=2-4+4=2$; $\Cov(B_2-2B_1,B_1)=1-2=-1\ne0$, so not independent. $\Cov(B_2-cB_1,B_1)=1-c=0$ iff $c=1$: the only such combination is the increment $B_2-B_1$, and property (ii) (independent increments) says that this increment is independent of $B_1=B_1-B_0$, not merely uncorrelated.
-(c) $\frac{\min(s,t)}{\sqrt{st}}=\frac{s}{\sqrt{st}}=\sqrt{s/t}$; $\sqrt{1/4}=0.5$ and $\sqrt{1/100}=0.1$.
-(d) $X_t$ is an increment over an interval of length $1$, so $N(0,1)$. For $s\le t$: $\Cov(X_s,X_t)=\min(s+1,t+1)-\min(s+1,t)-\min(s,t+1)+\min(s,t)=(s+1)-\min(s+1,t)-s+s=s+1-\min(s+1,t)$, which is $1-(t-s)$ if $t\le s+1$ and $0$ if $t>s+1$. Every $X_t$ has the same distribution and the covariance depends only on $t-s$: the process of unit increments looks the same at every time, while $\Var(B_t)=t$ grows.
-% python3: Var=14; Var(B2-2B1)=2; Cov example s=0,t=0.5: 0.5
-\end{solution}
-
+\begin{enumerate}[resume*=quiz]
 \item The reflection principle for Brownian motion: $\Prob(\max_{s\le t}B_s\ge a)=2\Prob(B_t\ge a)$. Let $T_1$ be the first time $B$ reaches $1$.
 (a) Compute $\Prob(\max_{s\le4}B_s\ge2)$.
 (b) Write $\Prob(T_1\le t)$ in terms of $\Phi$ and evaluate it at $t=1,4,100$.
@@ -123,35 +27,8 @@ So $\Prob(S_1=1,S_3=1)=\tfrac28\ne\Prob(S_1=1)\Prob(S_3=1)=\tfrac12\cdot\tfrac38
 % python3: 2(1-Phi(1))=0.3173; t=4: 0.6171; t=100: 0.9203; median 2.198
 \end{solution}
 
-\subsection*{Risk of ruin \hfill\normalfont\small\color{soft}Lecture batteries 4--5}
-\item A gambler with $\pounds20$ plays $\pounds1$ rounds until she has $\pounds50$ or nothing.
-(a) Fair game: compute the probability of reaching $\pounds50$ and the expected number of rounds.
-(b) $p=0.48$: the same, to three decimals.
-(c) She switches to $\pounds10$ rounds. Redo (a) and (b) (a walk from $2$ to $5$); verify the unfair probability by solving the four first-step equations directly rather than by the formula.
-(d) State in one sentence what the stake changes and what it does not.
-\begin{solution}
-(a) $h_{20}=\tfrac{20}{50}=0.4$; $D_{20}=20\cdot30=600$ rounds.
-(b) $r=\tfrac{0.52}{0.48}=\tfrac{13}{12}$; $h_{20}=\frac{r^{20}-1}{r^{50}-1}=0.074$; $D_{20}=\frac{20}{0.04}-\frac{50}{0.04}\cdot\frac{1-r^{20}}{1-r^{50}}=500-1250\cdot0.0737=408$ rounds.
-(c) Fair: $h_2=\tfrac25=0.4$, $D_2=2\cdot3=6$ rounds. Unfair: $h_0=0$, $h_5=1$, $h_i=0.48h_{i+1}+0.52h_{i-1}$ for $i=1,\dots,4$; eliminating, $h_2=\tfrac{43200}{122461}=0.353$ (the formula gives $\frac{r^2-1}{r^5-1}$, the same), and $D_2=5.90$ rounds.
-(d) In the fair game the stake changes only the duration; in the unfair game bigger stakes mean fewer rounds for the edge to compound, and the chance of reaching the target rises from $0.074$ to $0.353$.
-% python3 fractions: (20,50,.5): .4, 600; (20,50,.48): .07367, 407.9; (2,5,.5): .4, 6; (2,5,.48): 43200/122461=.35277, 5.904
-\end{solution}
-
-\item Red at roulette: European wheels have one zero ($p=\tfrac{18}{37}$), American wheels two ($p=\tfrac{18}{38}$). A player starts with $\pounds100$ and bets $\pounds1$ a spin.
-(a) Compute the probability of reaching $\pounds200$ on each wheel, and the ratio.
-(b) Compute the expected number of spins on each wheel.
-(c) European wheel, modest target $\pounds110$: compute $h_{100}$ and $\E[T]$, and check the identity $\text{mean gain}=Nh_i-i=(p-q)\,\E_i[T]$ numerically.
-(d) With no target, ruin is certain on both wheels. Compute the expected number of spins until ruin on each.
-\begin{solution}
-(a) European: $r=\tfrac{19}{18}$, $h_{100}=\frac{r^{100}-1}{r^{200}-1}=0.00447$. American: $r=\tfrac{10}9$, $h_{100}=0.0000266$. A second zero divides the chance by about $170$.
-(b) $D_{100}=\frac{100}{q-p}-\frac{200}{q-p}\cdot\frac{1-r^{100}}{1-r^{200}}$: European $q-p=\tfrac1{37}$, $D=3667$ spins; American $q-p=\tfrac2{38}$, $D=1900$ spins.
-(c) $h_{100}=\frac{r^{100}-1}{r^{110}-1}=0.581$, $\E[T]=1334$ spins. Mean gain $110\cdot0.581-100=-36.1$; and $(p-q)\E[T]=-\tfrac1{37}\cdot1334=-36.1$.
-(d) $\frac{i}{q-p}$: European $100\cdot37=3700$ spins; American $100\cdot19=1900$ spins.
-% python3 fractions: E: h=0.004466, D=3666.9; A: h=2.656e-5, D=1899.9; E 100->110: h=0.58126, D=1334.3, gain -36.1; 3700, 1900
-\end{solution}
-
 \item Bold play. $p=0.4$, fortune $\pounds3$, target $\pounds10$.
-(a) Timid play ($\pounds1$ per round): compute $h_3$ and $\E_3[T]$.
+(a) Timid play ($\pounds1$ per round): compute $h_3$ and $\E_3[T]$ from the lecture's ruin formulas.
 (b) Bold play: each round stake $\min(i,10-i)$, so the fortune moves from $3$ to $6$ or $0$, from $6$ to $10$ or $2$, from $2$ to $4$ or $0$, from $4$ to $8$ or $0$, from $8$ to $10$ or $6$. Draw the chain on $\{0,2,3,4,6,8,10\}$ and write the hitting system for $h_i=\Prob_i(\text{reach }10)$.
 (c) Solve it and compare $h_3$ with (a).
 (d) Compute the expected number of bets under bold play from $\pounds3$.
@@ -163,82 +40,6 @@ So $\Prob(S_1=1,S_3=1)=\tfrac28\ne\Prob(S_1=1)\Prob(S_3=1)=\tfrac12\cdot\tfrac38
 (d) $k_0=k_{10}=0$, $k_3=1+pk_6$, $k_6=1+qk_2$, $k_2=1+pk_4$, $k_4=1+pk_8$, $k_8=1+qk_6$: $k_3=\frac{1073}{589}=1.82$ bets, against $12.9$ rounds of timid play.
 (e) With $p=\tfrac12$ the system gives $h_3=\tfrac3{10}$, the timid value. A fair game preserves expected fortune whatever the stakes, so $\E[X_T]=3=10h_3$ for every strategy that stops at $0$ or $10$.
 % python3 sympy: bold h = (64,548/5,160,274,400)/589 for i=2,3,4,6,8 -> h3=548/2945=0.1861; k3=1073/589=1.822; timid 0.04191, 12.90; fair bold h3=3/10
-\end{solution}
-
-\subsection*{Markov chains, paths and $n$-step transitions \hfill\normalfont\small\color{soft}Lecture batteries 6--7}
-\item A taxi works three zones $\st A,\st B,\st C$. The zone where a trip ends, hence where the next trip starts, depends only on where the current trip started:
-\[
-  \PP=\begin{pmatrix}0.5&0.3&0.2\\0.2&0.6&0.2\\0.3&0.3&0.4\end{pmatrix}\qquad(\text{rows and columns in the order }\st A,\st B,\st C).
-\]
-$X_n$ is the starting zone of trip $n$.
-(a) Check that $\PP$ is stochastic and say in words what row $\st B$ means.
-(b) Compute $\Prob(X_1=\st C,X_2=\st B\mid X_0=\st A)$.
-(c) Compute row $\st A$ of $\PP^2$ by hand and read off $\Prob(X_2=\st C\mid X_0=\st A)$. Which three two-trip sequences does that entry add up?
-(d) $X_0$ is $\st A$ or $\st B$ with probability $\tfrac12$ each. Compute the distributions of $X_1$ and $X_2$.
-(e) Given $X_1=\st B$, does the value of $X_0$ change the distribution of $X_2$? Which property says so?
-\begin{solution}
-(a) Entries non-negative, every row sums to $1$. Row $\st B$: after a trip starting in $\st B$, the next trip starts in $\st A$ with probability $0.2$, in $\st B$ with probability $0.6$, in $\st C$ with probability $0.2$.
-(b) $p(\st A,\st C)\,p(\st C,\st B)=0.2\cdot0.3=0.06$.
-(c) $(0.5,0.3,0.2)\PP=(0.25+0.06+0.06,\ 0.15+0.18+0.06,\ 0.10+0.06+0.08)=(0.37,0.39,0.24)$; $\Prob(X_2=\st C\mid X_0=\st A)=0.24=p(\st A,\st A)p(\st A,\st C)+p(\st A,\st B)p(\st B,\st C)+p(\st A,\st C)p(\st C,\st C)$: the sequences $\st{AAC},\st{ABC},\st{ACC}$.
-(d) $\lambda=(\tfrac12,\tfrac12,0)$: $\lambda\PP=(0.35,0.45,0.20)$ and $\lambda\PP^2=(0.35,0.45,0.20)\PP=(0.325,0.435,0.24)$.
-(e) No: $\Prob(X_2=j\mid X_1=\st B,X_0=i)=p(\st B,j)$ for every $i$. That is the Markov property.
-% python3 sympy: P^2 row A = (37/100,39/100,6/25); lam P=(7/20,9/20,1/5); lam P^2=(13/40,87/200,6/25)
-\end{solution}
-
-\item The two-state chain $\PP=\begin{pmatrix}0.9&0.1\\0.3&0.7\end{pmatrix}$ on $\{0,1\}$ (the text source of B21).
-(a) Find the eigenvalues of $\PP$ and the stationary distribution $\pi$.
-(b) Show, by induction or from the lecture's formula for two-state chains, that
-$\PP^n=\begin{pmatrix}\tfrac34&\tfrac14\\ \tfrac34&\tfrac14\end{pmatrix}+0.6^n\begin{pmatrix}\tfrac14&-\tfrac14\\-\tfrac34&\tfrac34\end{pmatrix}$, and check $n=1,2$.
-(c) Compute $p^{(3)}(0,0)$ and $\Prob(X_3=0\mid X_0=1)$ exactly.
-(d) Find the smallest $n$ for which every entry of $\PP^n$ is within $0.01$ of $\pi$.
-\begin{solution}
-(a) Trace $1.6$, so the eigenvalues are $1$ and $0.6$. $\pi\PP=\pi$: $0.1\pi_0=0.3\pi_1$, $\pi=(\tfrac34,\tfrac14)$.
-(b) $n=1$: $\tfrac34+0.6\cdot\tfrac14=0.9$, $\tfrac14-0.6\cdot\tfrac14=0.1$, $\tfrac34-0.6\cdot\tfrac34=0.3$, $\tfrac14+0.6\cdot\tfrac34=0.7$. Induction: multiplying the first matrix by $\PP$ leaves it unchanged (its rows are $\pi$), and multiplying the second by $\PP$ multiplies it by the eigenvalue $0.6$ (its rows are proportional to $(1,-1)$, and $(1,-1)\PP=(0.6,-0.6)$). $n=2$: $\PP^2=\begin{pmatrix}0.84&0.16\\0.48&0.52\end{pmatrix}$.
-(c) $p^{(3)}(0,0)=\tfrac34+\tfrac14\cdot0.216=0.804=\tfrac{201}{250}$; $p^{(3)}(1,0)=\tfrac34-\tfrac34\cdot0.216=0.588=\tfrac{147}{250}$.
-(d) The largest deviation is $\tfrac34\cdot0.6^n$: $0.0126$ at $n=8$, $0.0076$ at $n=9$. So $n=9$.
-% python3 sympy: P^2=[[21/25,4/25],[12/25,13/25]], P^3=[[201/250,49/250],[147/250,103/250]]; 0.75*0.6^8=0.01260, ^9=0.00756
-\end{solution}
-
-\item The vowel/consonant chain of both lectures: $S=\{\st V,\st C\}$, $\PP=\begin{pmatrix}0.2&0.8\\0.5&0.5\end{pmatrix}$, $\pi=(\tfrac5{13},\tfrac8{13})$.
-(a) Compute $\PP^2$ and $\PP^3$.
-(b) Compute the expected number of vowels among the next three letters, starting after a consonant and starting after a vowel, by linearity column by column; compare with the long-run value $3\pi_{\st V}$.
-(c) Compute $\Prob(X_1=\st V,X_2=\st V\mid X_0=\st C)$ and compare with the stationary probability of the digraph $\st{VV}$ used in the Entropy lecture.
-(d) Compute the expected number of letters until the first consonant, starting from $\st V$; then the expected number of letters until the pattern $\st{VC}$ is first completed, from $\st V$ and from $\st C$.
-(e) Compute the mean return time to $\st C$ from $\pi$ and confirm it by a first-step argument.
-\begin{solution}
-(a) $\PP^2=\begin{pmatrix}0.44&0.56\\0.35&0.65\end{pmatrix}$, $\PP^3=\begin{pmatrix}0.368&0.632\\0.395&0.605\end{pmatrix}$.
-(b) $\E_{\st C}\big[\sum_{n=1}^3\ind\{X_n=\st V\}\big]=\sum_{n=1}^3p^{(n)}(\st C,\st V)=0.5+0.35+0.395=1.245$; from $\st V$: $0.2+0.44+0.368=1.008$; long run $3\cdot\tfrac5{13}=1.154$, in between.
-(c) $p(\st C,\st V)p(\st V,\st V)=0.5\cdot0.2=0.1$; stationary $\pi_{\st V}p(\st V,\st V)=\tfrac5{13}\cdot0.2=\tfrac1{13}=0.077$. A consonant just before makes a vowel, hence $\st{VV}$, likelier than average.
-(d) From $\st V$ each letter is a consonant with probability $0.8$: geometric, mean $1/0.8=1.25$. Pattern $\st{VC}$: from $\st V$ the pattern completes at the first consonant, $k_{\st V}=1.25$; from $\st C$, $k_{\st C}=1+0.5k_{\st V}+0.5k_{\st C}$, so $k_{\st C}=2+k_{\st V}=3.25$.
-(e) $1/\pi_{\st C}=\tfrac{13}8=1.625$. First step from $\st C$: with probability $0.5$ back at once, with probability $0.5$ at $\st V$ and then $1.25$ more letters: $1+0.5\cdot1.25=1.625$.
-% python3: P^2=[[11/25,14/25],[7/20,13/20]], P^3=[[46/125,79/125],[79/200,121/200]]; 1.245, 1.008, 15/13; 1/10 vs 1/13; k_V=5/4, k_C=13/4; 13/8
-\end{solution}
-
-\subsection*{Stationary distributions \hfill\normalfont\small\color{soft}Lecture battery 8}
-\item Random walks on graphs: $p(i,j)=1/d(i)$ for each neighbour $j$ of $i$.
-(a) The path $0-1-2-3$. Find $\pi$ by detailed balance and verify the balance equation on the edges $(0,1)$ and $(1,2)$.
-(b) The star with centre $0$ and leaves $1,2,3$. Find $\pi$; compute the mean return time to a leaf from $\pi$ and confirm it by a first-step argument.
-(c) The Ehrenfest urn with $N=3$ balls. Find $\pi$ by detailed balance.
-(d) The biased walk on the cycle $\Z_3$: $p(i,i+1)=\tfrac23$, $p(i,i-1)=\tfrac13$. Show that the uniform distribution is stationary but that detailed balance fails. What does the chain do that a reversible chain cannot?
-\begin{solution}
-(a) $\pi_i\propto d(i)$: $\pi=(1,2,2,1)/6$. Edge $(0,1)$: $\tfrac16\cdot1=\tfrac26\cdot\tfrac12$. Edge $(1,2)$: $\tfrac26\cdot\tfrac12=\tfrac26\cdot\tfrac12$.
-(b) Degrees $(3,1,1,1)$: $\pi=(3,1,1,1)/6$; mean return time to leaf $1$ is $1/\pi_1=6$. First step: from the leaf to the centre ($1$ step); from the centre the walk picks leaf $1$ with probability $\tfrac13$, otherwise makes a wasted excursion of $2$ steps and is back at the centre; the number of wasted excursions is geometric with mean $2$; total $1+2\cdot2+1=6$.
-(c) $\pi_i\,\frac{3-i}3=\pi_{i+1}\frac{i+1}3$, so $\pi_1=3\pi_0$, $\pi_2=\pi_1$, $\pi_3=\tfrac13\pi_2$: $\pi=(1,3,3,1)/8=\binom3i2^{-3}$.
-(d) Each column of $\PP$ sums to $\tfrac23+\tfrac13=1$, so $\sum_i\tfrac13p(i,j)=\tfrac13$: uniform $\pi$ is stationary. Detailed balance: $\pi_0p(0,1)=\tfrac29\ne\tfrac19=\pi_1p(1,0)$. The chain has a net circulation ($\tfrac19$ per step anticlockwise around the cycle); run backwards it circulates the other way, so its law is not the same. A reversible chain has zero net flow on every edge.
-% python3: path (1,2,2,1)/6; star (3,1,1,1)/6, return 6; Ehrenfest (1,3,3,1)/8; biased cycle 2/9 vs 1/9
-\end{solution}
-
-\item The taxi chain of C11.
-(a) Solve $\pi\PP=\pi$, $\sum_i\pi_i=1$ exactly.
-(b) $\PP^{10}$ has every row equal to $(0.3214,0.4286,0.2500)$ to four places. Confirm that this agrees with (a).
-(c) Test detailed balance on the pair $(\st A,\st B)$. Is the chain reversible?
-(d) The chain is irreducible and aperiodic. What do the convergence theorem and the ergodic theorem each say about $\pi_{\st C}=\tfrac14$?
-\begin{solution}
-(a) Columns $\st A$ and $\st C$: $0.5\pi_{\st A}+0.2\pi_{\st B}+0.3\pi_{\st C}=\pi_{\st A}$ and $0.2\pi_{\st A}+0.2\pi_{\st B}+0.4\pi_{\st C}=\pi_{\st C}$, i.e.\ $5\pi_{\st A}=2\pi_{\st B}+3\pi_{\st C}$ and $3\pi_{\st C}=\pi_{\st A}+\pi_{\st B}$. With $\pi_{\st A}+\pi_{\st B}+\pi_{\st C}=1$ the second gives $\pi_{\st C}=\tfrac14$, then $5\pi_{\st A}=2\pi_{\st B}+\tfrac34$ and $\pi_{\st A}+\pi_{\st B}=\tfrac34$ give $\pi=(\tfrac9{28},\tfrac37,\tfrac14)=(0.3214,0.4286,0.25)$.
-(b) $\tfrac9{28}=0.32143$, $\tfrac37=0.42857$: the rows of $\PP^{10}$ are $\pi$ to four places, as the convergence theorem predicts.
-(c) $\pi_{\st A}p(\st A,\st B)=\tfrac9{28}\cdot0.3=\tfrac{27}{280}$ but $\pi_{\st B}p(\st B,\st A)=\tfrac37\cdot0.2=\tfrac{24}{280}$. Not reversible (unlike the weather chain of the lecture): more trips go $\st A\to\st B$ than $\st B\to\st A$ in the long run.
-(d) Convergence: $\Prob(X_n=\st C)\to\tfrac14$ whatever the starting zone. Ergodic: along a single sequence of trips, the fraction starting in $\st C$ tends to $\tfrac14$ with probability one, and consecutive $\st C$-starts are $1/\pi_{\st C}=4$ trips apart on average.
-% python3 sympy: pi=(9/28,3/7,1/4); P^10 rows (0.32143,0.42857,0.25); 27/280 vs 24/280
 \end{solution}
 
 \item PageRank with damping $d=0.85$.
@@ -254,42 +55,6 @@ $\PP^n=\begin{pmatrix}\tfrac34&\tfrac14\\ \tfrac34&\tfrac14\end{pmatrix}+0.6^n\b
 % python3 sympy: 3-page pi = (686,380,703)/1769; undamped (2/5,1/5,2/5); 4-page trap: undamped (0,0,0,1), damped (0.1006,0.0803,0.1485,0.6707)
 \end{solution}
 
-\subsection*{Classes, periods, recurrence \hfill\normalfont\small\color{soft}Lecture battery 9}
-\item A chain on $S=\{1,\dots,6\}$ with
-\[
-  \PP=\begin{pmatrix}0&1&0&0&0&0\\1&0&0&0&0&0\\0.2&0&0.4&0&0.4&0\\0&0&0.5&0.5&0&0\\0&0&0&0&0&1\\0&0&0&0&0.5&0.5\end{pmatrix}.
-\]
-(a) Find the communicating classes, say which are closed, give the period of each class, and classify each state as recurrent or transient.
-(b) Compute the probability that the chain started at $3$, and at $4$, ends up in the class $\{1,2\}$.
-(c) Compute the expected time to leave $\{3,4\}$ from $3$ and from $4$.
-(d) Find all stationary distributions.
-(e) Started at $3$, does the distribution of $X_n$ converge? Describe its behaviour for large $n$.
-\begin{solution}
-(a) $\{1,2\}$: closed, $1\to2\to1$ only, period $2$. $\{5,6\}$: closed, $p(6,6)>0$, period $1$. $\{3\}$: $3\to1$ and $3\to5$ leave it, so not closed; $p(3,3)>0$, period $1$. $\{4\}$: $4\to3$ leaves it, not closed, period $1$. States $1,2,5,6$ recurrent (finite closed classes); $3,4$ transient.
-(b) $h_3=0.2\cdot1+0.4h_3+0.4\cdot0$, so $h_3=\tfrac13$; $h_4=0.5h_3+0.5h_4$, so $h_4=h_3=\tfrac13$. With probability $\tfrac23$ the chain ends in $\{5,6\}$.
-(c) $k_3=1+0.4k_3$: $k_3=\tfrac53$; $k_4=1+0.5k_3+0.5k_4$: $k_4=2+k_3=\tfrac{11}3$.
-(d) On $\{1,2\}$ the unique stationary distribution is $(\tfrac12,\tfrac12)$; on $\{5,6\}$, $\pi_5=0.5\pi_6$ gives $(\tfrac13,\tfrac23)$. Transient states carry no mass: if $\pi_3+\pi_4>0$ then, since $\{3,4\}$ is left for good with positive probability at every step and never re-entered from $\{1,2\}$ or $\{5,6\}$, $\pi\PP^n$ puts mass $\to0$ on $\{3,4\}$, contradicting $\pi\PP^n=\pi$; so $\pi_3=\pi_4=0$. All stationary distributions: $\alpha(\tfrac12,\tfrac12,0,0,0,0)+(1-\alpha)(0,0,0,0,\tfrac13,\tfrac23)$, $\alpha\in[0,1]$.
-(e) No. The mass $\tfrac13$ that enters $\{1,2\}$ alternates between the two states forever (period $2$), so $\Prob_3(X_n=1)$ oscillates; the mass $\tfrac23$ in $\{5,6\}$ settles to $(\tfrac29,\tfrac49)$. Both hypotheses of the convergence theorem fail: the chain is reducible, and one closed class is periodic.
-% python3 sympy: h3=h4=1/3; k3=5/3, k4=11/3; pi on {5,6}=(1/3,2/3)
-\end{solution}
-
-\item Walks on the cycle $\Z_L=\{0,\dots,L-1\}$, addition modulo $L$.
-(a) $L=6$, steps $\pm1$ with probability $\tfrac12$ each. Compute $p^{(n)}(0,0)$ for $n=1,\dots,4$, give the period, and describe the rows of $\PP^n$ for large $n$ (is $\pi$ stationary; do the rows converge to it?).
-(b) $L=7$, steps $\pm1$. Give the period and justify it with two round-trip lengths.
-(c) $L=6$, steps $+1$ or $+2$ with probability $\tfrac12$ each. Is the chain irreducible? Aperiodic? What is $\pi$, and do the rows of $\PP^n$ converge?
-(d) $L=6$, steps $+2$ or $+4$ with probability $\tfrac12$ each. Find the communicating classes and the period within each.
-(e) $L=4$, step $+1$ with probability one. Find $\pi$, the period, and say which of the two long-run theorems applies.
-\begin{solution}
-(a) $p^{(n)}(0,0)=0,\tfrac12,0,\tfrac38$ ($n=4$: four steps with two of each sign, $\binom42/16$; a net displacement of $\pm6$ is impossible in four steps): every return takes an even number of steps, period $2$. The uniform $\pi=\tfrac16(1,\dots,1)$ is stationary (each column receives $\tfrac12$ from two states), but the rows of $\PP^n$ do not converge to it: from $0$ the walk is on $\{0,2,4\}$ at even times and on $\{1,3,5\}$ at odd times, and row $0$ of $\PP^n$ alternates between (approximately) $(\tfrac13,0,\tfrac13,0,\tfrac13,0)$ and $(0,\tfrac13,0,\tfrac13,0,\tfrac13)$.
-(b) Round trips of length $2$ ($+1,-1$) and $7$ (seven steps $+1$): $\gcd(2,7)=1$, period $1$; here the rows of $\PP^n$ do converge to the uniform $\pi$.
-% python3 numpy: L=6 p^(n)(0,0)=0,1/2,0,3/8,0,11/32,...; row 0 of P^100 = (1/3,0,1/3,0,1/3,0), P^101 = (0,1/3,0,1/3,0,1/3); L=7 P^200 rows uniform 1/7
-(c) Irreducible: $+1$ steps reach every state. Round trips of length $3$ ($+2,+2,+2$) and $4$ ($+1,+1,+2,+2$): aperiodic. Every column of $\PP$ receives $\tfrac12$ from two states, so the uniform $\pi=\tfrac16(1,\dots,1)$ is stationary, and by the convergence theorem every row of $\PP^n$ tends to it.
-(d) From $0$ only $0,2,4$ are reachable: two closed classes, $\{0,2,4\}$ and $\{1,3,5\}$; the chain is reducible. Within a class, round trips of length $2$ ($+2,+4$) and $3$ ($+2,+2,+2$): period $1$.
-(e) Deterministic rotation: $\pi$ uniform (the only solution of $\pi_{i+1}=\pi_i$), period $4$. The ergodic theorem applies (irreducible): each state is visited exactly a quarter of the time. The convergence theorem does not: $\Prob_0(X_n=0)$ is $1$ or $0$ according to $n\bmod4$.
-% python3 numpy: L=6 (+1,+2) returns 3,4,...; L=6 (+2,+4) reachable {0,2,4}, returns 2,3
-\end{solution}
-
-\subsection*{Hitting probabilities and times \hfill\normalfont\small\color{soft}Lecture battery 10}
 \item Tennis at deuce. From deuce the server wins each point with probability $p$, independently. States: $\st D$ (deuce), $\st I$ (advantage server), $\st O$ (advantage receiver), $\st W$ (game won), $\st L$ (game lost). From $\st D$ the next state is $\st I$ or $\st O$; from $\st I$ it is $\st W$ or $\st D$; from $\st O$ it is $\st D$ or $\st L$.
 (a) Write the transition matrix.
 (b) Write the hitting system for $h_i=\Prob_i(\text{reach }\st W)$ and solve it; show $h_{\st D}=\dfrac{p^2}{p^2+q^2}$.
@@ -304,42 +69,5 @@ $\PP=\begin{pmatrix}0&p&q&0&0\\q&0&0&p&0\\p&0&0&0&q\\0&0&0&1&0\\0&0&0&0&1\end{pm
 (d) $h_{\st D}=0.5,\ 0.599,\ 0.692,\ 0.845$ and $k_{\st D}=4,\ 3.96,\ 3.85,\ 3.45$. A $55/45$ point becomes a $60/40$ game from deuce; the edge compounds because the game only ends when one player is two points ahead.
 (e) The game ends after $2m$ more points with probability $(2pq)^{m-1}(p^2+q^2)$, and the server wins with probability $\sum_{m\ge1}(2pq)^{m-1}p^2$: an infinite series. The first-step system uses the restart at deuce to write $h_{\st D}$ in terms of itself.
 % python3 sympy: p=0.6: h=(9/13,57/65,27/65), k=(50/13,33/13,43/13); table 0.5/4, 0.5990/3.9604, 0.6923/3.8462, 0.8448/3.4483
-\end{solution}
-
-\item The taxi chain of C11 again.
-(a) Compute the expected number of trips until the next trip starting in $\st C$, from $\st A$ and from $\st B$.
-(b) Compute the mean return time to $\st C$ by first-step analysis and compare with $1/\pi_{\st C}$.
-(c) Make $\st C$ absorbing and compute the fundamental matrix $\mathbf N$; recover (a) from $\mathbf N\mathbf 1$ and read off the expected number of trips starting in $\st B$ before the next $\st C$-start, when the current trip starts in $\st A$.
-\begin{solution}
-(a) $k_{\st C}=0$; $k_{\st A}=1+0.5k_{\st A}+0.3k_{\st B}$, $k_{\st B}=1+0.2k_{\st A}+0.6k_{\st B}$. The second gives $0.4k_{\st B}=1+0.2k_{\st A}$, the first $0.5k_{\st A}=1+0.3k_{\st B}$; solving, $k_{\st A}=k_{\st B}=5$ trips.
-(b) $\E_{\st C}[T_{\st C}]=1+0.3k_{\st A}+0.3k_{\st B}+0.4\cdot0=1+1.5+1.5=4=1/\pi_{\st C}$.
-(c) $\mathbf Q=\begin{pmatrix}0.5&0.3\\0.2&0.6\end{pmatrix}$, $\mathbf I-\mathbf Q=\begin{pmatrix}0.5&-0.3\\-0.2&0.4\end{pmatrix}$, determinant $0.14$, $\mathbf N=\frac1{0.14}\begin{pmatrix}0.4&0.3\\0.2&0.5\end{pmatrix}=\begin{pmatrix}\tfrac{20}7&\tfrac{15}7\\ \tfrac{10}7&\tfrac{25}7\end{pmatrix}$; $\mathbf N\mathbf 1=(5,5)$. $\mathbf N_{\st A\st B}=\tfrac{15}7=2.14$ trips start in $\st B$, on average, before the next $\st C$-start.
-% python3 sympy: kA=kB=5; return 4; N=[[20/7,15/7],[10/7,25/7]]
-\end{solution}
-
-\subsection*{Convergence, the ergodic theorem, absorbing chains \hfill\normalfont\small\color{soft}Lecture batteries 11--12}
-\item Long-run behaviour of the taxi chain of C11 and C15.
-(a) The eigenvalues of $\PP$ are $1$, $0.3$ and $0.2$ (check the trace and the determinant). How fast do the rows of $\PP^n$ approach $\pi$? The maximal deviations are $0.179,0.051,0.015$ at $n=1,2,3$; compare with $0.3^n$.
-(b) State what fraction of trips start in each zone in the long run, and which theorem says so.
-(c) What fraction of trips go from $\st A$ to $\st B$ in the long run?
-(d) Trips starting in $\st A,\st B,\st C$ earn $\pounds10,\pounds8,\pounds12$. What is the long-run average fare per trip?
-(e) For the rotation on $\Z_4$ of C18(e), the long-run fraction of time at each state is $\tfrac14$ but $\Prob_0(X_n=0)$ does not converge. Which hypothesis of the convergence theorem fails, and why does the ergodic theorem not need it?
-\begin{solution}
-(a) Trace $0.5+0.6+0.4=1.5=1+0.3+0.2$; determinant $0.5(0.24-0.06)-0.3(0.08-0.06)+0.2(0.06-0.18)=0.06=1\cdot0.3\cdot0.2$. The error shrinks by a factor of about $0.3$ per step: $0.179,0.051,0.015$ have successive ratios $0.29,0.30$.
-(b) $\pi=(\tfrac9{28},\tfrac37,\tfrac14)$: $32.1\%$, $42.9\%$, $25\%$ of trips, with probability one along the actual sequence of trips (ergodic theorem, irreducible finite chain).
-(c) Ergodic theorem for the pair chain $(X_n,X_{n+1})$: $\pi_{\st A}p(\st A,\st B)=\tfrac9{28}\cdot0.3=\tfrac{27}{280}=9.6\%$.
-(d) $\sum_i\pi_if(i)=\tfrac9{28}\cdot10+\tfrac37\cdot8+\tfrac14\cdot12=\tfrac{135}{14}=\pounds9.64$ per trip.
-(e) Aperiodicity fails (period $4$). The ergodic theorem counts visits along a path; the fraction of time at $0$ is exactly $\tfrac14$ whether or not the visits come at regular intervals. The convergence theorem asks where the chain is at one fixed late time, and a periodic chain still remembers the starting time.
-% python3 numpy: eigenvalues 1, 0.3, 0.2; max|P^n-pi| = 0.1786, 0.0514, 0.0154; 27/280; 135/14=9.643
-\end{solution}
-
-\item The fundamental matrix.
-(a) Fair ruin chain on $\{0,\dots,5\}$, transient states $1,2,3,4$. Write $\mathbf Q$ and $\mathbf R$, compute $\mathbf N=(\mathbf I-\mathbf Q)^{-1}$, and check $\mathbf N\mathbf 1$ against $i(5-i)$ and the target column of $\mathbf N\mathbf R$ against $i/5$. Starting from $\pounds1$, how many times on average is the fortune $\pounds3$ before the game ends, and how many times $\pounds1$ (counting the start)?
-(b) Tennis, $p=0.6$ (C19). Compute $\mathbf N$ for the transient states $\st D,\st I,\st O$ and confirm $h_{\st D}=\tfrac9{13}$ and $k_{\st D}=\tfrac{50}{13}$ from $\mathbf N\mathbf R$ and $\mathbf N\mathbf 1$. Interpret $\mathbf N_{\st D\st D}$ and check it against the visits criterion $\mathbf N_{ii}=1/(1-f_i)$ with $f_{\st D}=\Prob_{\st D}(\text{return to }\st D)$.
-\begin{solution}
-(a) $\mathbf Q$ is $4\times4$ with $\tfrac12$ on the two off-diagonals and zeros elsewhere; $\mathbf R$ has $\tfrac12$ in row $1$, column $0$ and in row $4$, column $5$.
-$\mathbf N=\tfrac15\begin{pmatrix}8&6&4&2\\6&12&8&4\\4&8&12&6\\2&4&6&8\end{pmatrix}$ (check: $(\mathbf I-\mathbf Q)\mathbf N=\mathbf I$ row by row). $\mathbf N\mathbf 1=(4,6,6,4)=i(5-i)$; $\mathbf N\mathbf R$ has target column $(\tfrac15,\tfrac25,\tfrac35,\tfrac45)=i/5$. From $\pounds1$: $\mathbf N_{13}=\tfrac45$ visits to $\pounds3$, $\mathbf N_{11}=\tfrac85$ visits to $\pounds1$.
-(b) $\mathbf Q=\begin{pmatrix}0&0.6&0.4\\0.4&0&0\\0.6&0&0\end{pmatrix}$, $\mathbf R=\begin{pmatrix}0&0\\0.6&0\\0&0.4\end{pmatrix}$ (columns $\st W,\st L$), $\mathbf N=\tfrac1{13}\begin{pmatrix}25&15&10\\10&19&4\\15&9&19\end{pmatrix}$; $\mathbf N\mathbf 1=(\tfrac{50}{13},\tfrac{33}{13},\tfrac{43}{13})$ and $\mathbf N\mathbf R$ has first column $(\tfrac9{13},\tfrac{57}{65},\tfrac{27}{65})$, as in C19. $\mathbf N_{\st D\st D}=\tfrac{25}{13}=1.92$ is the expected number of deuces in the game, the first included; $f_{\st D}=2pq=0.48$ (one point each way), and $1/(1-0.48)=\tfrac{25}{13}$.
-% python3 sympy: N ruin N=5 = (1/5)[[8,6,4,2],[6,12,8,4],[4,8,12,6],[2,4,6,8]], N1=(4,6,6,4), NR target (1,2,3,4)/5; tennis N=(1/13)[[25,15,10],[10,19,4],[15,9,19]]
 \end{solution}
 \end{enumerate}

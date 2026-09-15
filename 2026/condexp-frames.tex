@@ -1,8 +1,7 @@
 % ---------------------------------------------------------------------------
 % Lecture: Conditional Expectation. Built on one picture: the two-dice table.
 % Rows are the events {Y=y}. Homework: quiz03.tex (problems in
-% quiz03-problems.tex, numbering as of 2026-09-16). In-slide exercises:
-% answers on the last three slides.
+% quiz03-problems.tex, numbering as of 2026-09-16).
 %
 % Every number on these slides was checked with python3 (fractions/sympy);
 % scripts: scratchpad/check.py (first pass) and scratchpad/recheck.py
@@ -25,7 +24,6 @@
 %   waiting: HH 6 (P(T=n)=F_{n-1}/2^n), HT 4, HHH 14, 66 42, die 6, E[T|T>3]=9
 %   gambler: E[R]=2, E[G]=0
 % ---------------------------------------------------------------------------
-\newcommand{\quiz}[1]{\hfill{\normalfont\small\color{soft}Quiz 3: #1}}
 \newcommand{\Var}{\operatorname{Var}}
 \newcommand{\Cov}{\operatorname{Cov}}
 
@@ -297,18 +295,6 @@
   \end{itemize}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: Conditional Expectation Given a Value\quiz{exercises A1--A2}}
-  \begin{exercise}
-    \begin{enumerate}
-      \item Two dice. Which cells form the event $\{X=10\}$? Write down $p_{Z\mid X}(z\mid 10)$ for $z=1,\dots,6$ and compute $\E[Z\mid X=10]$.
-      \item Two dice. Compute $\E[Z\mid X=x]$ for every $x\in\{2,\dots,12\}$ with no arithmetic, by symmetry between the two dice. (What is $\E[Y\mid X=x]+\E[Z\mid X=x]$?)
-      \item Two dice. Compute $\E[YZ\mid Y=y]$ and $\E[Z^2\mid Y=y]$ in one line each, using ``on row $y$, $Y$ is the constant $y$''.
-      \item The mirrored two-stage point: $Y$ uniform on $[0,1]$ and, given $Y=y$, $X$ uniform on $[y,1]$. Draw the region where $f_{X,Y}>0$ and write $f_{X,Y}$. Compute $\E[X\mid Y=y]$, then $f_X$, then $\E[Y\mid X=x]$.
-    \end{enumerate}
-  \end{exercise}
-\end{frame}
-
 % ===========================================================================
 \begin{frame}{Total Expectation: The Average of the Row Averages}
   \small
@@ -403,18 +389,6 @@
   \end{itemize}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: Total Expectation\quiz{exercises A3--A5}}
-  \begin{exercise}
-    \begin{enumerate}
-      \item Two dice. Compute $\E[X^2]$ from $\E[X^2\mid Y=y]=y^2+7y+\tfrac{91}6$ (slide~\ref{constrow}) and deduce $\Var(X)$.
-      \item Roll a die, getting $N$; then roll $N$ more dice and let $S$ be their total. Compute $\E[S]$. How many outcomes would a head-on computation have to enumerate?
-      \item The two-stage point. Verify $\E[X^2]=\tfrac19$ head-on from $f_X(x)=-\ln x$. Then compute $\E[XY]$ by conditioning on $Y$ and check it against the double integral over the triangle.
-      \item A fair die is rolled once, showing $K$. A fair coin is then tossed $K$ times, and you win $\pounds2^K$ if all $K$ tosses are heads, otherwise nothing. Compute $\E[\text{winnings}\mid K=k]$ and then the expected winnings. Would you pay $\pounds1.50$ to play?
-    \end{enumerate}
-  \end{exercise}
-\end{frame}
-
 % ===========================================================================
 \begin{frame}{$\E[X\mid Y]$: Paint Every Row With Its Average}
   \small
@@ -475,18 +449,6 @@
     Two-stage point: $g(y)=y/2$, so $\E[X\mid Y]=Y/2$. At an outcome where $Y=0.8$, the average for $X$ is $0.4$, whatever $X$ actually is. Likewise $\E[Y\mid X]=(1-X)/(-\ln X)$.\\
     Random coins: $\E[H\mid N]=N/2$, a random variable with values $\tfrac12,1,\dots,3$, each with probability $\tfrac16$.
   \end{exampleblock}
-\end{frame}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: $\E[X\mid Y]$ as a Random Variable\quiz{exercises A11--A13}}
-  \begin{exercise}
-    \begin{enumerate}
-      \item Two dice. Evaluate $\E[X\mid Y](\omega)$ and $X(\omega)$ at $\omega=(2,5)$, $(2,1)$, $(6,1)$. On which cells does $\E[X\mid Y]$ equal $8.5$?
-      \item Two dice. Using exercise 2 of the first battery, write $\E[Z\mid X]$ as a function of $X$. Check $\E[Y\mid X]+\E[Z\mid X]=X$ and say which rows this conditioning creates.
-      \item $Y$ uniform on $\{-1,0,1\}$, $W=Y^2$. List the values of $\E[W\mid Y]$ and $\E[Y\mid W]$ at each of the three outcomes. Which rows does each conditioning create?
-      \item Random coins. $\E[H\mid N]=N/2$ takes six values; list them with their probabilities and compute $\E\big[\E[H\mid N]\big]$ from that list. Compare with $\E[H]=1.75$.
-    \end{enumerate}
-  \end{exercise}
 \end{frame}
 
 % ===========================================================================
@@ -743,19 +705,6 @@
   \end{center}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: The Properties\quiz{exercises A14--A19}}
-  \begin{exercise}
-    \begin{enumerate}
-      \item Two dice. Compute $\E[X\,\ind_{\{Y=6\}}]$, with $\ind_{\{Y=6\}}\colon\Omega\to\{0,1\}$ the indicator of row $6$, by the tower property and taking out what is known. Check against the table.
-      \item Two dice. Write $\E[X^2\mid Y]$ as a random variable, then get $\E[X^2]$ by the tower property and $\Var(X)$. Compare with battery 2, exercise 1.
-      \item Two dice. From $\E[XY]=\tfrac{329}{12}$ compute $\Cov(X,Y)$; then $\Cov(X,Z)$ by symmetry; check $\Cov(X,Y)+\Cov(X,Z)=\Var(X)$ and say why that identity must hold.
-      \item Random walk. Compute $\E[S_5\mid S_8]$. (All eight steps play the same role given $S_8$, so $\E[\xi_1\mid S_8]=\dots=\E[\xi_8\mid S_8]$; what do they sum to?)
-      \item Show that $\E[X\mid Y]=\E[X]$ forces $\Cov(h(Y),X)=0$ for every $h\colon\R\to\R$, but that $\Cov(Y,X)=0$ alone does not force $\E[X\mid Y]=\E[X]$. (Try $Y$ uniform on $\{-1,0,1\}$ and $X=Y^2$.)
-    \end{enumerate}
-  \end{exercise}
-\end{frame}
-
 % ===========================================================================
 \begin{frame}{Application 1: Random Sums. Problem B}
   \small
@@ -828,7 +777,7 @@
     On the row $\{N=2\}=\{X_2\ne6\}$ the second term averages $3$, not $\mu=3.5$: the row changed the distribution of a term.
   \end{exampleblock}
   \begin{itemize}
-    \item ``Stop at the first six'' also violates the assumption, yet $\mu\,\E[N]=3.5\cdot6=21$ is right (exercise battery 5). That is Wald's identity, a separate theorem: its hypothesis is that $N$ never looks \emph{ahead}. The peeking example looks ahead.
+    \item ``Stop at the first six'' also violates the assumption, yet $\mu\,\E[N]=3.5\cdot6=21$ is right. That is Wald's identity, a separate theorem: its hypothesis is that $N$ never looks \emph{ahead}. The peeking example looks ahead.
   \end{itemize}
 \end{frame}
 
@@ -927,56 +876,3 @@
   \end{block}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: Applications\quiz{exercises A6--A10, A20--A21}}
-  \begin{exercise}
-    \begin{enumerate}
-      \item You receive $N$ emails today; each, independently of everything, has an attachment with probability $p$. With $A$ the number of attachments, show $\E[A\mid N]=pN$ and $\E[A]=p\,\E[N]$. Point to the line where independence of $N$ from the attachments is used.
-      \item Derive $\E[T]=14$ for HHH by conditioning on the opening T, HT, HHT, HHH.
-      \item A gambler stakes $\pounds1$ per round on a fair coin and stops at her first win. Let $R$ be the number of rounds. Show $\E[R]=2$ by conditioning on the first round, and find her expected net gain.
-      \item Roll a die repeatedly and let $S$ be the total shown up to and including the first six. Compute $\E[S]$ by conditioning on the first roll. Why does $\E[S]=\mu\,\E[N]$ from the random-sums theorem \emph{not} apply here, even though it gives the right number?
-    \end{enumerate}
-  \end{exercise}
-\end{frame}
-
-% ===========================================================================
-\begin{frame}{Answers to the In-Slide Exercises (1): Batteries 1 and 2}
-  \small
-  \begin{itemize}
-    \item \textbf{Battery 1.} (1) $\{X=10\}=\{(4,6),(5,5),(6,4)\}$; $p_{Z\mid X}(z\mid10)=\tfrac13$ for $z=4,5,6$ and $0$ otherwise; $\E[Z\mid X=10]=5$.
-      (2) By symmetry $\E[Y\mid X=x]=\E[Z\mid X=x]$; they sum to $\E[X\mid X=x]=x$; so each is $x/2$.
-      (3) $\E[YZ\mid Y=y]=y\,\E[Z]=3.5y$; $\E[Z^2\mid Y=y]=\E[Z^2]=\tfrac{91}6$, since row $y$ has $Z$ uniform on $\{1,\dots,6\}$.
-      (4) The triangle $0<y<x<1$, $f_{X,Y}(x,y)=\tfrac1{1-y}$ there. $\E[X\mid Y=y]=\tfrac{1+y}2$. $f_X(x)=\int_0^x\tfrac{\dd y}{1-y}=-\ln(1-x)$. $\E[Y\mid X=x]=\dfrac{\int_0^x\frac{y}{1-y}\dd y}{-\ln(1-x)}=1-\dfrac{x}{-\ln(1-x)}$ ($\approx x/2$ for small $x$; $0.279$ at $x=\tfrac12$).
-    \item \textbf{Battery 2.} (1) $\E[X^2]=\tfrac16\sum_y(y^2+7y+\tfrac{91}6)=\tfrac{91}6+24.5+\tfrac{91}6=\tfrac{329}6$; $\Var(X)=\tfrac{329}6-49=\tfrac{35}6$.
-      (2) $\E[S\mid N=n]=3.5n$, so $\E[S]=3.5\cdot3.5=12.25$; head-on, $6+36+\dots+6^6=55\,986$ outcomes.
-      (3) $\int_0^1x^2(-\ln x)\dd x=\tfrac19$ by parts. $\E[XY\mid Y=y]=y\cdot\tfrac y2$, so $\E[XY]=\int_0^1\tfrac{y^2}2\dd y=\tfrac16=\int_0^1\!\int_0^y xy\,\tfrac1y\dd x\dd y$.
-      (4) Given $K=k$: $2^k$ with probability $2^{-k}$, so $\E[\cdot\mid K=k]=1$ for every $k$, hence expected winnings $\pounds1$. Do not pay $\pounds1.50$.
-  \end{itemize}
-\end{frame}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{Answers to the In-Slide Exercises (2): Batteries 3 and 4}
-  \small
-  \begin{itemize}
-    \item \textbf{Battery 3.} (1) $5.5,5.5,9.5$ versus $X=7,3,7$; value $8.5$ on row $5$, the cells $(5,z)$.
-      (2) $\E[Z\mid X]=X/2$; the sum is $\E[X\mid X]=X$: linearity and $\E[h(X)\mid X]=h(X)$. The rows are the eleven diagonals $\{X=x\}$.
-      (3) $\E[W\mid Y]=Y^2$: values $1,0,1$; rows are the three singletons. $\E[Y\mid W]$: rows $\{W=0\}=\{0\}$ and $\{W=1\}=\{-1,1\}$, averages $0$ and $0$; so $0,0,0$.
-      (4) Values $\tfrac12,1,\tfrac32,2,\tfrac52,3$, each with probability $\tfrac16$; their average is $\tfrac16\cdot\tfrac{21}2=1.75=\E[H]$.
-    \item \textbf{Battery 4.} (1) $\E[\ind_{\{Y=6\}}\,\E[X\mid Y]]=\E[\ind_{\{Y=6\}}(Y+3.5)]=9.5\cdot\tfrac16=\tfrac{57}{36}$; row $6$ sums to $57$ out of $36$ cells.
-      (2) $\E[X^2\mid Y]=Y^2+7Y+\tfrac{91}6$; tower gives $\tfrac{329}6$; $\Var(X)=\tfrac{35}6$, as in battery 2.
-      (3) $\Cov(X,Y)=\tfrac{329}{12}-24.5=\tfrac{35}{12}=\Cov(X,Z)$; sum $\tfrac{35}6=\Var(X)$, because $\Cov(X,Y)+\Cov(X,Z)=\Cov(X,Y+Z)=\Cov(X,X)$.
-      (4) By symmetry the eight $\E[\xi_i\mid S_8]$ are equal and sum to $\E[S_8\mid S_8]=S_8$, so each is $S_8/8$ and $\E[S_5\mid S_8]=\tfrac58S_8$.
-      (5) $\E[h(Y)X]=\E[h(Y)\,\E[X\mid Y]]=\E[h(Y)]\,\E[X]$. Conversely $Y$ uniform on $\{-1,0,1\}$, $X=Y^2$: $\Cov(Y,X)=\E[Y^3]=0$, but $\E[X\mid Y]=Y^2\ne\tfrac23=\E[X]$.
-  \end{itemize}
-\end{frame}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{Answers to the In-Slide Exercises (3): Battery 5}
-  \begin{itemize}
-    \item (1) $A=\sum_{i\le N}\ind_{B_i}$, with $B_i$ the event that email $i$ has an attachment; on row $\{N=n\}$ the indicators keep their distribution (this is where independence enters), so $\E[A\mid N=n]=np$; then $\E[A\mid N]=pN$ and $\E[A]=p\E[N]$ by the tower property.
-    \item (2) Openings T, HT, HHT, HHH with probabilities $\tfrac12,\tfrac14,\tfrac18,\tfrac18$ and row averages $1+m,\,2+m,\,3+m,\,3$ where $m=\E[T]$: $m=\tfrac78m+\tfrac74$, so $m=14$.
-    \item (3) $\E[R]=\tfrac12\cdot1+\tfrac12(1+\E[R])$, so $\E[R]=2$; net gain $1-(R-1)=2-R$ has mean $0$.
-    \item (4) First roll a six: $S=6$. First roll $k\ne6$: $S=k+S'$, $S'$ a fresh copy. $\E[S]=1+\tfrac16(1+2+3+4+5)+\tfrac56\E[S]$, so $\E[S]=21$.
-      The random-sums theorem needs $N$ independent of the $X_i$; here $N$ is the index of the first six, determined by the $X_i$. The agreement $3.5\cdot6=21$ is Wald's identity, which needs a different argument.
-  \end{itemize}
-\end{frame}

@@ -3,11 +3,10 @@
 % paths (rows = outcomes omega, columns = times t), and for Markov chains the
 % transition matrix as a table whose rows are conditional distributions (the
 % row picture of the Conditional Expectation deck). Homework: quiz03.tex.
-% In-slide exercises: answers on the last slides. Every number was checked
+% Every number was checked
 % with python3 (sympy / fractions / numpy); the script is quoted in comments
 % where the number appears.
 % ---------------------------------------------------------------------------
-\newcommand{\quiz}[1]{\hfill{\normalfont\small\color{soft}#1}}
 \newcommand{\Z}{\mathbb{Z}}
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Var}{\operatorname{Var}}
@@ -144,20 +143,6 @@
   \end{itemize}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: Stochastic Processes\quiz{Homework: Quiz 3 Part C}}
-  \label{fr:ex-proc}
-  \small
-  \begin{exercise}
-    \begin{enumerate}
-      \item In the table, mark the rows of the event $\{S_2=0\}$ and compute $\Prob(S_2=0)$ and $\E[S_3\mid S_2=0]$ (restrict to those rows, as in the Conditional Expectation lecture).
-      \item Let $M=\max_{t\le3}S_t$. Write down $M(\omega)$ for each row and the pmf of $M$. Is $M$ a column of the table?
-      \item Let $Y_t=S_t^2$. Write the new table. Are $Y_1$ and $Y_2$ independent?
-      \item Define $R_t=\ind\{S_t=0\}$ for $t=0,\dots,3$ and $V=R_0+R_1+R_2+R_3$, the number of visits to $0$. Compute $\E[V]$ by linearity, column by column, without listing $V(\omega)$.
-    \end{enumerate}
-  \end{exercise}
-  \words{Item 4 is the habit to acquire: a path quantity that is a sum over columns has an expectation computable one column at a time.}
-\end{frame}
 
 % ===========================================================================
 \begin{frame}{The Bernoulli Process and the Simple Random Walk}
@@ -330,21 +315,6 @@
   \end{exampleblock}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: The Random Walk\quiz{Homework: Quiz 3 Part C}}
-  \label{fr:ex-walk}
-  \small
-  \begin{exercise}
-    \begin{enumerate}
-      \item Fair walk. Compute $\Prob(S_6=0)$, $\Prob(S_6=2)$, and $\Prob(S_6=3)$.
-      \item Walk with $p=0.6$. Compute $\E[S_{100}]$, $\Var(S_{100})$, and $\Cov(S_{50},S_{100})$ (use independent increments: $S_{100}=S_{50}+(S_{100}-S_{50})$).
-      \item Fair walk. Compute $\Prob(\max_{k\le 6}S_k\ge2)$ by the reflection principle. Check it against a direct count of the $64$ paths if you doubt it.
-      \item Fair walk started at $i\in\{1,\dots,a-1\}$, stopped when it reaches $0$ or $a$. Write the first-step equations for $m_i=\E_i[\tau]$ and show $m_i=i(a-i)$. Compare with $a^2-i^2$ on the previous slide by shifting the interval.
-      \item Fair walk. Show that $\E[\tau]$ for leaving $(-a,a)$ cannot be found from the distribution of any single $S_n$: exhibit two processes with the same columns $S_n$ (same distribution at each $n$) but different exit times.
-    \end{enumerate}
-  \end{exercise}
-  \words{Items 4 and 5 are the point: exit times are row quantities, and first-step analysis is the tool that handles them without ever finding their distribution.}
-\end{frame}
 
 % ===========================================================================
 \begin{frame}{From the Walk to Brownian Motion: The $\sqrt n$ Scaling}
@@ -467,22 +437,6 @@
   \words{Same structure, different time set and step distribution: $B$ is the walk with the discreteness removed.}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: Brownian Motion, the Definition\quiz{Homework: Quiz 3 Part C}}
-  \label{fr:ex-bmA}
-  \small
-  % python3: 1-Phi(sqrt3) = 0.5*(1-erf(sqrt(3)/sqrt 2)) = 0.04163; Var(B_t+B'_t)=2t
-  \begin{exercise}
-    \begin{enumerate}
-      \item Which of these pairs are independent: $B_1$ and $B_3-B_1$; $B_1$ and $B_3$; $B_2-B_1$ and $B_4-B_3$; $B_2$ and $B_3-B_1$? Name the property used, or say why it does not apply.
-      \item Find the distribution of $B_5-B_2$ and compute $\Prob(B_5-B_2>3)$ through $\Phi$. Then compute $\Prob(B_5>3\mid B_2=0)$.
-      \item For the rescaled walk $B^{(n)}$ of slide~\ref{fr:scaling} with $n$ fixed, which of (i)--(iv) hold exactly, and which only in the limit $n\to\infty$?
-      \item Decide, property by property, which of the processes $(2B_t)_{t\ge0}$, $(B_{2t})_{t\ge0}$, $(B_t+t)_{t\ge0}$, $(\tfrac12B_{4t})_{t\ge0}$ is a Brownian motion.
-      \item Let $B$ and $B'$ be independent Brownian motions. Show that $W_t=(B_t+B'_t)/\sqrt2$ is a Brownian motion and that $B_t+B'_t$ is not. Where exactly is the independence of $B$ and $B'$ used?
-    \end{enumerate}
-  \end{exercise}
-  \words{Every item is settled by checking the four properties of the definition; nothing else about Brownian motion is known yet.}
-\end{frame}
 
 % ---------------------------------------------------------------------------
 \begin{frame}{Basic Properties: Marginals and Covariance}
@@ -628,21 +582,6 @@
   \end{itemize}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: Brownian Motion\quiz{Homework: Quiz 3 Part C}}
-  \label{fr:ex-bm}
-  \small
-  \begin{exercise}
-    \begin{enumerate}
-      \item Express $\Prob(B_4>2)$ and $\Prob(|B_9|\le3)$ through $\Phi$ and evaluate them.
-      \item Compute $\Var(B_1+B_2)$ and $\Cov(B_1,\ B_3-B_2)$ using $\Cov(B_s,B_t)=\min(s,t)$.
-      \item Compute $\Prob(B_2>0\mid B_1=-1)$ and $\Prob(B_3>0\mid B_1=1)$ by splitting into increments.
-      \item Find the conditional pdf of $B_1$ given $B_2=x$ (slice the joint pdf of slide~\ref{fr:bmjoint}, as in the Refresher). Which normal is it, and what is $\E[B_1\mid B_2]$? Explain the answer in one sentence via symmetry between the increments $B_1$ and $B_2-B_1$.
-      \item Compute $\Prob(B_1>0,\ B_2>B_1)$, $\Prob(B_1>0,\ B_2<0)$ and $\Prob(B_4>0\mid B_2>0)$ (scaling). Explain in one sentence why $\Prob(B_3>0\mid B_1>0,\ B_2>0)$ is harder than any of these.
-    \end{enumerate}
-  \end{exercise}
-  \words{Every item is the same move: write the values you are asked about as sums of independent increments, then use ordinary normal calculations.}
-\end{frame}
 
 % ===========================================================================
 \begin{frame}{Risk of Ruin: The Problem}
@@ -779,22 +718,6 @@
   \end{itemize}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: The Ruin Equation\quiz{Homework: Quiz 3 Part C}}
-  \label{fr:ex-ruinA}
-  \small
-  % python3 fractions: win(3,10,1/2)=3/10, dur=21; win(7,10,1/2)=7/10, dur=21; win(3,10,2/5)=0.0419; win(5,10,3/5)=243/275
-  %   stake 2, fair, 50->100 = walk 25->50: h=1/2, dur=625; p=0.4 5->10: stake 1 h=32/275=0.1164, stake 5 h=p=0.4
-  \begin{exercise}
-    \begin{enumerate}
-      \item Fair game, $\pounds3$ towards a target of $\pounds10$. Compute the probability of ruin and the expected number of rounds. Same with $\pounds7$.
-      \item $p=0.4$, $\pounds3$ towards $\pounds10$. Compute $h_3$ to three decimals and compare with the fair case. Then compute $h_5$ for $p=0.6$ and explain why $h_5(p=0.6)+h_5(p=0.4)=1$ when $N=10$.
-      \item Fair game, target $N$, fortune $i$. Show that the expected duration is maximised at $i=N/2$ and equals $N^2/4$ there. How many rounds does a fair game from $\pounds500$ to $\pounds1000$ last on average?
-      \item Stakes. Fair game, $\pounds50$ towards $\pounds100$, but $\pounds2$ per round (the fortune moves by $\pm2$). Show that $h_{50}$ is still $\tfrac12$ while $\E[T]$ drops to $625$. Then, for $p=0.4$ and $\pounds5$ towards $\pounds10$, compare $h_5$ at $\pounds1$ per round with $h_5$ at $\pounds5$ per round.
-    \end{enumerate}
-  \end{exercise}
-  \words{Item 4 is the lesson of the unfair game: the equation is the same for every stake, and the fewer rounds the equation is applied, the less the edge compounds.}
-\end{frame}
 
 % ===========================================================================
 \begin{frame}{The Casino's Edge in Numbers, and Why Doubling Fails}
@@ -875,7 +798,7 @@
   \end{center}
   \begin{itemize}
     \item $p=0.6$, $\pounds5$ in hand: ruin with probability $(\tfrac23)^5\approx0.13$; otherwise the fortune drifts to infinity.
-    \item Roulette, $\pounds50$ in hand, no target: ruin certain, after $\dfrac{50}{2/38}=950$ spins on average (exercise 4 of slide~\ref{fr:ex-ruin}).
+    \item Roulette, $\pounds50$ in hand, no target: ruin certain, after $\dfrac{50}{2/38}=950$ spins on average.
     \item Fair: ruined with probability one, yet no finite number of rounds is a fair estimate of when. This is the statement that the fair walk returns to any level with probability one but has infinite expected return time; it reappears as \emph{null recurrence} on slide~\ref{fr:walkZ}.
     \item $\rho_i$ for $p>q$ is the probability that a walk with upward drift ever falls by $i$ below its start: the \textbf{hitting probability} of level $-i$. Hitting probabilities are the subject of slides~\ref{fr:hitting}--\ref{fr:minimal}, where the ruin problem returns as a special case.
   \end{itemize}
@@ -904,27 +827,11 @@
   \end{center}
   \begin{itemize}
     \item Doubling $\pounds50$ at $\pounds1$ a spin: one chance in $195$, and the evening lasts about $940$ spins. Staking the whole $\pounds50$ on one spin: $\tfrac{18}{38}\approx0.474$.
-    \item Even ``win $\pounds1$ and leave'' fails one time in ten, and the failures cost $\pounds50$ each: mean gain $0.8995\cdot1-0.1005\cdot50\approx-\pounds4.12$, which is $(p-q)\,\E[T]=-\tfrac2{38}\cdot78.4$ (exercise 3 of slide~\ref{fr:ex-ruin}). No staking plan makes the mean positive: every plan is a sum of bets each with mean $-\tfrac2{38}$ per pound.
+    \item Even ``win $\pounds1$ and leave'' fails one time in ten, and the failures cost $\pounds50$ each: mean gain $0.8995\cdot1-0.1005\cdot50\approx-\pounds4.12$, which is $(p-q)\,\E[T]=-\tfrac2{38}\cdot78.4$. No staking plan makes the mean positive: every plan is a sum of bets each with mean $-\tfrac2{38}$ per pound.
   \end{itemize}
   \words{Two lines of first-step analysis produce every number in this table; no path was ever enumerated.}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: Ruin Against the Casino\quiz{Homework: Quiz 3 Part C}}
-  \label{fr:ex-ruin}
-  \small
-  % python3: (2/3)^11=0.01156, (2/3)^12=0.00771 -> i=12; (1-(20/38)^7)^100 = 0.3246; 100*(1-(40/38)^7) = -43.2;
-  %   50->51 at 18/38: h=0.89953, E[T]=78.35, gain = h - (1-h)*50 = -4.124 = (p-q)E[T]; modified weather chain pi = (24/53,14/53,15/53)
-  \begin{exercise}
-    \begin{enumerate}
-      \item Favourable game, $p=0.6$, no target. How much capital makes the probability of ever being ruined smaller than $1\%$?
-      \item Doubling at roulette with capital $\pounds127$ ($k=7$). Compute the probability of ruin in a single cycle and the expected gain per cycle. After $100$ cycles: what is your net gain if you were never ruined, with what probability does that happen, and what is your expected net gain?
-      \item Accept the identity $\E_i[X_T]=i+(p-q)\,\E_i[T]$ (the fair case $p=q$ was used on slide~\ref{fr:ruinfair}). Deduce that the mean gain $N h_i-i$ of \emph{any} target strategy equals $(p-q)\E_i[T]$, hence is negative whenever $p<q$, and check it against slide~\ref{fr:ruinreturn} for $\pounds50$ towards $\pounds51$ at roulette.
-      \item Unfavourable game ($p<q$) against a casino of unlimited capital. Using the formula for $D_i$ and $N\to\infty$, show that the expected time to ruin from $\pounds i$ is $\dfrac{i}{q-p}$, and evaluate it for $\pounds50$ at roulette. Why does the same limit fail for $p=q$?
-    \end{enumerate}
-  \end{exercise}
-  \words{Item 3 is the whole casino in one line: whatever the plan, the mean gain is the edge per round times the expected number of rounds.}
-\end{frame}
 
 % ===========================================================================
 \begin{frame}{Markov Chains: The Problem}
@@ -1128,21 +1035,6 @@
   \end{columns}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: Markov Chains\quiz{Homework: Quiz 3 Part C}}
-  \label{fr:ex-mc}
-  \small
-  \begin{exercise}
-    \begin{enumerate}
-      \item Weather chain, sunny today. Compute the probability of the sequence $\st S,\st S,\st C,\st R$ over the next three days, and $\Prob(X_2=\st R\mid X_0=\st S)$ by summing over the three possible values of $X_1$.
-      \item Write the transition matrix of the random walk on the cycle of length $4$ and of the Ehrenfest urn with $N=2$. Check the row sums.
-      \item Vowel/consonant chain. Compute $\E[\ind\{X_{n+1}=\st V\}\mid X_n=i]$ for $i=\st V,\st C$ as row averages, and $\Prob(X_1=\st V,X_2=\st V,X_3=\st C\mid X_0=\st C)$.
-      \item Let $X_n$ be the maximum of the first $n$ rolls of a die. Show that $(X_n)$ is a Markov chain on $\{1,\dots,6\}$ and write its transition matrix. Is $Y_n=$ (sum of the first $n$ rolls) $\bmod 6$ a Markov chain? Is $Z_n=\max(\xi_n,\xi_{n-1})$?
-      \item Two-state chain with $\PP=\begin{pmatrix}1-a&a\\b&1-b\end{pmatrix}$. Show that $(X_n)$ is an independent sequence if and only if $a+b=1$. So which chains are ``no memory at all''?
-    \end{enumerate}
-  \end{exercise}
-  \words{Item 4 is the test of understanding: Markov is a property of what you chose to record, and recording more (the pair of the last two rolls) can restore it.}
-\end{frame}
 
 % ===========================================================================
 \begin{frame}{$n$-Step Transition Probabilities}
@@ -1224,7 +1116,7 @@
     $\Prob_{\st S}(X_7=\st R)=p^{(7)}(\st S,\st R)\approx0.230$. The head-on sum over $729$ six-day sequences has been organised into six matrix multiplications.
   \end{exampleblock}
   \begin{itemize}
-    \item Read the three rows of $\PP^7$: they are almost equal. A week on, the weather barely remembers today. The common row, $(0.4615,0.3077,0.2308)$ to four places from $\PP^{20}$, is the subject of the next battery.
+    \item Read the three rows of $\PP^7$: they are almost equal. A week on, the weather barely remembers today. The common row, $(0.4615,0.3077,0.2308)$ to four places from $\PP^{20}$, is the subject of the next section.
     \item Read the columns of $\PP^2$ versus $\PP$: after a rainy day, the chance of sun is $0.2$ tomorrow and $0.34$ the day after; the rows are mixing towards each other.
   \end{itemize}
   \words{Everything about the future of the chain is in the powers of one small table.}
@@ -1255,22 +1147,6 @@
   \words{The rows of $\PP^n$ forgetting their index is the phenomenon the rest of the lecture explains: what the limit row is, when it exists, and how fast it is reached.}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: $n$-Step Transitions\quiz{Homework: Quiz 3 Part C}}
-  \label{fr:ex-nstep}
-  \small
-  \begin{exercise}
-    \begin{enumerate}
-      \item Weather chain. Compute row $\st S$ of $\PP^2$ by hand and read off $\Prob_{\st S}(X_2=\st R)$. Which three two-day sequences does the entry add up?
-      \item Weather chain with $X_0$ uniform on the three states. Compute the distribution of $X_1$ as $\lambda\PP$.
-      \item Vowel/consonant chain. Compute $\PP^2$ and verify $p^{(2)}(\st V,\st V)=\tfrac5{13}+\tfrac8{13}(0.09)$ and $p^{(2)}(\st C,\st V)=\tfrac5{13}-\tfrac5{13}(0.09)$.
-      \item Random walk on the cube from $000$. Compute $p^{(2)}(000,000)$ and $p^{(2)}(000,110)$ by Chapman--Kolmogorov, and explain without computing why $p^{(n)}(000,000)=0$ for every odd $n$.
-      \item Two-state chain $\PP=\begin{pmatrix}1-a&a\\b&1-b\end{pmatrix}$ with $a+b>0$. Show by induction that
-        $\PP^n=\dfrac1{a+b}\begin{pmatrix}b&a\\b&a\end{pmatrix}+\dfrac{(1-a-b)^n}{a+b}\begin{pmatrix}a&-a\\-b&b\end{pmatrix}$, and recover the vowel/consonant formula with $a=0.8$, $b=0.5$.
-    \end{enumerate}
-  \end{exercise}
-  \words{Item 5 is every two-state chain at once: a limit row plus a geometrically decaying correction, with rate $|1-a-b|$.}
-\end{frame}
 
 % ===========================================================================
 \begin{frame}{Stationary Distribution: Definition}
@@ -1306,7 +1182,7 @@
   \end{block}
   \words{A left eigenvector for the eigenvalue $1$ exists by the argument above; that it can be chosen with non-negative entries is the content of the theorem.}
   \begin{itemize}
-    \item Not proved here (Perron--Frobenius, or a fixed-point argument). Uniqueness can fail: the gambler's ruin chain has infinitely many (exercise 5). On an infinite $S$ existence can fail: the random walk on $\Z$ has none (any solution of $\pi\PP=\pi$ is constant, and cannot sum to $1$).
+    \item Not proved here (Perron--Frobenius, or a fixed-point argument). Uniqueness can fail: the gambler's ruin chain has infinitely many. On an infinite $S$ existence can fail: the random walk on $\Z$ has none (any solution of $\pi\PP=\pi$ is constant, and cannot sum to $1$).
   \end{itemize}
 \end{frame}
 
@@ -1431,25 +1307,10 @@
   \end{exampleblock}
   \begin{itemize}
     \item Head-on, ``importance'' is circular: $\st A$ is important because $\st C$ is, and $\st C$ because $\st A$ is. The stationary equation resolves the circularity as a fixed point; the powers $\PP^n$ compute it by iteration ($\PP^{30}$ has all rows equal to $\pi$ to four places).
-    \item Without damping ($d=1$), $\pi=(0.4,0.2,0.4,0)$ is stationary for $\mathbf H$: a page nobody links to scores $0$ (exercise 4).
+    \item Without damping ($d=1$), $\pi=(0.4,0.2,0.4,0)$ is stationary for $\mathbf H$: a page nobody links to scores $0$.
   \end{itemize}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: Stationary Distributions\quiz{Homework: Quiz 3 Part C}}
-  \label{fr:ex-stat}
-  \small
-  \begin{exercise}
-    \begin{enumerate}
-      \item Vowel/consonant chain. Solve $\pi\PP=\pi$ and check that detailed balance $\pi_{\st V}p(\st V,\st C)=\pi_{\st C}p(\st C,\st V)$ holds (every two-state chain is reversible).
-      \item Weather chain. Verify that $\pi=(\tfrac6{13},\tfrac4{13},\tfrac3{13})$ satisfies all three detailed balance equations, so the weather chain is reversible. Would this still hold if $p(\st S,\st R)$ were changed to $0.2$ and $p(\st S,\st C)$ to $0.1$?
-      \item Find the stationary distributions of the Ehrenfest urn with $N=2$, the random walk on the cycle of length $L$, and the random walk on the cube. Which of them is uniform, and why?
-      \item Four-page web without damping ($d=1$). Show that $\pi=(0.4,0.2,0.4,0)$ is stationary for $\mathbf H$ and explain why $\st D$ scores $0$. Then explain why with $d=0.85$ the score of $\st D$ is exactly $0.0375$.
-      \item Gambler's ruin chain on $\{0,\dots,N\}$. Show that $\pi=(\alpha,0,\dots,0,1-\alpha)$ is stationary for every $\alpha\in[0,1]$. What feature of the chain allows infinitely many stationary distributions, and what does it say about ``the long-run fraction of time in state $i$''?
-    \end{enumerate}
-  \end{exercise}
-  \words{Item 5 is the warning that motivates the next battery: without a structural condition on the chain, ``the'' stationary distribution is not defined.}
-\end{frame}
 
 % ===========================================================================
 \begin{frame}{Communicating Classes and Irreducibility}
@@ -1551,7 +1412,7 @@
     Hence $i$ is recurrent iff $\sum_n p^{(n)}(i,i)=\infty$ iff $\Prob_i(V_i=\infty)=1$; transient iff $\sum_n p^{(n)}(i,i)<\infty$ iff $V_i<\infty$ with probability one.
   \end{block}
   \begin{block}{Proof}
-    Each time the chain is at $i$ it restarts (Markov property), and returns once more with probability $f$, independently of the past; so $V_i\ge k$ requires $k$ successive returns: $f^k$. Then $\E_i[V_i]=\sum_{k\ge1}\Prob_i(V_i\ge k)=\sum_kf^k$, and also $\E_i[V_i]=\sum_n\E_i[\ind\{X_n=i\}]=\sum_np^{(n)}(i,i)$ by linearity, column by column (exercise 4 of slide~\ref{fr:ex-proc}). \hfill$\square$
+    Each time the chain is at $i$ it restarts (Markov property), and returns once more with probability $f$, independently of the past; so $V_i\ge k$ requires $k$ successive returns: $f^k$. Then $\E_i[V_i]=\sum_{k\ge1}\Prob_i(V_i\ge k)=\sum_kf^k$, and also $\E_i[V_i]=\sum_n\E_i[\ind\{X_n=i\}]=\sum_np^{(n)}(i,i)$ by linearity, column by column. \hfill$\square$
   \end{block}
 \end{frame}
 
@@ -1597,21 +1458,6 @@
   \end{itemize}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: Classes, Periods, Recurrence\quiz{Homework: Quiz 3 Part C}}
-  \label{fr:ex-classes}
-  \small
-  \begin{exercise}
-    \begin{enumerate}
-      \item Gambler's ruin on $\{0,\dots,N\}$. List the communicating classes, say which are closed, give the period of each state, and classify every state as recurrent or transient.
-      \item Random walk on the cycle of length $4$ and of length $5$. Compute $p^{(n)}(0,0)$ for $n=1,2,3$ in each and read off the periods. For which $L$ do the rows of $\PP^n$ converge?
-      \item Ehrenfest urn, $N=4$. Show it is irreducible with period $2$, and compute $\E_0[T_0]$, the mean time between two moments when urn~1 is empty, from $\pi$. What is it for $N=100$?
-      \item Weather chain. Compute the mean return time to $\st R$ from $\pi$, and compare it with the mean number of days until the first rainy day starting from $\st S$, which is $\tfrac{20}3$ (slide~\ref{fr:q3}). Why are these different quantities?
-      \item Random walk on $\Z$ with $p\ne\tfrac12$. Using $\binom{2n}n\le4^n$, bound $\sum_np^{(2n)}(0,0)$ by a geometric series and conclude the walk is transient. For $p=\tfrac12$, use $\binom{2n}n4^{-n}\ge\dfrac{1}{2\sqrt n}$ to show it is recurrent.
-    \end{enumerate}
-  \end{exercise}
-  \words{Item 5 is the dividing line of the whole subject: the same chain is recurrent or transient according to one parameter, and the visits criterion decides it with a single series.}
-\end{frame}
 
 % ===========================================================================
 \begin{frame}{Hitting Probabilities: The Minimal Solution of a First-Step System}
@@ -1701,7 +1547,7 @@
     Solves it: off $A$, $T_A=1+T_A'$ where $T_A'$ is the hitting time of the chain restarted at $X_1$; take $\E_i$ and condition on $X_1$. Minimal: as before, any non-negative solution $x$ satisfies $x_i\ge\E_i[\min(T_A,n)]$ for all $n$, by induction. \hfill$\square$
   \end{block}
   \begin{itemize}
-    \item The system may have no finite non-negative solution at all; then $k^A_i=\infty$ for some $i$, which is what the fair walk on $\Z$ does (exercise 5). A finite solution, when the target is reachable from everywhere in a finite chain, is unique.
+    \item The system may have no finite non-negative solution at all; then $k^A_i=\infty$ for some $i$, which is what the fair walk on $\Z$ does. A finite solution, when the target is reachable from everywhere in a finite chain, is unique.
     \item In matrix form on a finite chain: $(\mathbf I-\mathbf Q)\,k=\mathbf 1$ with $\mathbf Q$ the transitions among the states off $A$; slide~\ref{fr:absorbing} inverts it.
   \end{itemize}
 \end{frame}
@@ -1724,7 +1570,7 @@
   \end{exampleblock}
   \words{Symmetry collapsed eight unknowns to three, and first-step analysis turned an infinite sum over paths into three linear equations.}
   \begin{itemize}
-    \item Check: from a neighbour of $000$ the expected time back to $000$ is $7$ (exercise 2), so the mean return time to $000$ is $1+7=8=1/\pi_{000}$, as the ergodic theorem predicts (slide~\ref{fr:ergodic}).
+    \item Check: from a neighbour of $000$ the expected time back to $000$ is $7$, so the mean return time to $000$ is $1+7=8=1/\pi_{000}$, as the ergodic theorem predicts (slide~\ref{fr:ergodic}).
   \end{itemize}
 \end{frame}
 
@@ -1749,26 +1595,11 @@
   \end{block}
   \words{The three opening questions have each been answered by one operation on the transition table: a power, a left eigenvector, and a first-step linear system.}
   \begin{itemize}
-    \item Vowel/consonant, the same tool: expected letters until the first vowel is $2$ from $\st C$ (geometric) and $1+0.8\cdot2=2.6$ from $\st V$. Until the pattern $\st{VV}$: $k_{\st C}=15$, $k_{\st V}=13$ (exercise 3).
+    \item Vowel/consonant, the same tool: expected letters until the first vowel is $2$ from $\st C$ (geometric) and $1+0.8\cdot2=2.6$ from $\st V$. Until the pattern $\st{VV}$: $k_{\st C}=15$, $k_{\st V}=13$.
     % python3 sympy: kC = 2 + kV, kV = 1 + 0.8 kC -> kV = 13, kC = 15; checked via fundamental matrix of the 3-state pattern chain.
   \end{itemize}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: Hitting Probabilities and Times\quiz{Homework: Quiz 3 Part C}}
-  \label{fr:ex-hit}
-  \small
-  \begin{exercise}
-    \begin{enumerate}
-      \item Weather chain. Compute the expected number of days until the next sunny day, starting from $\st R$ and from $\st C$.
-      \item Random walk on the cube. Compute the expected time from $000$ to an \emph{adjacent} corner (group states by distance from the target), and check that $1+$ (expected time from a neighbour back to $000$) equals $1/\pi_{000}=8$.
-      \item Vowel/consonant chain. Let $T$ be the first time two consecutive vowels have appeared. Set up a chain on the states ``last letter $\st C$'', ``last letter $\st V$ and the one before was not'', ``$\st{VV}$ seen'' and show $\E_{\st C}[T]=15$, $\E_{\st V}[T]=13$.
-      \item Ruin chain on $\{0,\dots,N\}$ with $A=\{0\}$. Show $h\equiv1$ solves the hitting system. Which equation fails to pin down $h_N$, and what does minimality give? Same for the infinite chain with $p>q$: exhibit the two-parameter family of solutions and pick the minimal one.
-      \item Fair random walk on $\Z$, $A=\{1\}$, start at $0$. Show $h^A_0=1$ (recurrence) but $k^A_0=\infty$, by showing the system $k_i=1+\tfrac12k_{i+1}+\tfrac12k_{i-1}$ ($i\le0$), $k_1=0$, has \emph{no} finite non-negative solution: every solution is $k_i=c+bi-i^2$.
-    \end{enumerate}
-  \end{exercise}
-  \words{Item 5 is the theorem's fine print: no finite non-negative solution means the expected hitting time is infinite.}
-\end{frame}
 
 % ===========================================================================
 \begin{frame}{The Convergence Theorem}
@@ -1909,21 +1740,6 @@
   \words{Both theorems say $\pi$ is the long-run behaviour of the chain; the first in distribution at a fixed late time, the second in frequency along a single path.}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: Convergence and Long-Run Behaviour\quiz{Homework: Quiz 3 Part C}}
-  \label{fr:ex-conv}
-  \small
-  \begin{exercise}
-    \begin{enumerate}
-      \item Weather chain. Using $|\lambda_2|\approx0.456$, estimate after how many days every entry of $\PP^n$ is within $0.01$ of $\pi$; check against the numbers on slide~\ref{fr:convrate}. Same for the vowel/consonant chain with tolerance $0.001$, using the exact formula $\tfrac8{13}(0.3)^n$.
-      \item Random walk on the cube. Show that the lazy chain $\PP'=\tfrac12(\mathbf I+\PP)$ is irreducible and aperiodic with the same stationary distribution, so its rows converge to $(\tfrac18,\dots,\tfrac18)$. What is the long-run fraction of time the original walk spends at $000$?
-      \item Take $\PP$ block-diagonal with the vowel/consonant chain and the weather chain on disjoint state sets. Show that $\lambda\PP^n$ converges for every $\lambda$, and describe the limit as a function of $\lambda$. Which hypothesis of the convergence theorem fails?
-      \item Vowel/consonant chain. What fraction of letters, in the long run, are vowels that are immediately followed by a consonant? Which theorem, applied to which chain, justifies the answer?
-      \item Gambler's ruin chain. Both theorems fail (why?). Nevertheless $V_i(n)/n$ converges with probability one for every $i$; identify the limit and explain why it is random.
-    \end{enumerate}
-  \end{exercise}
-  \words{Item 5 separates the two ideas one last time: a random limit of long-run frequencies is possible exactly when there is more than one stationary distribution.}
-\end{frame}
 
 % ===========================================================================
 \begin{frame}{Absorbing Chains and the Fundamental Matrix}
@@ -1988,20 +1804,6 @@
   \end{itemize}
 \end{frame}
 
-% ---------------------------------------------------------------------------
-\begin{frame}{Exercises: Absorbing Chains\quiz{Homework: Quiz 3 Part C}}
-  \label{fr:ex-abs}
-  \small
-  \begin{exercise}
-    \begin{enumerate}
-      \item Fair ruin chain with $N=3$. Write $\mathbf Q$, $\mathbf R$, compute $\mathbf N$, $\mathbf N\mathbf 1$ and $\mathbf N\mathbf R$ by hand, and check them against $i(N-i)$ and $i/N$.
-      \item Weather chain made absorbing at $\st R$ (replace row $\st R$ by $(0,0,1)$). Compute $\mathbf N$ and $\mathbf N\mathbf 1$; recover $k_{\st S}=\tfrac{20}3$, $k_{\st C}=5$, and read off the expected number of cloudy days before the first rainy day, starting from a sunny day.
-      \item Vowel/consonant pattern chain of the previous battery (states $\st C$, $\st V$, $\st{VV}$ absorbing). Compute $\mathbf N$ and confirm $\E_{\st C}[T]=15$, $\E_{\st V}[T]=13$.
-      \item Explain why $\mathbf N_{ii}\ge1$ for every transient $i$, and why $\mathbf N_{ii}=1/(1-f_i)$ where $f_i=\Prob_i(\text{return to } i)$ (compare the visits criterion, slide~\ref{fr:visits}).
-    \end{enumerate}
-  \end{exercise}
-  \words{Every hitting-time and hitting-probability computation of this lecture is a row of $\mathbf N\mathbf 1$ or $\mathbf N\mathbf R$ for a suitably absorbing version of the chain.}
-\end{frame}
 
 % ===========================================================================
 \begin{frame}{Summary}
@@ -2026,62 +1828,4 @@
   \end{tabular}
   \medskip
   \words{One tool did most of the work: condition on the first step, and a question about paths of unbounded length becomes a finite linear system.}
-\end{frame}
-
-% ===========================================================================
-\begin{frame}{Answers to the In-Slide Exercises (1)}
-  \label{fr:ans1}
-  \footnotesize
-  \begin{itemize}
-    \item \textbf{Processes (slide~\ref{fr:ex-proc}).} (1) Rows $\st{HTH},\st{HTT},\st{THH},\st{THT}$; $\Prob(S_2=0)=\tfrac12$; $\E[S_3\mid S_2=0]=\tfrac14(1-1+1-1)=0$.
-      (2) $M=3,2,1,1,1,0,0,0$ down the rows; pmf $\tfrac18,\tfrac18,\tfrac38,\tfrac38$ on $3,2,1,0$; not a column: it depends on the whole row.
-      (3) $Y_1=1$ always, so $Y_1\indep Y_2$ trivially (a constant is independent of everything).
-      (4) $\E[V]=1+0+\tfrac12+0=\tfrac32$.
-    \item \textbf{Random walk (slide~\ref{fr:ex-walk}).} (1) $\tfrac{20}{64},\tfrac{15}{64},0$. (2) $20$; $96$; $\Cov=\Var(S_{50})=48$. (3) $2\Prob(S_6>2)+\Prob(S_6=2)$; $S_6$ is even so $\Prob(S_6>2)=\Prob(S_6\ge4)=\tfrac{7}{64}$; total $\tfrac{14+15}{64}=\tfrac{29}{64}$.
-      (4) $m_i=1+\tfrac12(m_{i+1}+m_{i-1})$, $m_0=m_a=0$; $i(a-i)$ satisfies it (check as on slide~\ref{fr:exitsol}); with $j=i-\tfrac a2$ it reads $(\tfrac a2)^2-j^2$, the formula of slide~\ref{fr:exitsol} for the interval $(-\tfrac a2,\tfrac a2)$.
-      (5) Replace one column by an independent copy of itself: $S'_2\sim S_2$ independent of everything else, $S'_n=S_n$ otherwise. Every column keeps its distribution, but for $a=2$, $\Prob(\tau'=3)=\Prob(|S'_2|<2)\Prob(|S_3|\ge2)=\tfrac12\cdot\tfrac14=\tfrac18$ while $\Prob(\tau=3)=0$ ($S_2=0$ forces $|S_3|=1$). Exit times depend on the joint law of several columns.
-    \item \textbf{Brownian motion, definition (slide~\ref{fr:ex-bmA}).} (1) $B_1\indep B_3-B_1$ (increments over $[0,1]$ and $[1,3]$, property (ii)); $B_1,B_3$ not ($\Cov=1$); $B_2-B_1\indep B_4-B_3$; $B_2$ and $B_3-B_1$ not: both contain the increment over $[1,2]$ ($\Cov=1$). (2) $N(0,3)$; $1-\Phi(\sqrt3)\approx0.042$; the same, since $B_5=B_2+(B_5-B_2)$. (3) (i) and (ii) hold exactly (disjoint intervals use disjoint blocks of steps); (iii) fails (a rescaled binomial) and (iv) fails (jumps of size $1/\sqrt n$). (4) $2B_t$: $\Var=4t$, (iii) fails; $B_{2t}$: $\Var=2t$, (iii) fails; $B_t+t$: mean $t$, (iii) fails; $\tfrac12B_{4t}$: all four hold. (5) Increments of $W$ over disjoint intervals are independent because those of $B$ and of $B'$ are and $B\indep B'$; each is $\tfrac1{\sqrt2}\big(N(0,\Delta)+N(0,\Delta)\big)=N(0,\Delta)$, the sum of \emph{independent} normals having variance $2\Delta$; $B+B'$ has $\Var=2t$, so (iii) fails.
-  \end{itemize}
-\end{frame}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{Answers to the In-Slide Exercises (2)}
-  \label{fr:ans2}
-  \footnotesize
-  \begin{itemize}
-    \item \textbf{Brownian motion, computations (slide~\ref{fr:ex-bm}).} (1) $1-\Phi(1)\approx0.159$; $2\Phi(1)-1\approx0.683$. (2) $1+2+2\cdot1=5$; $0$ (disjoint increments). (3) $\Phi(-1)\approx0.159$; $\Prob(N(1,2)>0)=\Phi(1/\sqrt2)\approx0.760$. (4) $N(x/2,\tfrac12)$; $\E[B_1\mid B_2]=B_2/2$: the increments $B_1$ and $B_2-B_1$ are i.i.d., so given their sum each is on average half of it. (5) $\tfrac14$; $\tfrac12-\tfrac38=\tfrac18$; $\tfrac34$, since $(B_2,B_4)$ has the law of $\sqrt2\,(B_1,B_2)$ (slide~\ref{fr:bmscaling}, $c=2$); the three-column event needs the joint law of $(B_1,B_2,B_3)$, not one increment split.
-    \item \textbf{Ruin equation (slide~\ref{fr:ex-ruinA}).} (1) Ruin $\tfrac7{10}$, $21$ rounds; ruin $\tfrac3{10}$, $21$ rounds. (2) $h_3=\tfrac{1.5^3-1}{1.5^{10}-1}\approx0.042$ versus $0.3$; $h_5(0.6)=\tfrac{243}{275}\approx0.884$; by the symmetry $i\leftrightarrow N-i$, $p\leftrightarrow q$ the two sum to $1$. (3) $i(N-i)$ is maximal at $i=N/2$; $250{,}000$ rounds. (4) Fortune$/2$ is a fair walk from $25$ towards $50$: $h=\tfrac{25}{50}=\tfrac12$, $\E[T]=25\cdot25=625$. At $p=0.4$: $\pounds1$ per round gives $\tfrac{32}{275}\approx0.116$; $\pounds5$ per round is a single bet, $0.4$. In an unfavourable game, bet big and seldom.
-    \item \textbf{Ruin against the casino (slide~\ref{fr:ex-ruin}).} (1) $(\tfrac23)^i<0.01$ iff $i\ge12$ ($(\tfrac23)^{11}\approx0.0116$, $(\tfrac23)^{12}\approx0.0077$). (2) $q^7\approx0.011$; $1-(2q)^7\approx-0.43$; $+\pounds100$ with probability $(1-q^7)^{100}\approx0.32$, and expected net gain $100\cdot(-0.43)\approx-\pounds43$. (3) $X_T\in\{0,N\}$, so $\E_i[X_T]=Nh_i$ and $Nh_i-i=(p-q)\E_i[T]<0$ for $p<q$; roulette $50\to51$: $-\tfrac2{38}\cdot78.4\approx-4.12=0.8995-0.1005\cdot50$. (4) For $r>1$, $\frac{1-r^i}{1-r^N}\to0$, so $D_i\to\frac{i}{q-p}$; roulette: $50/(2/38)=950$ spins. For $p=q$, $i(N-i)\to\infty$.
-  \end{itemize}
-\end{frame}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{Answers to the In-Slide Exercises (3)}
-  \label{fr:ans3}
-  \footnotesize
-  \begin{itemize}
-    \item \textbf{Markov chains (slide~\ref{fr:ex-mc}).} (1) $0.7\cdot0.2\cdot0.3=0.042$; $0.17$. (2) Cycle: $p(i,i\pm1)=\tfrac12$; urn: rows $(0,1,0),(\tfrac12,0,\tfrac12),(0,1,0)$. (3) $0.2$ and $0.5$ (the $\st V$ column of the row); $0.5\cdot0.2\cdot0.8=0.08$. (4) Max: $p(i,j)=\tfrac16$ for $j>i$, $p(i,i)=\tfrac i6$; $Y_n$ is Markov ($Y_{n+1}=Y_n+\xi_{n+1}\bmod6$); $Z_n$ is not (given $Z_n=3$, whether $\xi_n=3$ matters). (5) Rows equal iff $1-a=b$.
-    \item \textbf{$n$-step (slide~\ref{fr:ex-nstep}).} (1) $(0.57,0.26,0.17)$; $\st{SSR},\st{SCR},\st{SRR}$. (2) $(0.4,\tfrac13,\tfrac4{15})$. (3) $0.44=\tfrac5{13}+\tfrac{0.72}{13}$; $0.35=\tfrac5{13}-\tfrac{0.45}{13}$. (4) $\tfrac13$; $\tfrac29$; parity of the number of $1$s alternates. (5) Check $n=1$; multiply by $\PP$: the first matrix is unchanged, the second is multiplied by $1-a-b$.
-    \item \textbf{Stationary (slide~\ref{fr:ex-stat}).} (1) $(\tfrac5{13},\tfrac8{13})$; $\tfrac5{13}\cdot0.8=\tfrac8{13}\cdot0.5=\tfrac4{13}$. (2) $\tfrac6{13}\cdot0.2=\tfrac4{13}\cdot0.3$, $\tfrac6{13}\cdot0.1=\tfrac3{13}\cdot0.2$, $\tfrac4{13}\cdot0.3=\tfrac3{13}\cdot0.4$: all hold. With the change, $\pi=(\tfrac{24}{53},\tfrac{14}{53},\tfrac{15}{53})$ and detailed balance fails for every pair: not reversible. (3) $(\tfrac14,\tfrac12,\tfrac14)$; uniform; uniform: regular graphs have $\pi_i=d/(L\,d)$. (4) $\pi\mathbf H=\pi$ checks entrywise; nothing flows into $\st D$; with damping the only inflow to $\st D$ is the jump, $\sum_i\pi_i\cdot0.0375=0.0375$. (5) Rows $0$ and $N$ are point masses, so any mass on $\{0,N\}$ is fixed; two closed classes; the long-run fraction depends on which class is entered.
-  \end{itemize}
-\end{frame}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{Answers to the In-Slide Exercises (4)}
-  \label{fr:ans4}
-  \footnotesize
-  \begin{itemize}
-    \item \textbf{Classes (slide~\ref{fr:ex-classes}).} (1) $\{0\},\{N\}$ closed, $\{1,\dots,N-1\}$ open; periods $1,1$ and $2$; $0,N$ recurrent, the rest transient. (2) $L=4$: $0,\tfrac12,0$, period $2$; $L=5$: $0,\tfrac12,0$ but $p^{(5)}(0,0)>0$, period $1$; rows converge iff $L$ odd. (3) Period $2$ (parity of the count changes each step); $\E_0[T_0]=1/\pi_0=16$; $2^{100}\approx1.3\cdot10^{30}$. (4) $\tfrac{13}3$ versus $\tfrac{20}3$: return time starts \emph{at} $\st R$ and counts the first step away; hitting time from $\st S$ starts elsewhere. (5) $p^{(2n)}(0,0)\le(4pq)^n$ with $4pq<1$; and $\ge\tfrac1{2\sqrt n}$ when $p=q$, whose sum diverges.
-    \item \textbf{Hitting (slide~\ref{fr:ex-hit}).} (1) $k_{\st R}=1+0.4k_{\st C}+0.4k_{\st R}$, $k_{\st C}=1+0.3k_{\st R}+0.4k_{\st C}$: $k_{\st R}=\tfrac{25}6$, $k_{\st C}=\tfrac{15}4$. (2) By distance from the target: $k_1=7$, $k_2=9$, $k_3=10$; $1+7=8=1/\pi_{000}$. (3) $k_{\st C}=2+k_{\st V}$ (wait for a vowel, then continue), $k_{\st V}=1+0.8k_{\st C}$: $k_{\st V}=13$, $k_{\st C}=15$. (4) The equation at $N$ is $h_N=h_N$; minimality gives $h_N=0$; infinite chain: $h_i=1+b(r^i-1)$, minimal $b=1$, $h_i=r^i$. (5) Substituting $c+bi-i^2$ verifies the equation; as $i\to-\infty$ the $-i^2$ term makes it negative, so no non-negative solution: $k_0=\infty$.
-  \end{itemize}
-\end{frame}
-
-% ---------------------------------------------------------------------------
-\begin{frame}{Answers to the In-Slide Exercises (5)}
-  \label{fr:ans5}
-  \footnotesize
-  \begin{itemize}
-    \item \textbf{Convergence (slide~\ref{fr:ex-conv}).} (1) $0.456^n<0.01$ at $n=6$ ($\ln0.01/\ln0.456\approx5.9$); table: $0.0053$ at $n=6$. Vowel/consonant: $\tfrac8{13}0.3^n<0.001$ at $n=6$. (2) $p'(i,i)=\tfrac12>0$ gives aperiodicity; $\pi\PP'=\tfrac12\pi+\tfrac12\pi=\pi$; still $\tfrac18$ (ergodic theorem). (3) Limit $(\alpha\pi_{\text{VC}},(1-\alpha)\pi_{\text{W}})$ where $\alpha$ is the initial mass on the vowel/consonant states; irreducibility fails. (4) $\pi_{\st V}p(\st V,\st C)=\tfrac5{13}\cdot0.8=\tfrac4{13}$; ergodic theorem for the pair chain $(X_n,X_{n+1})$, which is irreducible when $\PP$ is. (5) Reducible, so neither applies; the fraction converges to $\ind\{\text{absorbed at } i\}$ for $i\in\{0,N\}$ and to $0$ otherwise: random because which absorbing state is reached is random.
-    \item \textbf{Absorbing (slide~\ref{fr:ex-abs}).} (1) $\mathbf Q=\begin{pmatrix}0&\frac12\\\frac12&0\end{pmatrix}$, $\mathbf N=\begin{pmatrix}\frac43&\frac23\\\frac23&\frac43\end{pmatrix}$, $\mathbf N\mathbf 1=(2,2)=i(3-i)$, $\mathbf N\mathbf R=\begin{pmatrix}\frac23&\frac13\\\frac13&\frac23\end{pmatrix}$, target column $i/3$. (2) $\mathbf Q=\begin{pmatrix}0.7&0.2\\0.3&0.4\end{pmatrix}$, $\mathbf N=\begin{pmatrix}5&\frac53\\\frac52&\frac52\end{pmatrix}$, $\mathbf N\mathbf 1=(\tfrac{20}3,5)$; $\mathbf N_{\st S\st C}=\tfrac53$ cloudy days. (3) $\mathbf Q=\begin{pmatrix}0.5&0.5\\0.8&0\end{pmatrix}$, $\mathbf N\mathbf 1=(15,13)$. (4) The start counts as a visit; visits form a geometric number of returns, $\E=\sum_kf_i^k=1/(1-f_i)$.
-  \end{itemize}
 \end{frame}
