@@ -10,7 +10,7 @@
 \noindent Notation as in the Conditional Expectation lecture. For random variables $X,Y$ on $(\Omega,\F,\Prob)$, $\E[X\mid Y=y]$ is the average of $X$ over the row $\{Y=y\}$, and $\E[X\mid Y]$ is the random variable that takes the value $\E[X\mid Y=y]$ on the event $\{Y=y\}$. The results used below are the law of total expectation, the tower property, ``taking out what is known'', and the restart property.
 
 \begin{enumerate}[series=quiz,label=\arabic*.,leftmargin=2.6em]
-\item A supplier's defect rate is unknown. Model it as a random variable $\Theta$ with the uniform distribution on $[0,\tfrac15]$; its pdf is $f_\Theta(\theta)=5$ for $0\le\theta\le\tfrac15$. A sample of $10$ items is inspected. Let $D$ be the number of defective items in the sample. Given $\Theta=\theta$, $D$ is binomial with parameters $10$ and $\theta$. Take the following three facts about the binomial distribution as given:
+\item A random defect rate. A supplier's defect rate is unknown. Model it as a random variable $\Theta$ with the uniform distribution on $[0,\tfrac15]$; its pdf is $f_\Theta(\theta)=5$ for $0\le\theta\le\tfrac15$. A sample of $10$ items is inspected. Let $D$ be the number of defective items in the sample. Given $\Theta=\theta$, $D$ is binomial with parameters $10$ and $\theta$. Take the following three facts about the binomial distribution as given:
 \begin{align*}
 \E[D\mid\Theta=\theta]&=10\theta,\\
 \E[D^2\mid\Theta=\theta]&=10\theta(1-\theta)+100\theta^2,\\
@@ -38,7 +38,7 @@ Remark: each value $\Prob(D=d)$ is another such integral, so computing $\E[D]$ f
 % python3: E[D]=1, E[D^2]=11/5, Var=6/5; P(D=0)=0.41550, 0.9^10=0.34868
 \end{solution}
 
-\item Toss a fair coin repeatedly. Fix a pattern of three letters, for example THH. Let $T$ be the number of the toss on which the pattern is first completed. Example: for the tosses H, T, H, H, the pattern THH is completed on toss $4$, so $T=4$. The aim is $\E[T]$ for each of the three patterns THH, THT and TTT.
+\item Waiting for a pattern. Toss a fair coin repeatedly. Fix a pattern of three letters, for example THH. Let $T$ be the number of the toss on which the pattern is first completed. Example: for the tosses H, T, H, H, the pattern THH is completed on toss $4$, so $T=4$. The aim is $\E[T]$ for each of the three patterns THH, THT and TTT.
 
 The method is the one used for HH in the lecture (Application 2). At every moment the game is in one of three states, which record how much of the pattern the most recent tosses have completed.
 For THH and for THT the states are: state $0$, no progress; state $1$, the last toss is T; state $2$, the last two tosses are TH.
@@ -72,7 +72,7 @@ The first gives $m_0=2+m_1$. Substituting $m_2=1+\tfrac12m_0$ into the second, $
 % python3 sympy: THH (8,6,4); THT (10,8,6); TTT (14,12,8); Monte Carlo 7.97, 10.01, 13.98
 \end{solution}
 
-\item Two fair dice are rolled. $Y$ is the first die and $Z$ the second. Let $X=Y+Z$ and $D=Y-Z$. The two-dice table has $36$ cells $(y,z)$ with $y,z\in\{1,\dots,6\}$, each of probability $\tfrac1{36}$. Recall $\E[X]=7$ and $\E[D]=0$.
+\item Sum and difference of two dice. Two fair dice are rolled. $Y$ is the first die and $Z$ the second. Let $X=Y+Z$ and $D=Y-Z$. The two-dice table has $36$ cells $(y,z)$ with $y,z\in\{1,\dots,6\}$, each of probability $\tfrac1{36}$. Recall $\E[X]=7$ and $\E[D]=0$.
 \begin{enumerate}[label=(\alph*),leftmargin=2em]
 \item Fix $x\in\{2,\dots,12\}$. The event $\{X=x\}$ is the set of cells $(y,z)$ with $y+z=x$. Show that if the cell $(y,z)$ belongs to $\{X=x\}$ then so does the cell $(z,y)$, and that $D$ takes opposite values on these two cells. Deduce that $\E[D\mid X=x]=0$ for every $x$, so that $\E[D\mid X]=0$.
 \item Fix $d\in\{-5,\dots,5\}$. The event $\{D=d\}$ is the set of cells $(y,z)$ with $y-z=d$. List these cells and the value of $X$ on each. Show that $\E[X\mid D=d]=7$ for every $d$, so that $\E[X\mid D]=7$.
@@ -98,7 +98,7 @@ Method 2: $\{D=5,X=7\}$ is the single cell $(6,1)$, so $\Prob(D=5,X=7)=\tfrac1{3
 % python3: E[D|X=x]=0 for all x; E[X|D=d]=7 for all d; E[XD]=0; P(D=5,X=7)=1/36 vs 1/216; P(D odd, X even)=0
 \end{solution}
 
-\item Roll a fair die repeatedly. Let $X_1,X_2,\dots$ be the rolls: independent, each uniform on $\{1,\dots,6\}$, with $\mu=\E[X_i]=3.5$. Let $N$ be the number of the first roll that shows $5$ or $6$. Example: the rolls $2,4,1,6,\dots$ give $N=4$. Since each roll shows $5$ or $6$ with probability $\tfrac13$, $N$ is geometric with success probability $\tfrac13$, and $\E[N]=3$. The value of $N$ is determined by the rolls, so $N$ is not independent of the $X_i$, and the random-sums theorem of the lecture does not apply. Define
+\item A random number of rolls. Roll a fair die repeatedly. Let $X_1,X_2,\dots$ be the rolls: independent, each uniform on $\{1,\dots,6\}$, with $\mu=\E[X_i]=3.5$. Let $N$ be the number of the first roll that shows $5$ or $6$. Example: the rolls $2,4,1,6,\dots$ give $N=4$. Since each roll shows $5$ or $6$ with probability $\tfrac13$, $N$ is geometric with success probability $\tfrac13$, and $\E[N]=3$. The value of $N$ is determined by the rolls, so $N$ is not independent of the $X_i$, and the random-sums theorem of the lecture does not apply. Define
 \begin{align*}
 S&=X_1+\dots+X_N&&\text{(the stopping roll included)},\\
 S'&=X_1+\dots+X_{N-1}&&\text{(the stopping roll excluded; $S'=0$ if $N=1$)}.
