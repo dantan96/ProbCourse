@@ -29,17 +29,17 @@ For $a>0$ let $T_a=\min\{s\ge0:B_s=a\}$ be the first time $B$ reaches the level 
 \end{enumerate}
 \begin{solution}
 (a) By the reflection principle, $\Prob(\max_{s\le4}B_s\ge2)=2\,\Prob(B_4\ge2)$. Since $B_4\sim N(0,4)$, $\Prob(B_4\ge2)=\Prob(N(0,1)\ge1)=1-\Phi(1)$. So the probability is $2(1-\Phi(1))$.
-$\Prob(\max_{s\le4}B_s\ge2)=0.317$ (the three-place table value $\Phi(1)=0.841$ gives $0.318$; the values below are exact to three places).
+\ans{$\Prob(\max_{s\le4}B_s\ge2)=0.317$ (the three-place table value $\Phi(1)=0.841$ gives $0.318$; the values below are exact to three places).}
 
 (b) $\Prob(T_1\le t)=\Prob(\max_{s\le t}B_s\ge1)=2\,\Prob(B_t\ge1)$. Since $B_t\sim N(0,t)$, $\Prob(B_t\ge1)=1-\Phi(1/\sqrt t)$. So
 $\Prob(T_1\le t)=2\big(1-\Phi(1/\sqrt t)\big)$.
-At $t=1$: $2(1-\Phi(1))=0.317$. At $t=4$: $2(1-\Phi(0.5))=0.617$. At $t=100$: $2(1-\Phi(0.1))=0.920$.
+\ans{At $t=1$: $2(1-\Phi(1))=0.317$. At $t=4$: $2(1-\Phi(0.5))=0.617$. At $t=100$: $2(1-\Phi(0.1))=0.920$.}
 
 (c) $2\big(1-\Phi(1/\sqrt t)\big)=\tfrac12$ holds if and only if $\Phi(1/\sqrt t)=\tfrac34$, that is $1/\sqrt t=0.674$, that is $t=1/0.674^2$.
-The median of $T_1$ is $2.20$.
+\ans{The median of $T_1$ is $2.20$.}
 
 (d) Let $\tilde B_t=\tfrac1aB_{a^2t}$, a Brownian motion by the scaling property. $\tilde B$ reaches $1$ at time $t$ exactly when $B$ reaches $a$ at time $a^2t$. So the first time $\tilde B$ reaches $1$ is $T_a/a^2$, and this time has the distribution of $T_1$ because $\tilde B$ is a Brownian motion. Hence $T_a$ has the distribution of $a^2T_1$.
-The median of $T_a$ is $2.20\,a^2$.
+\ans{The median of $T_a$ is $2.20\,a^2$.}
 
 (e) Half of the paths reach $1$ by time $2.2$, but the waiting time of the other half has a heavy tail: $\Prob(T_1>t)=2\Phi(1/\sqrt t)-1\approx\sqrt{2/(\pi t)}$ decays only like $t^{-1/2}$. The mean is $\E[T_1]=\int_0^\infty\Prob(T_1>t)\dd t$, and $\int^\infty t^{-1/2}\dd t=\infty$. A median of $2.2$ and an infinite mean are consistent because the rare long waits are long enough to make the integral diverge.
 % python3: 2(1-Phi(1))=0.3173; t=4: 0.6171; t=100: 0.9203; median 2.198
@@ -62,23 +62,23 @@ Bold play stakes, from fortune $i$, the amount $\min(i,10-i)$: as much as possib
 \end{enumerate}
 \begin{solution}
 (a) With $r=1.5$: $h_3=\frac{1.5^3-1}{1.5^{10}-1}=\frac{2.375}{56.665}=0.042$. And $\E_3[T]=\frac{3}{0.2}-\frac{10}{0.2}\cdot\frac{1-1.5^3}{1-1.5^{10}}=15-50\cdot\frac{-2.375}{-56.665}=15-2.10=12.9$.
-Timid play from $\pounds3$: $h_3=0.042$ and $\E_3[T]=12.9$ rounds.
+\ans{Timid play from $\pounds3$: $h_3=0.042$ and $\E_3[T]=12.9$ rounds.}
 
 (b) The chain: $3\to6$ with probability $p$, $3\to0$ with probability $q$; $6\to10$ ($p$), $6\to2$ ($q$); $2\to4$ ($p$), $2\to0$ ($q$); $4\to8$ ($p$), $4\to0$ ($q$); $8\to10$ ($p$), $8\to6$ ($q$); $0$ and $10$ are absorbing. The first-step system is
-$h_0=0$, $h_{10}=1$, $h_3=ph_6$, $h_6=p+qh_2$, $h_2=ph_4$, $h_4=ph_8$, $h_8=p+qh_6$.
+\ans{$h_0=0$, $h_{10}=1$, $h_3=ph_6$, $h_6=p+qh_2$, $h_2=ph_4$, $h_4=ph_8$, $h_8=p+qh_6$.}
 
 (c) From $h_2=ph_4=p^2h_8$ we get $h_6=p+qp^2h_8$, and then $h_8=p+qh_6=p+qp+q^2p^2h_8$. So
 $h_8=\frac{p(1+q)}{1-q^2p^2}=\frac{0.4\cdot1.6}{1-0.0576}=\frac{0.64}{0.9424}=\frac{400}{589}=0.679$.
 Then $h_6=p+qp^2h_8=\frac{274}{589}=0.465$, $h_4=ph_8=\frac{160}{589}=0.272$, $h_2=ph_4=\frac{64}{589}=0.109$, and $h_3=ph_6=\frac{548}{2945}$.
-Bold play from $\pounds3$: $h_3=0.186$, about four and a half times the timid $0.042$.
+\ans{Bold play from $\pounds3$: $h_3=0.186$, about four and a half times the timid $0.042$.}
 
 (d) Each bet costs one step, so
 $k_0=k_{10}=0$, $k_3=1+pk_6$, $k_6=1+qk_2$, $k_2=1+pk_4$, $k_4=1+pk_8$, $k_8=1+qk_6$.
 Substituting $k_8$ into $k_4$, then into $k_2$, then into $k_6$: $k_6=1+q+qp+qp^2+q^2p^2k_6$, so $k_6=\frac{1+q+qp+qp^2}{1-q^2p^2}=\frac{1.936}{0.9424}=\frac{1210}{589}$, and $k_3=1+pk_6=1+\frac{484}{589}=\frac{1073}{589}$.
-Bold play from $\pounds3$: $k_3=1.82$ bets, against $12.9$ rounds of timid play.
+\ans{Bold play from $\pounds3$: $k_3=1.82$ bets, against $12.9$ rounds of timid play.}
 
 (e) With $p=q=\tfrac12$ the formula of (c) gives $h_8=\frac{\frac12\cdot\frac32}{1-\frac1{16}}=\frac45$, then $h_2=\tfrac14h_8=\tfrac15$, $h_6=\tfrac12+\tfrac12\cdot\tfrac15=\tfrac35$ and $h_3=\tfrac12h_6=\tfrac3{10}$.
-Bold play in the fair game: $h_3=\tfrac3{10}$, the same as timid play.
+\ans{Bold play in the fair game: $h_3=\tfrac3{10}$, the same as timid play.}
 Every round of a fair game has expected gain $0$ whatever the stake, so the expected fortune when the game ends equals the starting fortune: $\E[X_T]=3$. The final fortune is $10$ with probability $h_3$ and $0$ otherwise, so $\E[X_T]=10h_3$. Hence $h_3=\tfrac3{10}$ for every strategy that stops only at $0$ or $10$.
 % python3 sympy: bold h = (64,548/5,160,274,400)/589 for i=2,3,4,6,8 -> h3=548/2945=0.1861; k3=1073/589=1.822; timid 0.04191, 12.90; fair bold h3=3/10
 \end{solution}
@@ -98,21 +98,21 @@ where $\mathbf H_{ij}$ is $1/(\text{number of links out of }i)$ if page $i$ link
 \end{enumerate}
 \begin{solution}
 (a) $\st A$ has two out-links, $\st B$ and $\st C$ one each:
-$\mathbf H=\begin{pmatrix}0&\tfrac12&\tfrac12\\0&0&1\\1&0&0\end{pmatrix}$, so $\PP=\begin{pmatrix}0.05&0.475&0.475\\0.05&0.05&0.9\\0.9&0.05&0.05\end{pmatrix}$.
+\ans{$\mathbf H=\begin{pmatrix}0&\tfrac12&\tfrac12\\0&0&1\\1&0&0\end{pmatrix}$, so $\PP=\begin{pmatrix}0.05&0.475&0.475\\0.05&0.05&0.9\\0.9&0.05&0.05\end{pmatrix}$.}
 
 (b) The columns of $\pi\PP=\pi$ read
 $\pi_{\st A}=0.05+0.85\pi_{\st C}$, $\pi_{\st B}=0.05+0.425\pi_{\st A}$, $\pi_{\st C}=0.05+0.425\pi_{\st A}+0.85\pi_{\st B}$
 (using $\pi_{\st A}+\pi_{\st B}+\pi_{\st C}=1$ to collect the $0.05$ terms). Substituting the first two into the third and solving,
 $\pi=(\tfrac{686}{1769},\tfrac{380}{1769},\tfrac{703}{1769})=(0.388,0.215,0.397)$.
-Ranking: $\st C$ first, $\st A$ second, $\st B$ third.
+\ans{Ranking: $\st C$ first, $\st A$ second, $\st B$ third.}
 
 (c) The in-link of $\st A$ is the only link out of $\st C$, the top-ranked page, so $\st A$ receives all of $\st C$'s link mass. The in-link of $\st B$ is one of two links out of $\st A$, so $\st B$ receives only half of $\st A$'s link mass.
 
 (d) $\pi\mathbf H=\pi$ reads $\pi_{\st A}=\pi_{\st C}$, $\pi_{\st B}=\tfrac12\pi_{\st A}$, $\pi_{\st C}=\tfrac12\pi_{\st A}+\pi_{\st B}$, with $\pi_{\st A}+\pi_{\st B}+\pi_{\st C}=1$.
-Without damping, $\pi=(\tfrac25,\tfrac15,\tfrac25)$.
+\ans{Without damping, $\pi=(\tfrac25,\tfrac15,\tfrac25)$.}
 
 (e) Without damping, $\st D$ is an absorbing state: $\mathbf H_{\st D\st D}=1$. The surfer returns to $\st C$ repeatedly, and on each visit it moves to $\st D$ with probability $\tfrac12$, so it reaches $\st D$ with probability $1$ and then never leaves. The only stationary distribution is $\pi=(0,0,0,1)$.
-With $d=0.85$, solving $\pi\PP=\pi$ with $\sum\pi=1$ gives $\pi=(0.101,0.080,0.148,0.671)$ for $(\st A,\st B,\st C,\st D)$.
+\ans{With $d=0.85$, solving $\pi\PP=\pi$ with $\sum\pi=1$ gives $\pi=(0.101,0.080,0.148,0.671)$ for $(\st A,\st B,\st C,\st D)$.}
 
 (f) When $d=1$, $\st D$ is absorbing: the surfer eventually enters $\st D$ and stays there, and every other page has rank $0$. With damping, each visit to $\st D$ lasts a geometric number of steps with mean $1/0.15=6.7$, and each random jump lands on $\st D$ with probability $\tfrac14$, so $\st D$ still holds two thirds of the mass. Damping keeps every rank positive but does not remove the advantage of a self-linking page; search engines treat such pages separately.
 % python3 sympy: 3-page pi = (686,380,703)/1769; undamped (2/5,1/5,2/5); 4-page trap: undamped (0,0,0,1), damped (0.1006,0.0803,0.1485,0.6707)
@@ -128,21 +128,21 @@ With $d=0.85$, solving $\pi\PP=\pi$ with $\sum\pi=1$ gives $\pi=(0.101,0.080,0.1
 \end{enumerate}
 \begin{solution}
 (a) In the order $\st D,\st I,\st O,\st W,\st L$:
-$\PP=\begin{pmatrix}0&p&q&0&0\\q&0&0&p&0\\p&0&0&0&q\\0&0&0&1&0\\0&0&0&0&1\end{pmatrix}$.
+\ans{$\PP=\begin{pmatrix}0&p&q&0&0\\q&0&0&p&0\\p&0&0&0&q\\0&0&0&1&0\\0&0&0&0&1\end{pmatrix}$.}
 
 (b) $h_{\st W}=1$, $h_{\st L}=0$, $h_{\st D}=ph_{\st I}+qh_{\st O}$, $h_{\st I}=p+qh_{\st D}$, $h_{\st O}=ph_{\st D}$.
 Substituting the last two equations into the third: $h_{\st D}=p(p+qh_{\st D})+q\,ph_{\st D}=p^2+2pq\,h_{\st D}$, so $h_{\st D}(1-2pq)=p^2$. Since $p+q=1$, $1-2pq=(p+q)^2-2pq=p^2+q^2$.
-$h_{\st D}=\dfrac{p^2}{p^2+q^2}$. For $p=0.6$: $h_{\st D}=\tfrac9{13}$, $h_{\st I}=\tfrac{57}{65}$, $h_{\st O}=\tfrac{27}{65}$.
+\ans{$h_{\st D}=\dfrac{p^2}{p^2+q^2}$. For $p=0.6$: $h_{\st D}=\tfrac9{13}$, $h_{\st I}=\tfrac{57}{65}$, $h_{\st O}=\tfrac{27}{65}$.}
 
 (c) $k_{\st W}=k_{\st L}=0$, $k_{\st D}=1+pk_{\st I}+qk_{\st O}$, $k_{\st I}=1+qk_{\st D}$, $k_{\st O}=1+pk_{\st D}$.
 Substituting: $k_{\st D}=1+p(1+qk_{\st D})+q(1+pk_{\st D})=1+p+q+2pq\,k_{\st D}=2+2pq\,k_{\st D}$.
-$k_{\st D}=\dfrac2{1-2pq}$. For $p=0.6$: $k_{\st D}=\tfrac{50}{13}=3.85$ points.
+\ans{$k_{\st D}=\dfrac2{1-2pq}$. For $p=0.6$: $k_{\st D}=\tfrac{50}{13}=3.85$ points.}
 
 (d) For $p=0.5,\ 0.55,\ 0.6,\ 0.7$: $h_{\st D}=0.5,\ 0.599,\ 0.692,\ 0.845$ and $k_{\st D}=4,\ 3.96,\ 3.85,\ 3.45$.
-For $p=0.55$, the server wins the game from deuce with probability $60\%$: a $55/45$ edge per point becomes a $60/40$ edge per game, because the game ends only when one player is two points ahead.
+\ans{For $p=0.55$, the server wins the game from deuce with probability $60\%$: a $55/45$ edge per point becomes a $60/40$ edge per game, because the game ends only when one player is two points ahead.}
 
 (e) A pair of points returns to deuce with probability $2pq$ (one point each, in either order) and ends the game with probability $p^2+q^2$, of which $p^2$ is a win for the server. So the server wins after exactly $2m$ points with probability $(2pq)^{m-1}p^2$, and
-$h_{\st D}=\sum_{m\ge1}(2pq)^{m-1}p^2=\dfrac{p^2}{1-2pq}$, the same value as in (b).
+\ans{$h_{\st D}=\sum_{m\ge1}(2pq)^{m-1}p^2=\dfrac{p^2}{1-2pq}$, the same value as in (b).}
 The first-step system uses the return to deuce to write $h_{\st D}$ in terms of itself, in the equation $h_{\st D}=p^2+2pq\,h_{\st D}$. Solving this one equation performs the summation of the geometric series implicitly.
 % python3 sympy: p=0.6: h=(9/13,57/65,27/65), k=(50/13,33/13,43/13); table 0.5/4, 0.5990/3.9604, 0.6923/3.8462, 0.8448/3.4483
 \end{solution}

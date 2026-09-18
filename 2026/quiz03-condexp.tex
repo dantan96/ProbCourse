@@ -24,16 +24,16 @@
 \end{enumerate}
 \begin{solution}
 (a) By the law of total expectation, $\E[D]=\int_0^{1/5}\E[D\mid\Theta=\theta]\,f_\Theta(\theta)\dd\theta=10\,\E[\Theta]$. The mean of the uniform distribution on $[0,\tfrac15]$ is the midpoint, $\E[\Theta]=\tfrac1{10}$.
-$\E[D]=1$.
+\ans{$\E[D]=1$.}
 
 (b) First $\E[\Theta^2]=\int_0^{1/5}5\theta^2\dd\theta=\tfrac53\cdot\tfrac1{125}=\tfrac1{75}$. By total expectation, $\E[D^2]=\E\big[10\Theta(1-\Theta)+100\Theta^2\big]=10\,\E[\Theta]+90\,\E[\Theta^2]=1+\tfrac{90}{75}=\tfrac{11}5$. Then $\Var(D)=\E[D^2]-\E[D]^2=\tfrac{11}5-1=\tfrac65$.
-$\E[D^2]=2.2$ and $\Var(D)=1.2$.
+\ans{$\E[D^2]=2.2$ and $\Var(D)=1.2$.}
 
 (c) $\Var(D)=1.2$ is larger than $0.9$. The defect rate is itself random, and this second source of randomness adds to the variance of $D$.
 
 (d) By the law of total probability,
 $\Prob(D=0)=\int_0^{1/5}\Prob(D=0\mid\Theta=\theta)\,f_\Theta(\theta)\dd\theta=\int_0^{1/5}5(1-\theta)^{10}\dd\theta=\tfrac5{11}\big(1-0.8^{11}\big)$.
-$\Prob(D=0)\approx0.416$, against $0.9^{10}\approx0.349$: a random rate makes a defect-free sample more likely than a fixed rate of $0.1$ does.
+\ans{$\Prob(D=0)\approx0.416$, against $0.9^{10}\approx0.349$: a random rate makes a defect-free sample more likely than a fixed rate of $0.1$ does.}
 Remark: each value $\Prob(D=d)$ is another such integral, so computing $\E[D]$ from the pmf of $D$ would need eleven integrals; the law of total expectation in (a) needed one.
 % python3: E[D]=1, E[D^2]=11/5, Var=6/5; P(D=0)=0.41550, 0.9^10=0.34868
 \end{solution}
@@ -55,16 +55,16 @@ Let $m_j$ be the expected number of further tosses until the pattern is complete
 (a) THH. From state $0$, a T moves to state $1$ and an H stays in state $0$. From state $1$, an H moves to state $2$ and a T stays in state $1$. From state $2$, an H completes the pattern and a T moves back to state $1$. Each toss costs $1$, so
 $m_0=1+\tfrac12(m_0+m_1)$, $m_1=1+\tfrac12(m_1+m_2)$, $m_2=1+\tfrac12(0+m_1)$.
 The third equation gives $m_2=1+\tfrac12m_1$. The second gives $m_1=2+m_2=3+\tfrac12m_1$, so $m_1=6$ and $m_2=4$. The first gives $m_0=2+m_1=8$.
-$(m_0,m_1,m_2)=(8,6,4)$, so $\E[T]=8$ for THH.
+\ans{$(m_0,m_1,m_2)=(8,6,4)$, so $\E[T]=8$ for THH.}
 
 (b) THT. The equations for $m_0$ and $m_1$ are the same as in (a). From state $2$, a T completes the pattern and an H gives THH, which contains no start of THT, so the game returns to state $0$: $m_2=1+\tfrac12(0+m_0)$.
 Then $m_1=2+m_2=3+\tfrac12m_0$ and $m_0=2+m_1=5+\tfrac12m_0$, so $m_0=10$, $m_1=8$, $m_2=6$.
-$(m_0,m_1,m_2)=(10,8,6)$, so $\E[T]=10$ for THT.
+\ans{$(m_0,m_1,m_2)=(10,8,6)$, so $\E[T]=10$ for THT.}
 
 (c) TTT. From state $0$, a T moves to state $1$ and an H stays. From state $1$, a T moves to state $2$ and an H returns to state $0$. From state $2$, a T completes the pattern and an H returns to state $0$:
 $m_0=1+\tfrac12(m_0+m_1)$, $m_1=1+\tfrac12(m_0+m_2)$, $m_2=1+\tfrac12(0+m_0)$.
 The first gives $m_0=2+m_1$. Substituting $m_2=1+\tfrac12m_0$ into the second, $m_1=\tfrac32+\tfrac34m_0$. Then $m_0=\tfrac72+\tfrac34m_0$, so $m_0=14$, $m_1=12$, $m_2=8$.
-$(m_0,m_1,m_2)=(14,12,8)$, so $\E[T]=14$ for TTT.
+\ans{$(m_0,m_1,m_2)=(14,12,8)$, so $\E[T]=14$ for TTT.}
 
 (d) THH has the smallest expected waiting time: $8$ tosses, against $10$ for THT and $14$ for TTT.
 
@@ -82,17 +82,17 @@ $(m_0,m_1,m_2)=(14,12,8)$, so $\E[T]=14$ for TTT.
 \end{enumerate}
 \begin{solution}
 (a) If $y+z=x$ then $z+y=x$, so $(z,y)$ belongs to $\{X=x\}$ whenever $(y,z)$ does. On $(y,z)$ the value of $D$ is $y-z$; on $(z,y)$ it is $z-y=-(y-z)$. The cells of $\{X=x\}$ therefore pair off into cells with opposite values of $D$ (a cell with $y=z$ pairs with itself and has $D=0$), and all cells have the same probability. So the average of $D$ over the row $\{X=x\}$ is $0$.
-$\E[D\mid X=x]=0$ for every $x$, hence $\E[D\mid X]=0$.
+\ans{$\E[D\mid X=x]=0$ for every $x$, hence $\E[D\mid X]=0$.}
 
 (b) The cells of $\{D=d\}$ are $(y,y-d)$ for those $y$ with both $y$ and $y-d$ in $\{1,\dots,6\}$; on such a cell $X=y+(y-d)=2y-d$. For $d\ge0$, $y$ runs over $d+1,\dots,6$; for $d<0$, over $1,\dots,6+d$. In both cases the values of $y$ form a block of consecutive integers whose midpoint is $\tfrac{(d+1)+6}2=\tfrac{7+d}2$ (for $d\ge0$) or $\tfrac{1+(6+d)}2=\tfrac{7+d}2$ (for $d<0$). The cells have equal probability, so the average of $y$ over the row is $\tfrac{7+d}2$, and the average of $X=2y-d$ is $2\cdot\tfrac{7+d}2-d=7$. Example, $d=5$: the single cell $(6,1)$, where $X=7$.
-$\E[X\mid D=d]=7$ for every $d$, hence $\E[X\mid D]=7$.
+\ans{$\E[X\mid D=d]=7$ for every $d$, hence $\E[X\mid D]=7$.}
 
 (c) By the tower property, $\E[XD]=\E\big[\E[XD\mid D]\big]$. Taking out what is known, $\E[XD\mid D]=D\,\E[X\mid D]=7D$ by (b). So $\E[XD]=\E[7D]=7\,\E[D]=0$.
-$\Cov(X,D)=\E[XD]-\E[X]\,\E[D]=0-7\cdot0=0$.
+\ans{$\Cov(X,D)=\E[XD]-\E[X]\,\E[D]=0-7\cdot0=0$.}
 
 (d) Method 1: $X=D+2Z$, so $X-D=2Z$ is even and $X$, $D$ have the same parity. Hence $\Prob(D\text{ odd},X\text{ even})=0$, while $\Prob(D\text{ odd})>0$ and $\Prob(X\text{ even})>0$, so the product is positive and independence fails.
 Method 2: $\{D=5,X=7\}$ is the single cell $(6,1)$, so $\Prob(D=5,X=7)=\tfrac1{36}$; but $\Prob(D=5)\,\Prob(X=7)=\tfrac1{36}\cdot\tfrac6{36}=\tfrac1{216}$.
-$X$ and $D$ are not independent.
+\ans{$X$ and $D$ are not independent.}
 
 (e) By (b), every row $\{D=d\}$ has the same average $7=\E[X]$, which is the statement $\E[X\mid D]=\E[X]$. Independence would require every row to have the same distribution as $X$, which is impossible for a row of fewer than $11$ cells, and (d) confirms that the distributions differ. Equal row averages are a weaker condition than equal row distributions.
 % python3: E[D|X=x]=0 for all x; E[X|D=d]=7 for all d; E[XD]=0; P(D=5,X=7)=1/36 vs 1/216; P(D odd, X even)=0
@@ -114,17 +114,18 @@ S'&=X_1+\dots+X_{N-1}&&\text{(the stopping roll excluded; $S'=0$ if $N=1$)}.
 (a) Condition on $X_1=k$, each value having probability $\tfrac16$. If $k\in\{5,6\}$, the game stops and $S=k$. If $k\le4$, then $S=k+S''$ where $S''=X_2+\dots+X_N$ has the distribution of $S$ by the restart property, so $\E[S\mid X_1=k]=k+\E[S]$. By total expectation,
 $\E[S]=\tfrac16(5+6)+\tfrac16\sum_{k=1}^4\big(k+\E[S]\big)=\tfrac{11}6+\tfrac{10}6+\tfrac46\E[S]$.
 Solving, $\tfrac26\E[S]=\tfrac{21}6$.
-$\E[S]=\tfrac{21}2=10.5$.
+\ans{$\E[S]=\tfrac{21}2=10.5$.}
 
 (b) $\mu\,\E[N]=3.5\cdot3=10.5$. It equals $\E[S]$.
 
 (c) Condition on $X_1=k$ again. If $k\in\{5,6\}$ then $N=1$ and $S'=0$. If $k\le4$ then $S'=k+S'''$ with $S'''$ distributed as $S'$, so $\E[S'\mid X_1=k]=k+\E[S']$. Hence
 $\E[S']=\tfrac16\sum_{k=1}^4\big(k+\E[S']\big)=\tfrac{10}6+\tfrac46\E[S']$, so $\tfrac26\E[S']=\tfrac{10}6$.
-$\E[S']=5$.
+\ans{$\E[S']=5$.}
 
 (d) $\mu\,\E[N-1]=3.5\cdot2=7$. It does not equal $\E[S']=5$.
 
-(e) The stopping roll $X_N$ is $5$ or $6$, each with probability $\tfrac12$, so $\E[X_N]=5.5$; consistently, $\E[S']=\E[S]-\E[X_N]=10.5-5.5=5$.
+(e) The stopping roll $X_N$ is $5$ or $6$, each with probability $\tfrac12$.
+\ans{$\E[X_N]=5.5$; consistently, $\E[S']=\E[S]-\E[X_N]=10.5-5.5=5$.}
 In (b) the decision to stop after roll $n$ depends only on rolls $1,\dots,n$, and for such stopping rules the formula $\E[S]=\mu\,\E[N]$ still holds (Wald's identity, mentioned in the lecture). In (d) the last roll is excluded because of its value, so the $N-1$ terms of $S'$ are not typical rolls but rolls that showed at most $4$, with mean $2.5$ rather than $\mu$. The formula treats them as typical rolls, which is why it gives $7$ instead of $5$.
 % python3 sympy: E[S]=21/2, E[S']=5, mu E[N]=10.5, mu E[N-1]=7, E[X_N]=5.5
 \end{solution}

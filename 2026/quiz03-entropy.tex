@@ -29,21 +29,21 @@ L^*=\min\big(2,\ p_{(1)}+2p_{(2)}+3p_{(3)}+3p_{(4)}\big).
 (a) Put $a(x)=2^{-\ell_c(x)}$ for each symbol $x$. Kraft's inequality gives $\sum_xa(x)\le1$, and $\ell_c(x)=\log\frac1{a(x)}$. Gibbs' lemma with weights $p$ then gives
 $L(c)=\sum_xp(x)\log\frac1{a(x)}\ge\sum_xp(x)\log\frac1{p(x)}=H(p)=1.75$,
 with equality if and only if $a=p$, that is, lengths $(1,2,3,3)$. The rover's code has these lengths and $L=1.75$.
-The rover's code is optimal for $p$, with $L^*=1.75$.
+\ans{The rover's code is optimal for $p$, with $L^*=1.75$.}
 
 (b) Order the lengths $\ell_1\le\ell_2\le\ell_3\le\ell_4$.
 Case $\ell_1\ge2$: every term satisfies $2^{-\ell_i}\le\tfrac14$, so the Kraft sum is at most $4\cdot\tfrac14=1$, with equality only when every length is $2$. This gives $(2,2,2,2)$.
 Case $\ell_1=1$: the first term is $\tfrac12$, so the other three must sum to $\tfrac12$. If $\ell_2=1$ the first two terms already sum to $1$ and nothing is left for $\ell_3,\ell_4$. If $\ell_2\ge3$ the last three terms sum to at most $3\cdot\tfrac18=\tfrac38<\tfrac12$. So $\ell_2=2$, and then $2^{-\ell_3}+2^{-\ell_4}=\tfrac14$ with $\ell_3,\ell_4\ge3$ (since $\ell_3\ge\ell_2=2$ and $\ell_3=2$ would give $\tfrac14+2^{-\ell_4}>\tfrac14$), which forces $\ell_3=\ell_4=3$. This gives $(1,2,3,3)$.
-The only profiles with Kraft sum $1$ are $(2,2,2,2)$ and $(1,2,3,3)$.
+\ans{The only profiles with Kraft sum $1$ are $(2,2,2,2)$ and $(1,2,3,3)$.}
 
 (c) By the given fact and (b), an optimal code has profile $(2,2,2,2)$ or $(1,2,3,3)$. Profile $(2,2,2,2)$ gives $L=2$ for every $p$. For profile $(1,2,3,3)$, the average length is smallest when the shortest codewords go to the most probable symbols: if a more probable symbol had a longer codeword than a less probable one, swapping the two codewords would not increase $L$. So the best code with this profile has $L=p_{(1)}+2p_{(2)}+3p_{(3)}+3p_{(4)}$. The optimal code is the better of the two.
-$L^*=\min\big(2,\ p_{(1)}+2p_{(2)}+3p_{(3)}+3p_{(4)}\big)$.
+\ans{$L^*=\min\big(2,\ p_{(1)}+2p_{(2)}+3p_{(3)}+3p_{(4)}\big)$.}
 
 (d) $p=(0.45,0.25,0.15,0.15)$: the profile $(1,2,3,3)$ gives $L=0.45+0.5+0.45+0.45=1.85<2$.
-The rover's code (assigning $0$ to the symbol of probability $0.45$, $10$ to the symbol of probability $0.25$) is optimal, $L^*=1.85$, and $H(p)=1.840$.
+\ans{The rover's code (assigning $0$ to the symbol of probability $0.45$, $10$ to the symbol of probability $0.25$) is optimal, $L^*=1.85$, and $H(p)=1.840$.}
 
 (e) $p=(0.3,0.3,0.2,0.2)$: the profile $(1,2,3,3)$ gives $L=0.3+0.6+0.6+0.6=2.1>2$.
-The fixed-length code is optimal, $L^*=2$, and $H(p)=1.971$.
+\ans{The fixed-length code is optimal, $L^*=2$, and $H(p)=1.971$.}
 
 (f) For (d) the theorem gives $L^*\in[1.840,2.840)$; both $1.85$ and $2$ lie in this interval. For (e) it gives $L^*\in[1.971,2.971)$; both $2.1$ and $2$ lie in this interval. In both cases the theorem does not separate the two candidates, and the enumeration in (b) was needed.
 % python3: H(.45,.25,.15,.15)=1.8395, L=1.85; H(.3,.3,.2,.2)=1.9710, L(1,2,3,3)=2.1
@@ -59,10 +59,10 @@ The fixed-length code is optimal, $L^*=2$, and $H(p)=1.971$.
 \end{enumerate}
 \begin{solution}
 (a) $\Prob(X=\mathsf H)=\Prob(C=\mathsf A)\cdot0.9+\Prob(C=\mathsf B)\cdot0.5=\tfrac12\cdot0.9+\tfrac12\cdot0.5=0.7$, so $p_X=(0.7,0.3)$ on $(\mathsf H,\mathsf T)$.
-$H(X)=h(0.7)=0.881$ bits.
+\ans{$H(X)=h(0.7)=0.881$ bits.}
 
 (b) Given $C=\mathsf A$, $X$ has pmf $(0.9,0.1)$, so $H(X\mid C=\mathsf A)=h(0.9)=0.469$. Given $C=\mathsf B$, $X$ has pmf $(0.5,0.5)$, so $H(X\mid C=\mathsf B)=h(0.5)=1$. Averaging over $C$ with weights $\tfrac12,\tfrac12$:
-$H(X\mid C)=\tfrac12(0.469+1)=0.734$ bits.
+\ans{$H(X\mid C)=\tfrac12(0.469+1)=0.734$ bits.}
 
 (c) $H(X)=0.881$ is larger than $H(X\mid C)=0.734$. The inequality $h\big(\tfrac12\cdot0.9+\tfrac12\cdot0.5\big)\ge\tfrac12h(0.9)+\tfrac12h(0.5)$ is the concavity of $h$.
 
@@ -70,7 +70,7 @@ $H(X\mid C)=\tfrac12(0.469+1)=0.734$ bits.
 
 (e) By Bayes' rule, $\Prob(C=\mathsf A\mid X=\mathsf H)=\frac{\frac12\cdot0.9}{0.7}=\frac{0.45}{0.7}=\tfrac9{14}=0.643$ and $\Prob(C=\mathsf A\mid X=\mathsf T)=\frac{\frac12\cdot0.1}{0.3}=\frac{0.05}{0.3}=\tfrac16$.
 Then $H(C\mid X)=\Prob(X=\mathsf H)\,h(\tfrac9{14})+\Prob(X=\mathsf T)\,h(\tfrac16)=0.7\cdot0.940+0.3\cdot0.650=0.853$ bits.
-Since $C$ is uniform on two values, $H(C)=1$, and $H(C)-H(C\mid X)=1-0.853=0.147=I(X;C)$, as required.
+\ans{Since $C$ is uniform on two values, $H(C)=1$, and $H(C)-H(C\mid X)=1-0.853=0.147=I(X;C)$, as required.}
 % python3: h(.7)=0.8813, H(X|C)=0.7345, I=0.1468, H(C|X)=0.8532
 \end{solution}
 
@@ -90,21 +90,21 @@ Note that $H(P_1)=H(P_2)=1.75$ bits. One code, built for a pmf $Q$, must be inst
 \begin{solution}
 (a) By the definition of cross-entropy,
 $\tfrac12\sum_xP_1(x)\log\frac1{Q(x)}+\tfrac12\sum_xP_2(x)\log\frac1{Q(x)}=\sum_x\tfrac12\big(P_1(x)+P_2(x)\big)\log\frac1{Q(x)}=\sum_x\bar P(x)\log\frac1{Q(x)}=H(\bar P,Q)$.
-Averaging the two pmfs coordinate by coordinate, $\bar P=(\tfrac5{16},\tfrac3{16},\tfrac3{16},\tfrac5{16})$.
+\ans{Averaging the two pmfs coordinate by coordinate, $\bar P=(\tfrac5{16},\tfrac3{16},\tfrac3{16},\tfrac5{16})$.}
 
 (b) By Gibbs' inequality, $H(\bar P,Q)\ge H(\bar P)$, with equality if and only if $Q=\bar P$. So the minimising $Q$ is $\bar P$, and the minimal cost is
-$H(\bar P)=2\cdot\tfrac5{16}\log\tfrac{16}5+2\cdot\tfrac3{16}\log\tfrac{16}3=1.049+0.906=1.954$ bits per instruction.
+\ans{$H(\bar P)=2\cdot\tfrac5{16}\log\tfrac{16}5+2\cdot\tfrac3{16}\log\tfrac{16}3=1.049+0.906=1.954$ bits per instruction.}
 
 (c) Old code, $Q=P_1$: the cost is $\tfrac12H(P_1,P_1)+\tfrac12H(P_2,P_1)=\tfrac12(1.75+2.625)=2.1875$ bits. Fixed-length code: every codeword has length $2$, so the cost is $2$ bits.
-Ordering the four: known mission $1.75<$ minimal cost $1.954<$ fixed-length $2<$ old code $2.1875$.
+\ans{Ordering the four: known mission $1.75<$ minimal cost $1.954<$ fixed-length $2<$ old code $2.1875$.}
 
 (d) Using $D(P\,\|\,Q)=H(P,Q)-H(P)$ and (a) with $Q=\bar P$,
 $\tfrac12D(P_1\,\|\,\bar P)+\tfrac12D(P_2\,\|\,\bar P)=H(\bar P,\bar P)-\tfrac12H(P_1)-\tfrac12H(P_2)=H(\bar P)-\tfrac12\big(H(P_1)+H(P_2)\big)$.
 With $M$ uniform, the instruction $X$ has pmf $\bar P$, so $H(X)=H(\bar P)$; and given $M=m$ it has pmf $P_m$, so $H(X\mid M)=\tfrac12H(P_1)+\tfrac12H(P_2)$. The expected waste is therefore $H(X)-H(X\mid M)=I(M;X)$.
-$I(M;X)=1.954-1.75=0.204$ bits per instruction.
+\ans{$I(M;X)=1.954-1.75=0.204$ bits per instruction.}
 
 (e) Profile $(2,2,2,2)$: cost $2$. Profile $(1,2,3,3)$, with the codewords of lengths $1$ and $2$ on the two instructions of probability $\tfrac5{16}$: cost $\tfrac5{16}\cdot1+\tfrac5{16}\cdot2+\tfrac3{16}\cdot3+\tfrac3{16}\cdot3=\tfrac{33}{16}=2.0625$.
-The fixed-length code is the best single-instruction code, with cost $2$ bits per instruction.
+\ans{The fixed-length code is the best single-instruction code, with cost $2$ bits per instruction.}
 
 (f) Block coding: code blocks of several instructions at once, with a code built for the pmf $\bar P$ on blocks. By the block coding theorem, the cost per instruction then approaches $1.954$.
 % python3: Pbar=(5,3,3,5)/16, H(Pbar)=1.9544, avg waste 0.2044, old code 2.1875, integer (1,2,3,3) 33/16=2.0625
@@ -126,25 +126,27 @@ where row $x$ is the conditional pmf of $X_{i+1}$ given $X_i=x$. The chain is st
 \end{enumerate}
 \begin{solution}
 (a) Stationarity balances the flow $0\to1$ against the flow $1\to0$: $\pi_0\cdot0.1=\pi_1\cdot0.3$, so $\pi_0=3\pi_1$. With $\pi_0+\pi_1=1$,
-$\pi=(\tfrac34,\tfrac14)$.
+\ans{$\pi=(\tfrac34,\tfrac14)$.}
 
 (b) Row $0$ of $Q$ has entropy $h(0.1)=0.469$ and row $1$ has entropy $h(0.3)=0.881$. Weighting the rows by $\pi$,
-$H(X_{i+1}\mid X_i)=\tfrac34\cdot0.469+\tfrac14\cdot0.881=0.572$ bits per symbol.
+\ans{$H(X_{i+1}\mid X_i)=\tfrac34\cdot0.469+\tfrac14\cdot0.881=0.572$ bits per symbol.}
 
 (c) $H(\pi)=h(\tfrac14)=0.811$ bits. The difference is $0.811-0.572=0.239$ bits.
-This difference is $I(X_i;X_{i+1})$, the mutual information of two consecutive symbols (slide ``Entropy Rate at Most Monographic Entropy'').
+\ans{This difference is $I(X_i;X_{i+1})$, the mutual information of two consecutive symbols (slide ``Entropy Rate at Most Monographic Entropy'').}
 
 (d) Chain rule: $H(X_1,X_2,X_3)=H(X_1)+H(X_2\mid X_1)+H(X_3\mid X_1,X_2)$. By the Markov property $H(X_3\mid X_1,X_2)=H(X_3\mid X_2)$, and by stationarity both conditional terms equal the entropy rate. So
-$H(X_1,X_2,X_3)=H(\pi)+2\cdot0.572=0.811+1.144=1.955$ bits.
+\ans{$H(X_1,X_2,X_3)=H(\pi)+2\cdot0.572=0.811+1.144=1.955$ bits.}
 
-(e) The string $abc$ has probability $\pi(a)Q(a,b)Q(b,c)$. For $000,001,010,011,100,101,110,111$ these are
-$0.6075,\ 0.0675,\ 0.0225,\ 0.0525,\ 0.0675,\ 0.0075,\ 0.0525,\ 0.1225$
-(for example, $000$: $0.75\cdot0.9\cdot0.9=0.6075$). Then $\sum_{abc}\Prob(abc)\log\frac1{\Prob(abc)}=1.955$ bits, agreeing with (d).
+(e) The string $abc$ has probability $\pi(a)Q(a,b)Q(b,c)$; for example, $000$ has probability $0.75\cdot0.9\cdot0.9=0.6075$. For the strings $000,001,010,011,100,101,110,111$, in this order, the eight probabilities are
+\[
+0.6075,\quad0.0675,\quad0.0225,\quad0.0525,\quad0.0675,\quad0.0075,\quad0.0525,\quad0.1225 .
+\]
+\ans{$H(X_1,X_2,X_3)=\sum_{abc}\Prob(abc)\log\frac1{\Prob(abc)}=1.955$ bits, agreeing with (d).}
 
 (f) Markov model: $2^{0.572}=1.49$. Monographic model: $2^{0.811}=1.75$. Uniform model: $2^1=2$.
 
 (g) The symbol $x$ occurs with frequency $\pi(x)$, so the cost is $\sum_x\pi(x)\log\frac1{\pi(x)}=H(\pi)=0.811$ bits per symbol.
-The waste is $0.811-0.572=0.239$ bits per symbol, the mutual information of (c).
+\ans{The waste is $0.811-0.572=0.239$ bits per symbol, the mutual information of (c).}
 % python3: rate 0.5721, h(1/4)=0.8113, I=0.2392, H3=1.9554 (brute force agrees), 2^rate=1.487, 2^h=1.755
 \end{solution}
 \end{enumerate}
