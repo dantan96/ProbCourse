@@ -20,14 +20,14 @@
 
 \begin{frame}{Stochastic Processes}
   \small
-  Throughout, $(\Omega,\F,\Prob)$ is one fixed probability space. One picture carries the lecture: a \textbf{table of sample paths}, rows the outcomes $\omega$, columns the times $t$, the entry $X_t(\omega)$.
+  Throughout, $(\Omega,\F,\Prob)$ is one fixed probability space. The lecture is organised around a single picture, a \textbf{table of sample paths}: one row for each outcome $\omega$, one column for each time $t$, and the value $X_t(\omega)$ in the cell.
   \bigskip
   \renewcommand{\arraystretch}{1.7}
   \begin{tabular}{@{}r@{\ \ }>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{8.8cm}@{}}
     1. & \textbf{Stochastic process} & A family of random variables indexed by time. Rows are paths, columns are random variables. \\
-    2. & \textbf{Random walk} & Sum of independent $\pm1$ steps. Reflection, and first-step analysis as the recurring tool. \\
-    3. & \textbf{Brownian motion} & The random walk seen from far away; $\sqrt n$ scaling; independent Gaussian increments. \\
-    4. & \textbf{Risk of ruin} & A gambler against a casino, solved completely by first-step analysis. \\
+    2. & \textbf{Random walk} & Sum of independent $\pm1$ steps. The reflection principle and first-step analysis. \\
+    3. & \textbf{Brownian motion} & The limit of the random walk under $\sqrt n$ scaling; independent Gaussian increments. \\
+    4. & \textbf{Risk of ruin} & The gambler's ruin problem, solved by first-step analysis. \\
     5. & \textbf{Markov chains} & The transition matrix is a table whose rows are conditional distributions. Powers, stationary distributions, classes, hitting times, convergence. \\
   \end{tabular}
 \end{frame}
@@ -43,7 +43,7 @@
     \]
     all defined on the same $(\Omega,\F,\Prob)$. Equivalently it is one function of two arguments, $X\colon T\times\Omega\to\R$, $(t,\omega)\mapsto X_t(\omega)$.
   \end{block}
-  \words{One random variable per instant of time, all living on the same outcome $\omega$.}
+  \words{There is one random variable for each time, and all are defined on the same $\Omega$.}
   \begin{itemize}
     \item \textbf{For fixed $\omega$}, the function $T\to\R$, $t\mapsto X_t(\omega)$, is the \textbf{sample path} (or trajectory) of the outcome $\omega$: an ordinary sequence or an ordinary function of time.
     \item \textbf{For fixed $t$}, the function $\Omega\to\R$, $\omega\mapsto X_t(\omega)$, is the random variable $X_t$: what the process shows at time $t$.
@@ -63,11 +63,11 @@
         S_t=\xi_1+\dots+\xi_t,\qquad S_0=0,\qquad t\in\{0,1,2,3\}.
       \]
       \begin{itemize}
-        \item A \textbf{row} is one outcome $\omega$ and shows its whole path $t\mapsto S_t(\omega)$.
+        \item A \textbf{row} is one outcome $\omega$ and shows the path $t\mapsto S_t(\omega)$.
         \item A \textbf{column} is one time $t$ and shows the random variable $S_t$: its entries, with the row probabilities, are the distribution of $S_t$.
         \item An event is a set of rows: $\{S_3=1\}$ is rows $2,3,5$, so $\Prob(S_3=1)=\tfrac38$.
       \end{itemize}
-      \words{Every statement about a process is a statement about this table: a path property reads along a row, a distributional property reads down a column.}
+      \words{Properties of the paths are read along the rows of this table, and properties of the distribution at a fixed time are read down the columns.}
     \end{column}
     \begin{column}{0.46\textwidth}
       \centering
@@ -99,10 +99,10 @@
   \begin{columns}[T]
     \begin{column}{0.56\textwidth}
       \begin{block}{Row questions (about paths)}
-        Does the path ever reach $2$? Does it return to $0$? What is its maximum? Each is a set of rows, hence an event: $\{\max_{t\le3}S_t\ge2\}$ is rows $1,2$, probability $\tfrac28$.
+        Whether the path reaches $2$, whether it returns to $0$, and what its maximum is. Each is a set of rows, hence an event: $\{\max_{t\le3}S_t\ge2\}$ is rows $1,2$, probability $\tfrac28$.
       \end{block}
       \begin{block}{Column questions (about one time)}
-        What is $\E[S_2]$? $\Prob(S_3>0)$? Read column $2$ or $3$ against the row probabilities: $\E[S_2]=\tfrac18(2+2+0+0+0+0-2-2)=0$, $\Prob(S_3>0)=\tfrac48$.
+        The values of $\E[S_2]$ and $\Prob(S_3>0)$. Each is read from column $2$ or $3$ together with the row probabilities: $\E[S_2]=\tfrac18(2+2+0+0+0+0-2-2)=0$, $\Prob(S_3>0)=\tfrac48$.
       \end{block}
       \begin{block}{Mixed questions (about several columns)}
         $\Prob(S_1=1,\ S_3=1)$ is rows $2,3$: $\tfrac28$. Different columns are \emph{not} independent in general: $\Prob(S_1=1)\Prob(S_3=1)=\tfrac12\cdot\tfrac38\ne\tfrac28$.
@@ -115,7 +115,7 @@
         \item a list of distributions, one per column: the distributions of the $S_t$ separately do not determine how columns move together, i.e.\ the joint distribution of the row;
         \item a fixed function of time: the path depends on $\omega$, and different rows are different functions.
       \end{itemize}
-      \words{The object is the whole table: its columns are random variables and its rows are the possible histories.}
+      \words{The process is the entire table; its columns are the random variables $X_t$ and its rows are the possible histories.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -130,7 +130,7 @@
       p_{X_{t_1},\dots,X_{t_n}}\colon\R^n\to[0,1],\qquad (x_1,\dots,x_n)\mapsto\Prob(X_{t_1}=x_1,\dots,X_{t_n}=x_n).
     \]
   \end{block}
-  \words{Pick any finite set of columns; the joint distribution of those columns is what the model must specify, and these joint distributions together determine every probability about the process.}
+  \words{The model specifies the joint distribution of every finite set of columns, and these joint distributions together determine every probability concerning the process.}
   \begin{block}{Definition (independence)}
     Random variables $X_1,\dots,X_n$ are \textbf{independent}, written $X_1\indep X_2\indep\dots\indep X_n$, if for all sets $A_1,\dots,A_n\subseteq\R$
     \[
@@ -139,7 +139,7 @@
     A sequence $(X_n)_{n\ge1}$ is independent if every finite sub-family is.
   \end{block}
   \begin{itemize}
-    \item In the table, the coin tosses $\xi_1,\xi_2,\xi_3$ are independent, but the partial sums $S_1,S_2,S_3$ are not (previous slide). A model is usually specified through independent building blocks and a rule, not by writing down all joint pmfs.
+    \item In the table, the coin tosses $\xi_1,\xi_2,\xi_3$ are independent, but the partial sums $S_1,S_2,S_3$ are not (previous slide). In practice a model is specified by independent building blocks together with a rule for combining them, rather than by listing all the joint pmfs.
   \end{itemize}
 \end{frame}
 
@@ -155,10 +155,10 @@
     \]
     It is \textbf{symmetric} (or fair) if $p=\tfrac12$.
   \end{block}
-  \words{Toss a coin forever and keep a running score, $+1$ per head and $-1$ per tail; $S_n$ is the score after $n$ tosses.}
+  \words{A coin is tossed repeatedly and a running score is kept, $+1$ for each head and $-1$ for each tail; $S_n$ is the score after $n$ tosses.}
   \begin{itemize}
-    \item The table on slide~\ref{fr:table} is this process up to $n=3$. Each row is a path $n\mapsto S_n(\omega)$ that moves by exactly $\pm1$ each step.
-    \item \textbf{Independent increments}: for $m<n$, $S_n-S_m=\xi_{m+1}+\dots+\xi_n$ depends only on tosses after $m$, so it is independent of $(S_0,\dots,S_m)$ and has the same distribution as $S_{n-m}$. The walk restarts from wherever it is.
+    \item The table on slide~\ref{fr:table} is this process up to $n=3$. Each row is a path $n\mapsto S_n(\omega)$ that moves by $\pm1$ at each step.
+    \item \textbf{Independent increments}: for $m<n$, $S_n-S_m=\xi_{m+1}+\dots+\xi_n$ depends only on tosses after $m$, so it is independent of $(S_0,\dots,S_m)$ and has the same distribution as $S_{n-m}$. After time $m$ the walk behaves as a fresh walk started from $S_m$.
   \end{itemize}
 \end{frame}
 
@@ -174,7 +174,7 @@
       \E[S_n]=n(p-q),\qquad \Var(S_n)=4npq .
     \]
   \end{block}
-  \words{$S_n$ is a shifted and stretched binomial, so its mean grows like $n$ and its spread like $\sqrt n$.}
+  \words{$S_n$ is an affine function of a binomial random variable; its mean is of order $n$ and its standard deviation of order $\sqrt n$.}
   \begin{block}{Proof}
     $S_n=k$ iff $H_n=\tfrac{n+k}2$, which requires $n+k$ even. $\E[S_n]=2\E[H_n]-n=2np-n=n(p-q)$ and $\Var(S_n)=4\Var(H_n)=4npq$. \hfill$\square$
   \end{block}
@@ -189,14 +189,14 @@
 \end{frame}
 
 % ---------------------------------------------------------------------------
-\begin{frame}{A Path Question: Does the Walk Reach $3$ Within $10$ Steps?}
+\begin{frame}{A Path Question: Reaching $3$ Within $10$ Steps}
   \label{fr:reflect}
   \small
   \begin{columns}[T]
     \begin{column}{0.58\textwidth}
-      Fair walk. What is $\Prob(\max_{k\le10}S_k\ge3)$? This is a row question: it depends on the whole path, not on one column.
-      \begin{block}{Head-on}
-        Count the $2^{10}=1024$ paths that touch level $3$ at some time. There is no column to read; one has to track the running maximum along each row.
+      For the fair walk, consider $\Prob(\max_{k\le10}S_k\ge3)$. This is a row question, since the event depends on the entire path rather than on the value at a single time.
+      \begin{block}{Direct computation}
+        One can enumerate the $2^{10}=1024$ paths and count those whose running maximum reaches $3$. The following theorem replaces this count by a computation involving the distribution of $S_n$ only.
       \end{block}
       \begin{block}{Theorem (reflection principle, fair walk)}
         For integers $m\ge1$ and $n\ge1$,
@@ -204,7 +204,7 @@
           \Prob\Big(\max_{k\le n}S_k\ge m\Big)=2\,\Prob(S_n>m)+\Prob(S_n=m).
         \]
       \end{block}
-      \words{A path question about the maximum is turned into a column question about $S_n$ alone.}
+      \words{The distribution of the maximum up to time $n$ is expressed through the distribution of $S_n$.}
     \end{column}
     \begin{column}{0.40\textwidth}
       \centering
@@ -235,14 +235,14 @@
     \[
       \Prob(A)=\Prob(A,\ S_n>m)+\Prob(A,\ S_n=m)+\Prob(A,\ S_n<m).
     \]
-    The first two events do not need $A$: a path ending at or above $m$ has certainly reached $m$, so they equal $\Prob(S_n>m)$ and $\Prob(S_n=m)$.
+    In the first two terms the condition $A$ is redundant, since a path ending at or above $m$ has reached $m$; they equal $\Prob(S_n>m)$ and $\Prob(S_n=m)$.
 
     \smallskip
     For the third, let $\tau$ be the first time the path hits $m$. Map each path in $\{A,\ S_n<m\}$ to the path that agrees with it up to time $\tau$ and thereafter takes the opposite steps. The new path ends at $m+(m-S_n)>m$, and it has the same number of steps, each of probability $\tfrac12$, so the same probability $2^{-n}$. The map is a bijection onto $\{S_n>m\}$ (reverse it by reflecting after the first visit to $m$). Hence $\Prob(A,\ S_n<m)=\Prob(S_n>m)$. \hfill$\square$
   \end{block}
-  \words{The fair walk is a uniform distribution on $2^n$ rows, so probabilities are counts, and reflection is a counting bijection between rows.}
+  \words{For the fair walk all $2^n$ paths are equally likely, so probabilities are proportional to counts, and reflection is a bijection between two sets of paths.}
   \begin{itemize}
-    \item For $p\ne\tfrac12$ the reflected path has a different probability, and the identity fails; the ideas survive as inequalities.
+    \item For $p\ne\tfrac12$ the reflected path has a different probability, and the identity fails; the argument then yields only inequalities.
     \item Brownian motion inherits the statement in the form $\Prob(\max_{s\le t}B_s\ge a)=2\Prob(B_t\ge a)$ (slide~\ref{fr:bmreflect}).
   \end{itemize}
 \end{frame}
@@ -258,7 +258,7 @@
     \[
       \Prob\Big(\max_{k\le10}S_k\ge3\Big)=2\cdot\tfrac{11}{64}+0=\tfrac{11}{32}\approx0.34 .
     \]
-    A brute-force count of the $1024$ paths gives $352$, agreeing.
+    Direct enumeration of the $1024$ paths gives $352$, in agreement.
   \end{exampleblock}
   \begin{block}{Corollary: the distribution of the maximum}
     With $M_n=\max_{k\le n}S_k$ and the theorem applied at $m$ and $m+1$,
@@ -266,7 +266,7 @@
       \Prob(M_n=m)=\Prob(M_n\ge m)-\Prob(M_n\ge m+1)=\Prob(S_n=m)+\Prob(S_n=m+1)\qquad(m\ge0).
     \]
   \end{block}
-  \words{The whole distribution of a path quantity has been read off one column of the table.}
+  \words{The distribution of $M_n$, a path quantity, is determined by the distribution of $S_n$, a single column.}
   \begin{itemize}
     \item Fair walk, $n=10$: $\Prob(M_{10}=0)=\Prob(S_{10}=0)+\Prob(S_{10}=1)=\tfrac{252}{1024}$, so about a quarter of all $10$-step paths never rise above their start.
   \end{itemize}
@@ -276,19 +276,19 @@
 \begin{frame}{First-Step Analysis: Expected Time to Leave $(-a,a)$}
   \label{fr:firststep}
   \small
-  Fair walk started at $i\in\{-a+1,\dots,a-1\}$, position $X_n=i+S_n$. Write $\Prob_i(\cdot)$, $\E_i[\cdot]$ for probabilities and expectations when the start is $i$ (the notation serves the Markov chains later too). \textbf{Exit time}: $\tau\colon\Omega\to\{0,1,\dots\}\cup\{\infty\}$, $\tau=\min\{n\ge0 : |X_n|\ge a\}$ ($\infty$ if there is no such $n$); $m_i=\E_i[\tau]$.
-  \begin{block}{Head-on}
-    $\Prob_i(\tau=n)$ counts paths that stay strictly inside $(-a,a)$ for $n-1$ steps and exit at step $n$; then $\sum_n n\,\Prob_i(\tau=n)$. The counts have no simple closed form.
+  Fair walk started at $i\in\{-a+1,\dots,a-1\}$, position $X_n=i+S_n$. Write $\Prob_i(\cdot)$, $\E_i[\cdot]$ for probabilities and expectations when the start is $i$ (the same notation is used for Markov chains below). \textbf{Exit time}: $\tau\colon\Omega\to\{0,1,\dots\}\cup\{\infty\}$, $\tau=\min\{n\ge0 : |X_n|\ge a\}$ ($\infty$ if there is no such $n$); $m_i=\E_i[\tau]$.
+  \begin{block}{Direct computation}
+    $\Prob_i(\tau=n)$ is found by counting the paths that stay strictly inside $(-a,a)$ for $n-1$ steps and exit at step $n$; then $\sum_n n\,\Prob_i(\tau=n)$. These counts have no simple closed form.
   \end{block}
   \begin{block}{First-step analysis}
-    Condition on the first step, exactly as for the waiting time for $\st{HH}$ (Conditional Expectation lecture, Application 2). After one step the walk is at $i\pm1$ and, by independent increments, faces a fresh copy of the problem from there:
+    Condition on the first step, as for the waiting time for $\st{HH}$ (Conditional Expectation lecture, Application 2). After one step the walk is at $i\pm1$ and, by independent increments, the rest of the walk is a fresh walk from there:
     \[
       m_i=1+\tfrac12 m_{i+1}+\tfrac12 m_{i-1}\quad(-a<i<a),\qquad m_{-a}=m_a=0 .
     \]
   \end{block}
-  \words{Take one step, pay one unit of time, and average the remaining expected times over the two places you might be.}
+  \words{The expected exit time from $i$ is one step plus the average of the expected exit times from the two neighbouring positions.}
   \begin{itemize}
-    \item The unknowns $m_{-a+1},\dots,m_{a-1}$ appear on both sides: it is a linear system of $2a-1$ equations, not a formula. This is the shape of every first-step argument in this lecture.
+    \item The unknowns $m_{-a+1},\dots,m_{a-1}$ appear on both sides, so this is a system of $2a-1$ linear equations rather than an explicit formula; every first-step argument in this lecture has this form.
   \end{itemize}
 \end{frame}
 
@@ -303,7 +303,7 @@
     Try $m_i=c-i^2$: then $1+\tfrac12\big(c-(i+1)^2\big)+\tfrac12\big(c-(i-1)^2\big)=1+c-i^2-1=c-i^2$, so the equation holds for every $c$, and $m_{\pm a}=0$ forces $c=a^2$.
     The system is $2a-1$ linear equations in $2a-1$ unknowns; it has a unique solution (uniqueness: if $m,m'$ both solve it, $d=m-m'$ satisfies $d_i=\tfrac12(d_{i+1}+d_{i-1})$ with $d_{\pm a}=0$, so $d$ is linear and vanishes). \hfill$\square$
   \end{block}
-  \words{The expected exit time is a quadratic in the starting point: reaching distance $a$ costs $a^2$ steps on average.}
+  \words{The expected exit time is a quadratic function of the starting point, and from the centre it equals $a^2$.}
   % python3 sympy: a=3 linear system -> m0=9, m±1=8, m±2=5.  Checked.
   \begin{exampleblock}{$a=3$}
     \begin{tabular}{@{}c|ccccccc@{}}
@@ -311,8 +311,8 @@
       $m_i$ & $0$ & $5$ & $8$ & $9$ & $8$ & $5$ & $0$
     \end{tabular}
     \par\smallskip
-    From $0$ the walk needs $9$ steps on average to reach $\pm3$; from $\pm2$, only $5$.\\
-    This is the $\sqrt n$ scaling of slide~\ref{fr:distSn} from the other side: distance $\sqrt n$ in $n$ steps, or $n$ steps for distance $\sqrt n$.
+    From $0$ the walk takes $9$ steps on average to reach $\pm3$; from $\pm2$ it takes $5$.\\
+    This is consistent with slide~\ref{fr:distSn}: the walk travels a distance of order $\sqrt n$ in $n$ steps, so a distance $a$ takes a number of steps of order $a^2$.
   \end{exampleblock}
 \end{frame}
 
@@ -323,12 +323,12 @@
   \small
   \begin{columns}[T]
     \begin{column}{0.56\textwidth}
-      A particle takes a fair $\pm1$ step every $\tfrac1n$ seconds, each of size $\tfrac1{\sqrt n}$. What does its path look like when $n$ is large, and what is the probability that it is above $0$ at time $t=1$ and again at $t=2$?
+      A particle takes a fair $\pm1$ step every $\tfrac1n$ seconds, each of size $\tfrac1{\sqrt n}$. We ask what its path looks like when $n$ is large, and with what probability it is above $0$ at time $t=1$ and again at time $t=2$.
       \begin{block}{Rescaling}
         Position at time $t$ is $B^{(n)}_t=\tfrac1{\sqrt n}S_{\lfloor nt\rfloor}$. By slide~\ref{fr:distSn}, $\E[B^{(n)}_t]=0$ and $\Var(B^{(n)}_t)=\tfrac{\lfloor nt\rfloor}{n}\to t$; by the central limit theorem (CLT: for i.i.d.\ $\xi_k$ with mean $0$ and variance $1$, $\Prob(S_m/\sqrt m\le x)\to\Phi(x)$ for every $x$, with $\Phi\colon\R\to[0,1]$ the $N(0,1)$ cdf), $\Prob\big(B^{(n)}_t\le x\big)\to\Phi\big(x/\sqrt t\big)$: \ $B^{(n)}_t\to N(0,t)$ in distribution.
         Increments over disjoint time intervals are sums of disjoint blocks of steps, so they are independent, with variance equal to the length of the interval.
       \end{block}
-      \words{Dividing by $\sqrt n$ is the only scaling that keeps the spread finite and non-zero; the limit has Gaussian columns and independent increments.}
+      \words{Division by $\sqrt n$ is the scaling under which the variance at time $t$ has a finite non-zero limit; the limiting process has normal marginals and independent increments.}
     \end{column}
     \begin{column}{0.42\textwidth}
       \centering
@@ -360,10 +360,10 @@
     \]
     The limit process $B$ is the same for every step distribution with mean $0$ and variance $1$.
   \end{block}
-  \words{Seen from far enough away, every mean-zero random walk with unit-variance steps looks like the same random curve, and that curve is Brownian motion.}
+  \words{On a large scale, every random walk with mean-zero, unit-variance steps has approximately the same distribution of paths, and the limiting distribution is that of Brownian motion.}
   \begin{itemize}
-    \item Not proved here. ``Invariance'': the limit does not depend on the step distribution, as in the central limit theorem, which is the one-column case $t_1=1$.
-    \item The limit inherits from the walk: independent increments over disjoint intervals (sums over disjoint blocks of steps), $\Var(\text{increment})=\text{length}$, and a start at $0$. Steps of size $1/\sqrt n\to0$ deliver continuous paths. These are precisely the four properties in the definition on the next slide.
+    \item The theorem is not proved here. The name refers to the fact that the limit does not depend on the step distribution; the central limit theorem is the special case of a single time $t_1=1$.
+    \item The limit inherits three properties from the walk: independent increments over disjoint intervals (sums over disjoint blocks of steps), $\Var(\text{increment})=\text{length}$, and a start at $0$. Since the step size $1/\sqrt n$ tends to $0$, the limiting paths are continuous. These are the four properties in the definition on the next slide.
   \end{itemize}
 \end{frame}
 
@@ -380,7 +380,7 @@
       \item[(iv)] \textbf{continuous paths}: for every $\omega$, the function $[0,\infty)\to\R$, $t\mapsto B_t(\omega)$, is continuous.
     \end{enumerate}
   \end{block}
-  \words{Over any time interval the process moves by an independent normal amount whose variance is the length of the interval, and it does so without jumping.}
+  \words{Over any time interval the displacement is normal with variance equal to the length of the interval, displacements over disjoint intervals are independent, and the paths have no jumps.}
   \begin{itemize}
     \item Existence is a theorem (Wiener, 1923); we take it as given. The four properties determine all finite-dimensional distributions (slide~\ref{fr:fdd}), hence every probability about $B$.
   \end{itemize}
@@ -395,12 +395,12 @@
     $B_t=B_t-B_0\sim N(0,t)$ by (i) and (iii). Its pdf is $f_{B_t}\colon\R\to[0,\infty)$, $f_{B_t}(x)=\frac1{\sqrt{2\pi t}}e^{-x^2/(2t)}$, so $\Prob(a\le B_t\le b)=\int_a^b f_{B_t}(x)\dd x$.
   \end{block}
   \begin{block}{Row $\omega$: the path $[0,\infty)\to\R$, $t\mapsto B_t(\omega)$}
-    A continuous function that starts at $0$. Different rows are different functions; a typical one is as jagged as the $n=400$ picture at every magnification. Row questions: the maximum up to time $t$, the first time the path reaches $a$, the time spent above $0$.
+    A continuous function starting at $0$. Different rows are different functions; a typical one is as irregular as the $n=400$ picture at every magnification. Row questions include the maximum up to time $t$, the first time the path reaches $a$, and the time spent above $0$.
   \end{block}
-  \begin{block}{Two arguments, two roles}
-    In $B_t(\omega)$, $t$ is the time (which column) and $\omega$ is the outcome (which row). Fix $\omega$ and vary $t$: a function of time. Fix $t$ and vary $\omega$: a random variable. An increment $B_t-B_s$ is a difference of two columns.
+  \begin{block}{The two arguments $t$ and $\omega$}
+    In $B_t(\omega)$, $t$ is the time (which column) and $\omega$ is the outcome (which row). For fixed $\omega$, $t\mapsto B_t(\omega)$ is a function of time; for fixed $t$, $\omega\mapsto B_t(\omega)$ is a random variable. An increment $B_t-B_s$ is a difference of two columns.
   \end{block}
-  \words{Independent increments is the whole content of the definition; every property below is a consequence of writing a value as a sum of increments.}
+  \words{The properties below all follow from writing values of $B$ as sums of independent increments.}
 \end{frame}
 
 % ---------------------------------------------------------------------------
@@ -435,7 +435,7 @@
       \end{tabular}
     \end{column}
   \end{columns}
-  \words{Same structure, different time set and step distribution: $B$ is the walk with the discreteness removed.}
+  \words{$B$ has the same increment structure as the walk, in continuous time and with continuous state space.}
 \end{frame}
 
 
@@ -449,7 +449,7 @@
       \item[(b)] $\Cov(B_s,B_t)=\E[B_sB_t]=\min(s,t)$ for all $s,t\ge0$.
     \end{enumerate}
   \end{block}
-  \words{Each column is a centred normal with variance $t$, and two columns overlap by the shorter of the two times.}
+  \words{Each $B_t$ is $N(0,t)$, and the covariance of two values is the earlier of the two times.}
   \begin{block}{Proof}
     (a) is (i) and (iii) with $s=0$. (b) For $s<t$ write $B_t=B_s+(B_t-B_s)$. The increment is independent of $B_s$ (property (ii) applied to $0<s<t$) and has mean $0$, so
     \[
@@ -458,8 +458,8 @@
     Since $\E[B_s]=0$, $\Cov(B_s,B_t)=\E[B_sB_t]$. \hfill$\square$
   \end{block}
   \begin{itemize}
-    \item The correlation of $B_s$ and $B_t$ is $\min(s,t)/\sqrt{st}=\sqrt{s/t}$ for $s<t$: $B_1$ and $B_2$ have correlation $1/\sqrt2\approx0.71$; $B_1$ and $B_{100}$ have correlation $0.1$. Values are dependent, increments are not.
-    \item Head-on, $\E[B_sB_t]$ is a two-dimensional integral against the joint pdf of the next slide. The one-line proof never writes it down.
+    \item The correlation of $B_s$ and $B_t$ is $\min(s,t)/\sqrt{st}=\sqrt{s/t}$ for $s<t$: $B_1$ and $B_2$ have correlation $1/\sqrt2\approx0.71$; $B_1$ and $B_{100}$ have correlation $0.1$. The values are dependent although the increments are independent.
+    \item Alternatively, $\E[B_sB_t]$ is a two-dimensional integral against the joint pdf of the next slide; the proof above avoids it.
   \end{itemize}
 \end{frame}
 
@@ -473,7 +473,7 @@
       f(x_1,\dots,x_n)=\prod_{k=1}^n\frac{1}{\sqrt{2\pi(t_k-t_{k-1})}}\exp\!\Big(-\frac{(x_k-x_{k-1})^2}{2(t_k-t_{k-1})}\Big),\qquad x_0=0 .
     \]
   \end{block}
-  \words{Any finite set of columns has a density, and it is the product of the increment densities written in terms of the values.}
+  \words{Any finite collection of values of $B$ has a joint density, obtained from the product of the increment densities by the substitution $d_k=x_k-x_{k-1}$.}
   \begin{block}{Proof}
     The increments $D_k=B_{t_k}-B_{t_{k-1}}$, $k=1,\dots,n$, are independent $N(0,t_k-t_{k-1})$ by (ii) and (iii), so $(D_1,\dots,D_n)$ has the product pdf $\prod_k\frac{1}{\sqrt{2\pi(t_k-t_{k-1})}}e^{-d_k^2/(2(t_k-t_{k-1}))}$.
     The values are $B_{t_k}=D_1+\dots+D_k$: a linear map from $(d_1,\dots,d_n)$ to $(x_1,\dots,x_n)$ with inverse $d_k=x_k-x_{k-1}$, of determinant $1$. A determinant-one change of variables leaves a pdf unchanged apart from the substitution. \hfill$\square$
@@ -492,13 +492,13 @@
       \item[(c)] \textbf{Restart}: $(B_{s+t}-B_s)_{t\ge0}$ for any fixed $s\ge0$, and it is independent of $(B_u)_{0\le u\le s}$.
     \end{enumerate}
   \end{block}
-  \words{Brownian motion looks the same at every magnification, upside down, and from any moment onwards.}
+  \words{Rescaling, reflecting in the time axis, and restarting from a fixed time each give a process with the same distribution as $B$.}
   \begin{block}{Proof}
     Check (i)--(iv). (a) $\tfrac1{\sqrt c}B_{c\cdot0}=0$; increments $\tfrac1{\sqrt c}(B_{ct}-B_{cs})$ over disjoint intervals are independent, normal with variance $\tfrac1c(ct-cs)=t-s$; paths are continuous. (b) $-N(0,\sigma^2)$ is $N(0,\sigma^2)$. (c) Increments of the new process are increments of $B$ over intervals inside $[s,\infty)$, independent of increments over intervals inside $[0,s]$, and $B_u$ for $u\le s$ is such an increment. \hfill$\square$
   \end{block}
   \smallskip
-  (a) with $c=n$ says $\tfrac1{\sqrt n}B_{nt}$ is Brownian: the picture on slide~\ref{fr:scaling} in reverse; zooming into a Brownian path shows a Brownian path.
-  (c) is the restart property of first-step analysis in continuous time: after any fixed time the process is a fresh copy, shifted to its current position.
+  By (a) with $c=n$, $\tfrac1{\sqrt n}B_{nt}$ is again Brownian: the scaling of slide~\ref{fr:scaling} applied to $B$ itself.
+  (c) is the continuous-time form of the restart property used in first-step analysis: after any fixed time $s$, $B_{s+t}-B_s$ is a Brownian motion independent of the past.
 \end{frame}
 
 % ---------------------------------------------------------------------------
@@ -513,12 +513,12 @@
     \]
     with $\Phi$ the $N(0,1)$ cdf of slide~\ref{fr:scaling}.
   \end{block}
-  \begin{block}{Head-on, for comparison}
-    By slide~\ref{fr:bmjoint} with $t_1=1$, $t_2=2$, $(B_1,B_2)$ has joint pdf $f(x,y)=\frac1{2\pi}e^{-x^2/2}e^{-(y-x)^2/2}$, a bivariate normal with covariance matrix $\begin{pmatrix}1&1\\1&2\end{pmatrix}$. Form $f_{B_2\mid B_1}(y\mid x)=f(x,y)/f_{B_1}(x)=\frac1{\sqrt{2\pi}}e^{-(y-x)^2/2}$ and integrate over $y>0$ at $x=1$. Same answer, after the same algebra, hidden.
+  \begin{block}{Via the joint pdf}
+    By slide~\ref{fr:bmjoint} with $t_1=1$, $t_2=2$, $(B_1,B_2)$ has joint pdf $f(x,y)=\frac1{2\pi}e^{-x^2/2}e^{-(y-x)^2/2}$, a bivariate normal with covariance matrix $\begin{pmatrix}1&1\\1&2\end{pmatrix}$. Form $f_{B_2\mid B_1}(y\mid x)=f(x,y)/f_{B_1}(x)=\frac1{\sqrt{2\pi}}e^{-(y-x)^2/2}$ and integrate over $y>0$ at $x=1$. The conditional density is that of $N(x,1)$, and the answer is the same.
   \end{block}
-  \words{Conditioning on $B_1$ fixes the first increment and leaves the second untouched; every conditional question about $B$ is answered by splitting into increments.}
+  \words{Conditioning on $B_1$ fixes the first increment and does not affect the distribution of the second; conditional probabilities for $B$ are computed by splitting values into increments.}
   \begin{itemize}
-    \item The same split gives the conditional distribution of $B_t$ given $B_s=x$ for any $s<t$: $N(x,\,t-s)$. The past enters only through the present value.
+    \item The same split gives the conditional distribution of $B_t$ given $B_s=x$ for any $s<t$: $N(x,\,t-s)$. The conditional distribution depends on the past only through the present value.
   \end{itemize}
 \end{frame}
 
@@ -535,10 +535,10 @@
       \Prob(B_1>0,\ B_2>0)=\tfrac14+\tfrac14\cdot\tfrac12=\tfrac38 .
     \]
   \end{block}
-  \begin{block}{Head-on, for comparison}
-    Integrate the joint pdf $\frac1{2\pi}e^{-x^2/2}e^{-(y-x)^2/2}$ over the quadrant $x>0$, $y>0$. This is the orthant probability of a bivariate normal with correlation $\rho=1/\sqrt2$, which by a polar-coordinate computation equals $\tfrac14+\frac{\arcsin\rho}{2\pi}=\tfrac14+\tfrac{\pi/4}{2\pi}=\tfrac38$.
+  \begin{block}{Via the joint pdf}
+    Alternatively, integrate the joint pdf $\frac1{2\pi}e^{-x^2/2}e^{-(y-x)^2/2}$ over the quadrant $x>0$, $y>0$. This is the orthant probability of a bivariate normal with correlation $\rho=1/\sqrt2$, which by a polar-coordinate computation equals $\tfrac14+\frac{\arcsin\rho}{2\pi}=\tfrac14+\tfrac{\pi/4}{2\pi}=\tfrac38$.
   \end{block}
-  \words{The particle that is above $0$ at time $1$ is above $0$ at time $2$ with probability $\tfrac{3/8}{1/2}=\tfrac34$, not $\tfrac12$: the values are dependent even though the increments are not.}
+  \words{Given that the particle is above $0$ at time $1$, it is above $0$ at time $2$ with probability $\tfrac{3/8}{1/2}=\tfrac34$ rather than $\tfrac12$; the values $B_1$ and $B_2$ are dependent although the increments are independent.}
 \end{frame}
 
 % ---------------------------------------------------------------------------
@@ -548,9 +548,9 @@
   \begin{block}{Theorem (reflection principle)}
     For $a>0$ and $t>0$: \quad $\Prob\big(\max_{s\le t}B_s\ge a\big)=2\,\Prob(B_t\ge a)=\Prob(|B_t|\ge a)$.
   \end{block}
-  \words{The maximum up to time $t$ has the distribution of $|B_t|$: a path question is again a column question.}
+  \words{The maximum up to time $t$ has the same distribution as $|B_t|$, a single column of the table.}
   \begin{itemize}
-    \item Inherited from slide~\ref{fr:reflect}: the walk's middle term $\Prob(S_n=m)$ vanishes after the $\sqrt n$ scaling. Example: $\Prob(\max_{s\le1}B_s\ge1)=2(1-\Phi(1))\approx0.317$; head-on this would need the joint law of a continuum of columns.
+    \item This is the limit of slide~\ref{fr:reflect}; the term $\Prob(S_n=m)$ vanishes under the $\sqrt n$ scaling. Example: $\Prob(\max_{s\le1}B_s\ge1)=2(1-\Phi(1))\approx0.317$; a direct computation would involve a continuum of columns.
   \end{itemize}
   % python3: 2*Phi(a/sqrt t)-1 ~ 2*phi(0)*a/sqrt t = a*sqrt(2/(pi t)); integral over t diverges; 2(1-Phi(1)) = 0.3173
   \begin{block}{Corollary (maximum and first hitting time)}
@@ -573,12 +573,12 @@
     % python3 comment: Var of (N(0,v))^2 = 2v^2, so var of the sum is n*2*(t/n)^2 = 2t^2/n
   \end{block}
   \begin{block}{Why}
-    By (iii), $\frac{B_{t+h}-B_t}{h}\sim N\big(0,\tfrac1h\big)$: the difference quotient has standard deviation $1/\sqrt h\to\infty$ as $h\to0$, so it cannot converge. The $\Delta_k$ are independent $N(0,\tfrac tn)$ with $\E[\Delta_k^2]=\tfrac tn$ and $\Var(\Delta_k^2)=2(\tfrac tn)^2$; add.
+    By (iii), $\frac{B_{t+h}-B_t}{h}\sim N\big(0,\tfrac1h\big)$: the difference quotient has standard deviation $1/\sqrt h\to\infty$ as $h\to0$, so it cannot converge. The $\Delta_k$ are independent $N(0,\tfrac tn)$ with $\E[\Delta_k^2]=\tfrac tn$ and $\Var(\Delta_k^2)=2(\tfrac tn)^2$; sum over $k$.
   \end{block}
-  \words{The squared increments of a Brownian path over $[0,t]$ add up to $t$, which the squared increments of a differentiable function, each of order $h^2$, never do.}
+  \words{The squared increments of a Brownian path over $[0,t]$ sum to about $t$; for a differentiable function they tend to $0$ as $n\to\infty$.}
   % python3: E|N(0,t/n)| = sqrt(2t/(pi n)); n of them: sqrt(2tn/pi) -> inf. Walk: sum of squared steps = n exactly; scaled by 1/sqrt n: n*(1/n)=1.
   \begin{itemize}
-    \item Inherited from the walk: the $n$ steps of $S_n$ have squared increments $(\pm1)^2$ summing to exactly $n$, so the rescaled walk $B^{(n)}$ of slide~\ref{fr:scaling} has $\sum(\Delta B^{(n)})^2=n\cdot\tfrac1n=1$ over $[0,1]$, for every $n$; the limit keeps this.
+    \item The $n$ steps of $S_n$ have squared increments $(\pm1)^2$ summing to $n$, so the rescaled walk $B^{(n)}$ of slide~\ref{fr:scaling} has $\sum(\Delta B^{(n)})^2=n\cdot\tfrac1n=1$ over $[0,1]$, for every $n$, and so does the limit.
     \item The increments themselves do not add up: $\E|\Delta_k|=\sqrt{2t/(\pi n)}$ (the mean of $|N(0,\sigma^2)|$ is $\sigma\sqrt{2/\pi}$), so $\E\big[\sum_{k=1}^n|\Delta_k|\big]=\sqrt{2tn/\pi}\to\infty$: over any interval the path has infinite length.
   \end{itemize}
 \end{frame}
@@ -590,12 +590,12 @@
   \small
   A gambler with fortune $\pounds i$ bets $\pounds1$ per round, winning $\pounds1$ with probability $p$ and losing it with probability $q=1-p$, rounds independent. She stops when her fortune reaches $0$ (\textbf{ruin}) or a target $N>i$.
   \begin{exampleblock}{The opening question}
-    Red at American roulette: $p=\tfrac{18}{38}$. Starting with $\pounds50$, aiming for $\pounds100$, one pound at a time. What is the probability of getting there, and how long does the evening last?
+    Red at American roulette: $p=\tfrac{18}{38}$. She starts with $\pounds50$, aims for $\pounds100$, and stakes one pound per spin. We want the probability that she reaches the target, and the expected number of spins the game lasts.
   \end{exampleblock}
-  \begin{block}{Head-on}
-    The probability of reaching $N$ is $\sum_n\Prob(\text{the game ends at round $n$ with fortune $N$})$: paths of every length $n$ that stay strictly between $0$ and $N$ until the last step. No column of the table answers this; the summands have no closed form, and there are infinitely many of them.
+  \begin{block}{Direct computation}
+    The probability of reaching $N$ is $\sum_n\Prob(\text{the game ends at round $n$ with fortune $N$})$, a sum over paths of every length $n$ that stay strictly between $0$ and $N$ until the last step. The summands have no closed form and there are infinitely many of them; the event is not determined by the fortune at any fixed time.
   \end{block}
-  \words{The question is about where a path exits, not about its value at any fixed time: a row question with no bound on the length of the row, asked alike of a gambler, an insurer and a queue.}
+  \words{The question concerns where the path leaves an interval rather than its value at a fixed time; the same question arises for an insurer's reserves and for the length of a queue.}
 \end{frame}
 
 % ---------------------------------------------------------------------------
@@ -610,7 +610,7 @@
     \]
     The function $h\colon\{0,1,\dots,N\}\to[0,1]$ is the \textbf{probability of reaching the target} from fortune $i$; $1-h_i$ is the \textbf{probability of ruin}.
   \end{block}
-  \words{The gambler's fortune is a random walk between two walls, and $h_i$ is the chance that the walk started at $i$ touches the right wall first.}
+  \words{The fortune is a random walk on $\{0,\dots,N\}$ stopped at the endpoints, and $h_i$ is the probability that the walk started at $i$ reaches $N$ before $0$.}
   \begin{center}
     \begin{tikzpicture}[x=1.35cm,y=0.85cm,font=\small,>=Stealth]
       \foreach \k/\l in {0/0,1/1,2/2,3/{i-1},4/i,5/{i+1},6/{N-1},7/N}{
@@ -644,16 +644,16 @@
       h_i=p\,h_{i+1}+q\,h_{i-1}\quad(0<i<N),\qquad h_0=0,\qquad h_N=1 .
     \]
   \end{block}
-  \words{After one round the gambler has $i+1$ or $i-1$ and faces the same problem from there, so her chance is the average of the two neighbouring chances.}
+  \words{After one round the fortune is $i+1$ or $i-1$ and the game continues as if started from there, so $h_i$ is a weighted average of $h_{i+1}$ and $h_{i-1}$.}
   \begin{block}{Proof}
-    $h_0=0$ and $h_N=1$: the game is already over. For $0<i<N$, condition on the first round (law of total probability with the two rows $\{\xi_1=+1\}$ and $\{\xi_1=-1\}$):
+    $h_0=0$ and $h_N=1$ because in these states the game has already ended. For $0<i<N$, condition on the first round (law of total probability with the two rows $\{\xi_1=+1\}$ and $\{\xi_1=-1\}$):
     \[
       h_i=\Prob_i(X_T=N\mid\xi_1=+1)\,p+\Prob_i(X_T=N\mid\xi_1=-1)\,q .
     \]
     On the row $\{\xi_1=+1\}$ the fortune is $i+1$ after round one and, by independent increments, the remaining rounds $\xi_2,\xi_3,\dots$ are a fresh Bernoulli process: the conditional probability of reaching $N$ is $h_{i+1}$. Likewise $h_{i-1}$ on the other row. \hfill$\square$
   \end{block}
   \begin{itemize}
-    \item The waiting-time argument of the Conditional Expectation lecture (Application 2) and of slide~\ref{fr:firststep}, now for a probability: $N-1$ linear equations in $h_1,\dots,h_{N-1}$, each looking one step ahead.
+    \item This is the argument of the Conditional Expectation lecture (Application 2) and of slide~\ref{fr:firststep}, applied to a probability; it gives $N-1$ linear equations in $h_1,\dots,h_{N-1}$.
   \end{itemize}
 \end{frame}
 
@@ -664,13 +664,13 @@
   \begin{block}{Theorem ($p=q=\tfrac12$)}
     $h_i=\dfrac iN$ for $i=0,\dots,N$. \quad Probability of ruin: $1-\dfrac iN$.
   \end{block}
-  \words{In a fair game your chance of turning $i$ into $N$ is exactly the fraction of the target you already hold.}
+  \words{In a fair game the probability of reaching $N$ from $i$ equals the fraction $i/N$ of the target already held.}
   \begin{block}{Proof}
     The equation $h_i=\tfrac12h_{i+1}+\tfrac12h_{i-1}$ says $h_{i+1}-h_i=h_i-h_{i-1}$: consecutive differences are equal, so $h$ is linear in $i$, $h_i=A+Bi$. Then $h_0=0$ gives $A=0$ and $h_N=1$ gives $B=\tfrac1N$.
     Uniqueness: if $h,h'$ both solve the system, $d=h-h'$ is linear with $d_0=d_N=0$, hence $d=0$. \hfill$\square$
   \end{block}
-  \begin{block}{A second look: the fair game preserves expected fortune}
-    Each round has mean gain $0$, so $\E[X_T]=X_0=i$ (this needs an argument for the random time $T$, which we omit). But $X_T\in\{0,N\}$, so $\E[X_T]=N\,h_i$. Hence $h_i=i/N$ without solving any equation.
+  \begin{block}{Second proof: the fair game preserves expected fortune}
+    Each round has mean gain $0$, so $\E[X_T]=X_0=i$ (this needs an argument for the random time $T$, which we omit). But $X_T\in\{0,N\}$, so $\E[X_T]=N\,h_i$. Hence $h_i=i/N$.
   \end{block}
   % python3 fractions: win(3,10,1/2)=3/10; win(50,100,1/2)=1/2; win(1,10,1/2)=1/10
   \begin{itemize}
@@ -685,7 +685,7 @@
   \begin{block}{Theorem ($p\ne q$)}
     With $r=q/p\ne1$: \quad $h_i=\dfrac{r^i-1}{r^N-1}$, \quad probability of ruin $1-h_i=\dfrac{r^N-r^i}{r^N-1}$.
   \end{block}
-  \words{The chances now grow geometrically in $i$ rather than linearly, with ratio $q/p$, so a small edge compounds over every pound between you and the target.}
+  \words{The probabilities now depend on $i$ through the geometric sequence $r^i$ rather than linearly, so a small disadvantage per round accumulates over the many rounds needed to reach the target.}
   \begin{block}{Proof}
     Try $h_i=r^i$ in $h_i=p\,h_{i+1}+q\,h_{i-1}$: the right side is $r^{i-1}(pr^2+q)$, and $pr^2+q=\tfrac{q^2}{p}+q=\tfrac{q(q+p)}{p}=r$, so it equals $r^i$. Constants also solve the equation. Hence $h_i=A+Br^i$ solves it for every $A,B$, and since a solution is fixed by $h_0,h_1$ (the equation determines $h_{i+1}$ from $h_i,h_{i-1}$), these are all the solutions. Now $h_0=0$ gives $A=-B$ and $h_N=1$ gives $B(r^N-1)=1$. \hfill$\square$
   \end{block}
@@ -708,14 +708,14 @@
       D_i=\frac{i}{q-p}-\frac{N}{q-p}\cdot\frac{1-r^i}{1-r^N}\quad(p\ne q,\ r=q/p).
     \]
   \end{block}
-  \words{The fair game from the middle lasts about $N^2/4$ rounds, the square of the distance to the boundary, as on slide~\ref{fr:exitsol}.}
+  \words{In the fair game started from the midpoint the expected duration is $N^2/4$ rounds, the square of the distance to the boundary, as on slide~\ref{fr:exitsol}.}
   \begin{block}{Proof}
     The equation is first-step analysis with one round paid before moving to $i\pm1$, as on slide~\ref{fr:firststep}. For $p=q$ it is the equation of slide~\ref{fr:exitsol} on $\{0,\dots,N\}$; $D_i=i(N-i)$ satisfies it since $\tfrac12\big((i+1)(N-i-1)+(i-1)(N-i+1)\big)=i(N-i)-1$, and it vanishes at $0$ and $N$.
     For $p\ne q$: $D_i=\tfrac{i}{q-p}$ is one solution of the equation with the $+1$ ($\tfrac{p(i+1)+q(i-1)}{q-p}=\tfrac{i-(q-p)}{q-p}=\tfrac i{q-p}-1$); add the general solution $A+Br^i$ of the homogeneous equation and fit $D_0=D_N=0$. Uniqueness as before. \hfill$\square$
   \end{block}
   % python3: dur(50,100,1/2)=2500; dur(50,100,18/38)=940.26; dur(3,10,1/2)=21; dur(5,10,2/5)=211/11=19.18
   \begin{itemize}
-    \item Fair, $\pounds50$ to $\pounds100$: $2500$ rounds on average. Roulette ($p=\tfrac{18}{38}$), same stakes: about $940$ rounds. Losing is not only likelier, it is quicker.
+    \item Fair, $\pounds50$ to $\pounds100$: $2500$ rounds on average. Roulette ($p=\tfrac{18}{38}$), same stakes: about $940$ rounds. The unfavourable game is both more likely to end in ruin and shorter on average.
   \end{itemize}
 \end{frame}
 
@@ -743,16 +743,16 @@
         \bottomrule
       \end{tabular}
       \par\smallskip
-      \words{At a $1\%$ disadvantage, doubling $\pounds50$ one pound at a time succeeds one time in eight; the last three rows are the same goal with $\pounds5$, $\pounds10$, $\pounds50$ stakes, and fewer rounds means fewer chances for the edge to compound.}
+      \words{At a $1\%$ disadvantage, doubling $\pounds50$ one pound at a time succeeds about one time in eight; the last three rows are the same goal with stakes of $\pounds5$, $\pounds10$ and $\pounds50$, and with fewer rounds the disadvantage accumulates less.}
     \end{column}
     \begin{column}{0.48\textwidth}
       \begin{block}{Doubling (the ``martingale'' system)}
-        Bet $1$; after each loss double the stake; after a win pocket the net $\pounds1$ and restart. With capital $2^k-1$ you can absorb $k-1$ losses; $k$ losses in a row ruin you.
+        Bet $1$; after each loss double the stake; after a win pocket the net $\pounds1$ and restart. With capital $2^k-1$ the gambler can absorb $k-1$ consecutive losses; $k$ losses in a row exhaust the capital.
         Per cycle: gain $+1$ with probability $1-q^k$, lose $2^k-1$ with probability $q^k$:
         \[
           \E[\text{gain}]=(1-q^k)-q^k(2^k-1)=1-(2q)^k .
         \]
-        This is $0$ if $q=\tfrac12$ and negative if $q>\tfrac12$: the strategy changes the \emph{shape} of the outcome (many small wins, one rare catastrophe), not its mean.
+        This is $0$ if $q=\tfrac12$ and negative if $q>\tfrac12$. The strategy changes the distribution of the outcome, to many small wins and a rare large loss, but not its mean.
         % python3: q=20/38,k=7: 1-(2q)^7=-0.432; q^7=0.0112; loss 127; fair: 0
       \end{block}
       \begin{itemize}
@@ -774,7 +774,7 @@
     \]
     In the fair case, moreover, $\E[\text{time to ruin}]=\lim_N i(N-i)=\infty$.
   \end{block}
-  \words{Against unlimited capital, a fair or unfavourable game ends in ruin with certainty; only a favourable game leaves a positive chance of playing forever, and even then it shrinks geometrically in the initial deficit.}
+  \words{Against an opponent with unlimited capital, a fair or unfavourable game ends in ruin with probability one; in a favourable game the probability of ruin is $(q/p)^i$, which decreases geometrically in the initial fortune $i$.}
   \begin{block}{Proof}
     Fair: $1-h_i=1-\tfrac iN\to1$. Unfair with $r=q/p$: $1-h_i=\dfrac{r^N-r^i}{r^N-1}$. If $r>1$ ($p<q$), divide by $r^N$: $\to\dfrac{1-0}{1-0}=1$. If $r<1$ ($p>q$), $r^N\to0$ and $1-h_i\to\dfrac{0-r^i}{0-1}=r^i$. \hfill$\square$
   \end{block}
@@ -791,19 +791,19 @@
       \toprule
       game & $\Prob(\text{ruin})$ from $i$ & $\E[\text{time to ruin}]$ & the walk $i+S_n$ \\
       \midrule
-      unfavourable, $p<q$ & $1$ & $\dfrac{i}{q-p}<\infty$ & drifts down; hits $0$ soon \\
-      fair, $p=q$ & $1$ & $\infty$ & hits $0$ eventually, but slowly \\
-      favourable, $p>q$ & $(q/p)^i<1$ & $\infty$ (may never be ruined) & drifts up; may never hit $0$ \\
+      unfavourable, $p<q$ & $1$ & $\dfrac{i}{q-p}<\infty$ & drifts down; reaches $0$ \\
+      fair, $p=q$ & $1$ & $\infty$ & no drift; reaches $0$ eventually \\
+      favourable, $p>q$ & $(q/p)^i<1$ & $\infty$ (may never be ruined) & drifts up; may never reach $0$ \\
       \bottomrule
     \end{tabular}
   \end{center}
   \begin{itemize}
     \item $p=0.6$, $\pounds5$ in hand: ruin with probability $(\tfrac23)^5\approx0.13$; otherwise the fortune drifts to infinity.
     \item Roulette, $\pounds50$ in hand, no target: ruin certain, after $\dfrac{50}{2/38}=950$ spins on average.
-    \item Fair: ruined with probability one, yet no finite number of rounds is a fair estimate of when. This is the statement that the fair walk returns to any level with probability one but has infinite expected return time; it reappears as \emph{null recurrence} on slide~\ref{fr:walkZ}.
+    \item Fair game: ruin is certain, but the expected time to ruin is infinite. This is the statement that the fair walk reaches any level with probability one but with infinite expected time; it reappears as \emph{null recurrence} on slide~\ref{fr:walkZ}.
     \item $\rho_i$ for $p>q$ is the probability that a walk with upward drift ever falls by $i$ below its start: the \textbf{hitting probability} of level $-i$. Hitting probabilities are the subject of slides~\ref{fr:hitting}--\ref{fr:minimal}, where the ruin problem returns as a special case.
   \end{itemize}
-  \words{One formula, three regimes: certain ruin fast, certain ruin slowly, or a geometric chance of survival.}
+  \words{The three regimes differ in whether ruin is certain and, if it is, whether the expected time to ruin is finite.}
 \end{frame}
 
 % ---------------------------------------------------------------------------
@@ -827,10 +827,10 @@
     \end{tabular}
   \end{center}
   \begin{itemize}
-    \item Doubling $\pounds50$ at $\pounds1$ a spin: one chance in $195$, and the evening lasts about $940$ spins. Staking the whole $\pounds50$ on one spin: $\tfrac{18}{38}\approx0.474$.
-    \item Even ``win $\pounds1$ and leave'' fails one time in ten, and the failures cost $\pounds50$ each: mean gain $0.8995\cdot1-0.1005\cdot50\approx-\pounds4.12$, which is $(p-q)\,\E[T]=-\tfrac2{38}\cdot78.4$. No staking plan makes the mean positive: every plan is a sum of bets each with mean $-\tfrac2{38}$ per pound.
+    \item Doubling $\pounds50$ at $\pounds1$ a spin succeeds with probability about $1/195$, and the game lasts about $940$ spins on average. Staking all $\pounds50$ on a single spin succeeds with probability $\tfrac{18}{38}\approx0.474$.
+    \item The plan ``win $\pounds1$ and stop'' fails one time in ten, and each failure costs $\pounds50$; the mean gain is $0.8995\cdot1-0.1005\cdot50\approx-\pounds4.12$, which equals $(p-q)\,\E[T]=-\tfrac2{38}\cdot78.4$. No staking plan has positive mean gain, since every plan is a sum of bets each of mean $-\tfrac2{38}$ per pound staked.
   \end{itemize}
-  \words{Two lines of first-step analysis produce every number in this table; no path was ever enumerated.}
+  \words{The entries are the values of $h_{50}$ and $D_{50}$ given by the formulas of slides~\ref{fr:ruinunfair} and~\ref{fr:duration} for each target $N$.}
 \end{frame}
 
 
@@ -846,10 +846,10 @@
         \item In the long run, what fraction of days are sunny?
         \item How many days until the next rainy day, on average?
       \end{enumerate}
-      \begin{block}{Head-on}
-        Question 1 sums over $3^6=729$ weather sequences for the six intermediate days. Question 2 needs a limit over sequences of every length. Question 3 is a waiting time whose distribution is a mess.
+      \begin{block}{Direct computation}
+        Question 1 is a sum over the $3^6=729$ possible weather sequences for the six intermediate days. Question 2 involves a limit over sequences of every length. Question 3 concerns a waiting time whose distribution has no simple closed form.
       \end{block}
-      \words{Each question is about a process whose next value depends only on its current value; that single structural fact will answer all three with matrix arithmetic.}
+      \words{In this model tomorrow's weather depends on the past only through today's; this property reduces all three questions to computations with the $3\times3$ matrix.}
     \end{column}
     \begin{column}{0.42\textwidth}
       \centering
@@ -880,9 +880,9 @@
       p\colon S\times S\to[0,1],\qquad p(i,j)=\Prob(X_{n+1}=j\mid X_n=i).
     \]
   \end{block}
-  \words{Given the whole past, the next state depends only on the present state, and the rule for moving on is the same at every time.}
+  \words{The conditional distribution of the next state given the entire past depends only on the present state, and in a homogeneous chain it is the same at every time.}
   \begin{itemize}
-    \item Two arguments, two roles: $i$ is the \emph{current} state (the conditioning event $\{X_n=i\}$, the row); $j$ is the \emph{next} state (the column). $p(i,j)$ is the probability of the step $i\to j$.
+    \item The two arguments of $p$ play different roles: $i$ is the \emph{current} state (the conditioning event $\{X_n=i\}$, the row); $j$ is the \emph{next} state (the column). $p(i,j)$ is the probability of the step $i\to j$.
     \item Random walk: $S=\Z$, $p(i,i+1)=p$, $p(i,i-1)=q$, all other $p(i,j)=0$. The Markov property holds because $S_{n+1}=S_n+\xi_{n+1}$ with $\xi_{n+1}$ independent of the past. Gambler's ruin: the same on $S=\{0,\dots,N\}$ with $p(0,0)=p(N,N)=1$.
     \item All chains below are homogeneous.
   \end{itemize}
@@ -901,9 +901,9 @@
         \]
         The \textbf{initial distribution} is the row vector $\lambda\colon S\to[0,1]$, $\lambda_i=\Prob(X_0=i)$, $\sum_i\lambda_i=1$.
       \end{block}
-      \words{Row $i$ of $\PP$ is the conditional pmf of $X_{n+1}$ given $X_n=i$: the ``restrict to the row'' picture of the two-dice table.}
+      \words{Row $i$ of $\PP$ is the conditional pmf of $X_{n+1}$ given $X_n=i$, as a row of the two-dice table is.}
       \begin{itemize}
-        \item Row $i$, as a function $j\mapsto p(i,j)$, is $p_{X_{n+1}\mid X_n}(\,\cdot\mid i)$: non-negative, sums to $1$. Columns need not sum to anything.
+        \item Row $i$, as a function $j\mapsto p(i,j)$, is $p_{X_{n+1}\mid X_n}(\,\cdot\mid i)$: non-negative, sums to $1$. Column sums are unconstrained.
         \item $\E[f(X_{n+1})\mid X_n=i]=\sum_j p(i,j)f(j)$: the row average of $f$ (compare $\E[X\mid Y=y]$, lecture 5).
       \end{itemize}
     \end{column}
@@ -952,15 +952,15 @@
   \label{fr:mcnot}
   \small
   \begin{itemize}
-    \item \textbf{Not independence.} $X_{n+1}$ depends on $X_n$, often strongly; it is the \emph{earlier} past that adds nothing once $X_n$ is known.
-    \item \textbf{Not ``the past is irrelevant''.} $\Prob(X_{n+1}=j\mid X_{n-1}=k)\ne\Prob(X_{n+1}=j)$ in general; the past is irrelevant only \emph{given the present}.
-    \item \textbf{Not every process.} Toss a coin and let $X_n$ be the number of heads among tosses $n-1$ and $n$. Given $X_n=1$, the next value depends on whether the recent toss was the head: $\Prob(X_{n+1}=2\mid X_n=1,X_{n-1}=0)=\tfrac12$ but $\Prob(X_{n+1}=2\mid X_n=1,X_{n-1}=2)=0$. Not Markov; the pair of the last two tosses is.
-    \item \textbf{Not a property of the phenomenon but of what is recorded.} A process that is not Markov often becomes Markov when the state is enlarged to carry the relevant part of the past (last two tosses; position \emph{and} velocity; today's weather \emph{and} yesterday's).
+    \item \textbf{It is not independence.} $X_{n+1}$ may depend strongly on $X_n$; the property says that the earlier states $X_0,\dots,X_{n-1}$ carry no further information once $X_n$ is known.
+    \item \textbf{It does not say the past is irrelevant.} In general $\Prob(X_{n+1}=j\mid X_{n-1}=k)\ne\Prob(X_{n+1}=j)$; the past is irrelevant only conditionally on the present.
+    \item \textbf{Not every process has it.} Toss a coin and let $X_n$ be the number of heads among tosses $n-1$ and $n$. Given $X_n=1$, the distribution of $X_{n+1}$ depends on which of the two tosses was the head: $\Prob(X_{n+1}=2\mid X_n=1,X_{n-1}=0)=\tfrac12$ but $\Prob(X_{n+1}=2\mid X_n=1,X_{n-1}=2)=0$. It is not Markov; the process recording the last two tosses is.
+    \item \textbf{It depends on what is recorded as the state.} A process that is not Markov often becomes Markov when the state is enlarged to include the relevant part of the past (the last two tosses; position and velocity; today's weather and yesterday's).
   \end{itemize}
   \begin{block}{Test for the Markov property}
-    Check that $\Prob(X_{n+1}=j\mid X_n=i,\ \text{anything about } X_0,\dots,X_{n-1})$ does not change with the ``anything''. In models built as $X_{n+1}=F(X_n,\xi_{n+1})$ with $\xi_{n+1}$ independent of $X_0,\dots,X_n$, it holds automatically: the walk, the urn, the graph walks.
+    Check that $\Prob(X_{n+1}=j\mid X_n=i,\ \text{anything about } X_0,\dots,X_{n-1})$ does not change with the ``anything''. In models of the form $X_{n+1}=F(X_n,\xi_{n+1})$ with $\xi_{n+1}$ independent of $X_0,\dots,X_n$ it holds automatically; the random walk, the Ehrenfest urn and the walks on graphs below are all of this form.
   \end{block}
-  \words{Markov is the statement that the present state is a sufficient summary of the past for predicting the future.}
+  \words{The Markov property states that, for predicting the future, the present state is a sufficient summary of the past.}
 \end{frame}
 
 % ---------------------------------------------------------------------------
@@ -974,10 +974,10 @@
         \[
           S=\{\st V,\st C\},\qquad \PP=\begin{pmatrix}0.2&0.8\\0.5&0.5\end{pmatrix}.
         \]
-        A two-state chain; every question about it is a $2\times2$ computation. The Entropy lecture uses this chain for its entropy-rate example.
+        This two-state chain is used in the Entropy lecture for the entropy-rate example.
       \end{block}
       \begin{block}{Gambler's ruin}
-        $S=\{0,\dots,N\}$, $p(i,i+1)=p$, $p(i,i-1)=q$ for $0<i<N$, and $p(0,0)=p(N,N)=1$: the diagram of slide~\ref{fr:ruinsetting}. States $0$ and $N$ are \textbf{absorbing}: once entered, never left.
+        $S=\{0,\dots,N\}$, $p(i,i+1)=p$, $p(i,i-1)=q$ for $0<i<N$, and $p(0,0)=p(N,N)=1$: the diagram of slide~\ref{fr:ruinsetting}. States $0$ and $N$ are \textbf{absorbing}: once the chain enters one of them it remains there.
       \end{block}
     \end{column}
     \begin{column}{0.48\textwidth}
@@ -986,7 +986,7 @@
         \[
           p(i,i-1)=\frac iN,\qquad p(i,i+1)=\frac{N-i}{N}.
         \]
-        The more balls in an urn, the likelier the next move is out of it.
+        The more balls an urn holds, the more likely the next move is out of it.
         % python3 sympy: N=4 matrix rows: (0,1,0,0,0),(1/4,0,3/4,0,0),(0,1/2,0,1/2,0),(0,0,3/4,0,1/4),(0,0,0,1,0)
         \[
           N=4:\quad \PP=\begin{pmatrix}0&1&0&0&0\\ \tfrac14&0&\tfrac34&0&0\\ 0&\tfrac12&0&\tfrac12&0\\ 0&0&\tfrac34&0&\tfrac14\\ 0&0&0&1&0\end{pmatrix}.
@@ -1006,9 +1006,9 @@
         Vertices $S$; from vertex $i$ move to one of its $d(i)$ neighbours uniformly: $p(i,j)=1/d(i)$ if $j$ is a neighbour of $i$, else $0$.
       \end{block}
       \begin{itemize}
-        \item \textbf{Cycle} of length $L$: $S=\{0,\dots,L-1\}$, $p(i,i\pm1\bmod L)=\tfrac12$. The random walk with the ends joined.
+        \item \textbf{Cycle} of length $L$: $S=\{0,\dots,L-1\}$, $p(i,i\pm1\bmod L)=\tfrac12$. This is the random walk on $\{0,\dots,L-1\}$ with the two ends joined.
         \item \textbf{Cube}: $S=\{0,1\}^3$, the $8$ corners; neighbours differ in one coordinate, so $p(i,j)=\tfrac13$ for each of the $3$ neighbours. A move flips one coordinate.
-        \item \textbf{The web}: pages as vertices, links as directed edges, $p(i,j)=1/(\text{number of links out of } i)$ for each page $j$ that $i$ links to. A \textbf{random surfer}. Slides~\ref{fr:pagerank}--\ref{fr:pagerank2}.
+        \item \textbf{The web}: pages as vertices, links as directed edges, $p(i,j)=1/(\text{number of links out of } i)$ for each page $j$ that $i$ links to. This is the \textbf{random surfer} of slides~\ref{fr:pagerank}--\ref{fr:pagerank2}.
       \end{itemize}
       \words{On a graph, the transition matrix is the adjacency table with each row rescaled to sum to $1$.}
     \end{column}
@@ -1049,13 +1049,13 @@
     \]
     with $p^{(1)}=p$ and $p^{(0)}(i,j)=\ind\{i=j\}$. As before, $i$ is the current state (row) and $j$ the state $n$ steps later (column).
   \end{block}
-  \words{The same table as $\PP$, but for a jump of $n$ steps: row $i$ is the conditional distribution of $X_{m+n}$ given $X_m=i$.}
+  \words{The $n$-step probabilities form a table in which row $i$ is the conditional distribution of $X_{m+n}$ given $X_m=i$.}
   % python3: 0.7*0.1 + 0.2*0.3 + 0.1*0.4 = 0.17
   \begin{exampleblock}{Weather: $p^{(2)}(\st S,\st R)$ by hand}
-    Sum over tomorrow's weather $k$: $p^{(2)}(\st S,\st R)=\sum_k p(\st S,k)\,p(k,\st R)=0.7\cdot0.1+0.2\cdot0.3+0.1\cdot0.4=0.17$. Three two-day sequences, $\st{SSR},\st{SCR},\st{SRR}$, each a product from slide~\ref{fr:paths}.
+    Sum over tomorrow's weather $k$: $p^{(2)}(\st S,\st R)=\sum_k p(\st S,k)\,p(k,\st R)=0.7\cdot0.1+0.2\cdot0.3+0.1\cdot0.4=0.17$. The three terms are the sequences $\st{SSR},\st{SCR},\st{SRR}$, each a product as on slide~\ref{fr:paths}.
   \end{exampleblock}
   \begin{itemize}
-    \item That sum is the $(\st S,\st R)$ entry of the matrix product $\PP\PP$. The next slide says this is general.
+    \item This sum is the $(\st S,\st R)$ entry of $\PP\PP$; the next slide shows that this holds in general.
   \end{itemize}
 \end{frame}
 
@@ -1066,7 +1066,7 @@
   \begin{block}{Theorem (Chapman--Kolmogorov)}
     For all $m,n\ge0$ and $i,j\in S$: \quad $\displaystyle p^{(m+n)}(i,j)=\sum_{k\in S}p^{(m)}(i,k)\,p^{(n)}(k,j)$. \quad Equivalently, writing $\PP^{(n)}=\big(p^{(n)}(i,j)\big)_{i,j}$ for the table of $n$-step probabilities: $\PP^{(n)}=\PP^n$, the $n$-th matrix power.
   \end{block}
-  \words{To go from $i$ to $j$ in $m+n$ steps, be somewhere at time $m$ and go on from there: condition on the intermediate state, and the sum is exactly a matrix product.}
+  \words{A path from $i$ to $j$ in $m+n$ steps is in some state $k$ at time $m$; summing over $k$ gives the formula, which has the form of a matrix product.}
   \begin{block}{Proof}
     Total probability with the rows $\{X_m=k\}$, $k\in S$:
     \[
@@ -1075,7 +1075,7 @@
     the second factor by the Markov property and homogeneity (the past before time $m$, including $X_0=i$, drops out). With $m=1$ this is $\PP^{(n+1)}=\PP\,\PP^{(n)}$, so by induction $\PP^{(n)}=\PP^n$. \hfill$\square$
   \end{block}
   \begin{itemize}
-    \item First-step analysis is the case $m=1$; ``last-step'' is $n=1$; a computer uses repeated squaring. Rows of $\PP^n$ are again conditional distributions: $\PP^n$ is stochastic.
+    \item The case $m=1$ is first-step analysis and $n=1$ a last-step decomposition; numerically, $\PP^n$ is computed by repeated squaring. Rows of $\PP^n$ are conditional distributions, so $\PP^n$ is stochastic.
   \end{itemize}
 \end{frame}
 
@@ -1089,13 +1089,13 @@
       \Prob(X_n=j)=\sum_{i\in S}\lambda_i\,p^{(n)}(i,j)=(\lambda\PP^n)_j .
     \]
   \end{block}
-  \words{Start with the row vector of start probabilities and multiply by $\PP$ once per step; each multiplication averages the rows of $\PP$ with the current weights.}
+  \words{The distribution at time $n$ is the initial distribution multiplied by $\PP$ once for each step; each multiplication forms a weighted average of the rows of $\PP$ with the current probabilities as weights.}
   \begin{block}{Proof}
     Total probability over the rows $\{X_0=i\}$: $\Prob(X_n=j)=\sum_i\Prob(X_0=i)\Prob(X_n=j\mid X_0=i)$. \hfill$\square$
   \end{block}
   \begin{itemize}
     \item Every finite-dimensional distribution follows: $\Prob(X_m=i,\ X_{m+n}=j)=(\lambda\PP^m)_i\,p^{(n)}(i,j)$, and so on along any sequence of times.
-    \item Two objects, two shapes: $\lambda\PP^n$ is a row vector (a distribution on $S$); $\PP^n$ is a matrix (a table of conditional distributions). Multiplying a distribution by $\PP$ moves it one step forward in time.
+    \item $\lambda\PP^n$ is a row vector, a distribution on $S$, while $\PP^n$ is a matrix, a table of conditional distributions. Multiplication by $\PP$ advances a distribution by one step in time.
   \end{itemize}
 \end{frame}
 
@@ -1114,13 +1114,13 @@
     \PP^7=\begin{pmatrix}0.4637&0.3068&0.2296\\0.4601&0.3083&0.2316\\0.4591&0.3087&0.2321\end{pmatrix}.
   \]}
   \begin{exampleblock}{Answer}
-    $\Prob_{\st S}(X_7=\st R)=p^{(7)}(\st S,\st R)\approx0.230$. The head-on sum over $729$ six-day sequences has been organised into six matrix multiplications.
+    $\Prob_{\st S}(X_7=\st R)=p^{(7)}(\st S,\st R)\approx0.230$. The sum over $729$ six-day sequences has been organised into six matrix multiplications.
   \end{exampleblock}
   \begin{itemize}
-    \item Read the three rows of $\PP^7$: they are almost equal. A week on, the weather barely remembers today. The common row, $(0.4615,0.3077,0.2308)$ to four places from $\PP^{20}$, is the subject of the next section.
-    \item Read the columns of $\PP^2$ versus $\PP$: after a rainy day, the chance of sun is $0.2$ tomorrow and $0.34$ the day after; the rows are mixing towards each other.
+    \item The three rows of $\PP^7$ are almost equal: after a week the distribution of the weather depends very little on today's weather. The common limiting row, $(0.4615,0.3077,0.2308)$ to four places from $\PP^{20}$, is the subject of the next section.
+    \item Comparing $\PP^2$ with $\PP$: after a rainy day the probability of sun is $0.2$ for the next day and $0.34$ for the day after; the rows of $\PP^n$ approach one another as $n$ grows.
   \end{itemize}
-  \words{Everything about the future of the chain is in the powers of one small table.}
+  \words{The distribution of the chain at any future time is obtained from the powers of $\PP$.}
 \end{frame}
 
 % ---------------------------------------------------------------------------
@@ -1136,16 +1136,16 @@
       \PP^3=\begin{pmatrix}0.368&0.632\\0.395&0.605\end{pmatrix},\quad
       \PP^{10}=\begin{pmatrix}0.3846&0.6154\\0.3846&0.6154\end{pmatrix}.
     \]
-    Both rows approach $(\tfrac5{13},\tfrac8{13})=(0.384615\ldots,\,0.615385\ldots)$: ten letters on, the chance of a vowel no longer depends on whether we started from a vowel or a consonant.
+    Both rows approach $(\tfrac5{13},\tfrac8{13})=(0.384615\ldots,\,0.615385\ldots)$; after ten letters the probability of a vowel no longer depends appreciably on whether the first letter was a vowel or a consonant.
   \end{exampleblock}
   \begin{block}{Exact formula}
     $\PP$ has eigenvalues $1$ and $0.2+0.5-1=-0.3$ (trace minus $1$), and
     \[
       p^{(n)}(\st V,\st V)=\tfrac5{13}+\tfrac8{13}(-0.3)^n,\qquad p^{(n)}(\st C,\st V)=\tfrac5{13}-\tfrac5{13}(-0.3)^n .
     \]
-    Check: $n=1$ gives $\tfrac5{13}-\tfrac{2.4}{13}=0.2$ and $\tfrac5{13}+\tfrac{1.5}{13}=0.5$. The distance to the limit shrinks by a factor $0.3$ per step and alternates in sign.
+    For $n=1$ these give $\tfrac5{13}-\tfrac{2.4}{13}=0.2$ and $\tfrac5{13}+\tfrac{1.5}{13}=0.5$, as required. The difference from the limit is multiplied by $-0.3$ at each step.
   \end{block}
-  \words{The rows of $\PP^n$ forgetting their index is the phenomenon the rest of the lecture explains: what the limit row is, when it exists, and how fast it is reached.}
+  \words{The remaining sections identify the limit row, give conditions under which it exists, and estimate the speed of convergence.}
 \end{frame}
 
 
@@ -1159,7 +1159,7 @@
       \pi\PP=\pi,\qquad\text{i.e.}\qquad \sum_{i\in S}\pi_i\,p(i,j)=\pi_j\ \text{ for every } j\in S .
     \]
   \end{block}
-  \words{A distribution over states that the chain does not change: start $X_0$ from $\pi$ and every $X_n$ has distribution $\pi$.}
+  \words{A stationary distribution is one that the chain preserves: if $X_0$ has distribution $\pi$ then every $X_n$ has distribution $\pi$.}
   \begin{block}{Theorem}
     If $X_0\sim\pi$ and $\pi$ is stationary, then $X_n\sim\pi$ for every $n$, and $(X_n,X_{n+1})$ has the same joint distribution for every $n$.
   \end{block}
@@ -1183,7 +1183,7 @@
   \end{block}
   \words{A left eigenvector for the eigenvalue $1$ exists by the argument above; that it can be chosen with non-negative entries is the content of the theorem.}
   \begin{itemize}
-    \item Not proved here (Perron--Frobenius, or a fixed-point argument). Uniqueness can fail: the gambler's ruin chain has infinitely many. On an infinite $S$ existence can fail: the random walk on $\Z$ has none (any solution of $\pi\PP=\pi$ is constant, and cannot sum to $1$).
+    \item The theorem is not proved here (Perron--Frobenius, or a fixed-point argument). Uniqueness can fail, as for the gambler's ruin chain, which has infinitely many. On an infinite $S$ existence can fail: the random walk on $\Z$ has none, since any solution of $\pi\PP=\pi$ is constant and cannot sum to $1$.
   \end{itemize}
 \end{frame}
 
@@ -1204,7 +1204,7 @@
     \[
       \pi=\big(\tfrac6{13},\ \tfrac4{13},\ \tfrac3{13}\big)\approx(0.4615,\ 0.3077,\ 0.2308),
     \]
-    which is exactly the common row of $\PP^{20}$ on slide~\ref{fr:q1}. About $46\%$ of days are sunny in the long run (the precise sense of ``long run'' is slide~\ref{fr:ergodic}).
+    which agrees with the common row of $\PP^{20}$ on slide~\ref{fr:q1}. About $46\%$ of days are sunny in the long run (the precise sense of ``long run'' is given on slide~\ref{fr:ergodic}).
   \end{exampleblock}
   % python3: V/C: pi_V*0.8 = pi_C*0.5, pi_V+pi_C=1 -> (5/13, 8/13)
   \begin{exampleblock}{Vowel/consonant}
@@ -1213,7 +1213,7 @@
 \end{frame}
 
 % ---------------------------------------------------------------------------
-\begin{frame}{Detailed Balance: A Shortcut for Reversible Chains}
+\begin{frame}{Detailed Balance and Reversible Chains}
   \label{fr:db}
   \small
   \begin{block}{Theorem}
@@ -1223,34 +1223,34 @@
     \]
     then $\pi$ is stationary. Such a chain is called \textbf{reversible} (with respect to $\pi$).
   \end{block}
-  \words{If the probability flow along every single edge balances in both directions, then in particular the total flow into each state balances.}
+  \words{If the flow along each edge balances in both directions, then the total flow into each state equals the flow out of it.}
   \begin{block}{Proof}
     $\sum_i\pi_i\,p(i,j)=\sum_i\pi_j\,p(j,i)=\pi_j\sum_ip(j,i)=\pi_j$. \hfill$\square$
   \end{block}
   \begin{itemize}
-    \item Stronger than stationarity ($|S|^2$ equations), but each involves only two unknowns, so it is solved by walking along edges; if it has no solution, $\pi$ must be found from $\pi\PP=\pi$.
+    \item Stronger than stationarity, with $|S|^2$ equations, but each involves only two unknowns, so the system is solved edge by edge; if it has no solution, $\pi$ must be found from $\pi\PP=\pi$.
     \item Random walk on a graph: $\pi_i=d(i)/\sum_kd(k)$ satisfies $\pi_ip(i,j)=\frac{1}{\sum_kd(k)}=\pi_jp(j,i)$ on every edge. Cube and cycle: uniform.
-    \item Reversible means: started from $\pi$, the chain run backwards has the same law, since $\Prob(X_n=i,X_{n+1}=j)=\pi_ip(i,j)=\pi_jp(j,i)=\Prob(X_n=j,X_{n+1}=i)$.
+    \item Started from $\pi$, a reversible chain has the same joint distributions when run backwards, since $\Prob(X_n=i,X_{n+1}=j)=\pi_ip(i,j)=\pi_jp(j,i)=\Prob(X_n=j,X_{n+1}=i)$.
   \end{itemize}
 \end{frame}
 
 % ---------------------------------------------------------------------------
-\begin{frame}{Detailed Balance at Work: The Ehrenfest Urn}
+\begin{frame}{Detailed Balance: The Ehrenfest Urn}
   \label{fr:ehrenfest}
   \small
   % python3 sympy: Ehrenfest N=4, pi=(1,4,6,4,1)/16: pi P == pi checked; pi_i p(i,i+1) = pi_{i+1} p(i+1,i):
   %   1/16*1=4/16*1/4, 4/16*3/4=6/16*1/2, 6/16*1/2=4/16*3/4, 4/16*1/4=1/16*1.  All equal.
   \begin{exampleblock}{The Ehrenfest urn: $\pi$ is binomial}
-    Only neighbours communicate, so detailed balance is one equation per edge: $\pi_i\frac{N-i}{N}=\pi_{i+1}\frac{i+1}{N}$, i.e.\ $\pi_{i+1}=\pi_i\frac{N-i}{i+1}$. Iterating from $\pi_0$ gives $\pi_i=\pi_0\binom Ni$, and $\sum_i\pi_i=1$ forces $\pi_0=2^{-N}$:
+    Transitions occur only between neighbouring states, so detailed balance is one equation for each edge: $\pi_i\frac{N-i}{N}=\pi_{i+1}\frac{i+1}{N}$, i.e.\ $\pi_{i+1}=\pi_i\frac{N-i}{i+1}$. Iterating from $\pi_0$ gives $\pi_i=\pi_0\binom Ni$, and $\sum_i\pi_i=1$ forces $\pi_0=2^{-N}$:
     \[
       \pi_i=\binom Ni2^{-N}\qquad\text{(each ball in urn 1 independently with probability } \tfrac12\text{)}.
     \]
     $N=4$: $\pi=\tfrac1{16}(1,4,6,4,1)$. Check one edge: $\pi_1p(1,2)=\tfrac4{16}\cdot\tfrac34=\tfrac3{16}=\tfrac6{16}\cdot\tfrac12=\pi_2p(2,1)$.
   \end{exampleblock}
-  \words{The long-run picture of the urn is $N$ independent fair coins, one per ball, saying which urn the ball is in.}
+  \words{Under the stationary distribution each ball is in urn~$1$ independently with probability $\tfrac12$.}
   \begin{itemize}
-    \item Head-on, $\pi\PP=\pi$ is a $5\times5$ system; for $N=100$ it is $101\times101$, while detailed balance is still one line per edge.
-    \item $\pi_0=2^{-N}$, so by slide~\ref{fr:recclass} the mean time between two moments when urn~$1$ is empty is $2^N$ steps: $16$ for $N=4$, about $1.3\cdot10^{30}$ for $N=100$; meanwhile $\pi$ is concentrated within a few $\sqrt N$ of $N/2$.
+    \item Solving $\pi\PP=\pi$ directly means solving a $5\times5$ system, or a $101\times101$ system for $N=100$; detailed balance gives $\pi$ by a recursion along the edges.
+    \item $\pi_0=2^{-N}$, so by slide~\ref{fr:recclass} the mean time between two moments when urn~$1$ is empty is $2^N$ steps: $16$ for $N=4$, about $1.3\cdot10^{30}$ for $N=100$; meanwhile $\pi$ is concentrated within a few multiples of $\sqrt N$ of $N/2$.
     % python3: 2**100 = 1.2677e30
   \end{itemize}
 \end{frame}
@@ -1268,7 +1268,7 @@
         \]
         The \textbf{PageRank} of page $j$ is $\pi_j$, where $\pi\colon S\to[0,1]$ is the stationary distribution of $\PP$.
       \end{block}
-      \words{A page is important if important pages link to it; $\pi_j=\sum_i\pi_i\,p(i,j)$ is that sentence as an equation.}
+      \words{A page ranks highly if highly ranked pages link to it; the equation $\pi_j=\sum_i\pi_i\,p(i,j)$ makes this precise.}
     \end{column}
     \begin{column}{0.37\textwidth}
       \centering
@@ -1284,7 +1284,7 @@
     \end{column}
   \end{columns}
   \begin{itemize}
-    \item Why the jump: without it, a page with no out-links (or a cluster with no exits) traps the surfer, and the walk on $\mathbf H$ alone may fail to have a unique $\pi$ or to converge (slides~\ref{fr:classes}--\ref{fr:convwhy}). With $d<1$ every entry of $\PP$ is positive, and everything below applies.
+    \item The jump is needed because a page with no out-links, or a group of pages with no exits, traps the surfer, and the chain with matrix $\mathbf H$ alone may have no unique $\pi$ or may fail to converge (slides~\ref{fr:classes}--\ref{fr:convwhy}). With $d<1$ every entry of $\PP$ is positive, so the results below apply.
   \end{itemize}
 \end{frame}
 
@@ -1304,11 +1304,11 @@
     \[
       \pi\approx(0.373,\ 0.196,\ 0.394,\ 0.038)\quad\text{for }(\st A,\st B,\st C,\st D),\qquad\text{exactly }\pi_{\st D}=\tfrac{3}{80}=0.0375 .
     \]
-    $\st C$ ranks first: three pages link to it, one of them ($\st A$) itself highly ranked. $\st A$ is second with a single in-link, because that link comes from the top page and is $\st C$'s only link. $\st D$, with no in-links, gets exactly the jump mass $\frac{1-d}{n}$.
+    $\st C$ ranks first; three pages link to it, and one of them, $\st A$, is itself highly ranked. $\st A$ is second although it has a single in-link, because that link comes from the top page and is $\st C$'s only link. $\st D$ has no in-links and receives only the jump mass $\frac{1-d}{n}$.
   \end{exampleblock}
   \begin{itemize}
-    \item Head-on, ``importance'' is circular: $\st A$ is important because $\st C$ is, and $\st C$ because $\st A$ is. The stationary equation resolves the circularity as a fixed point; the powers $\PP^n$ compute it by iteration ($\PP^{30}$ has all rows equal to $\pi$ to four places).
-    \item Without damping ($d=1$), $\pi=(0.4,0.2,0.4,0)$ is stationary for $\mathbf H$: a page nobody links to scores $0$.
+    \item The definition of rank is circular, since $\st A$ ranks highly because $\st C$ does and $\st C$ because $\st A$ does. The stationary equation expresses this circularity as a fixed-point condition, and the powers $\PP^n$ compute the fixed point by iteration ($\PP^{30}$ has all rows equal to $\pi$ to four places).
+    \item Without damping ($d=1$), $\pi=(0.4,0.2,0.4,0)$ is stationary for $\mathbf H$: a page with no in-links has rank $0$.
   \end{itemize}
 \end{frame}
 
@@ -1336,7 +1336,7 @@
   \begin{block}{Definition}
     The \textbf{period} of state $i$ is $d(i)=\gcd\{n\ge1 : p^{(n)}(i,i)>0\}$ (with $d(i)=\infty$ if the set is empty). State $i$ is \textbf{aperiodic} if $d(i)=1$. A chain is aperiodic if every state is.
   \end{block}
-  \words{The period is the common divisor of all the lengths of round trips from $i$; period $2$ means every return takes an even number of steps.}
+  \words{The period is the greatest common divisor of the lengths of all round trips from $i$; period $2$ means every return takes an even number of steps.}
   \begin{block}{Theorem}
     All states in a communicating class have the same period. If $p(i,i)>0$ for some $i$ in a class, the class is aperiodic.
   \end{block}
@@ -1346,7 +1346,7 @@
 \end{frame}
 
 % ---------------------------------------------------------------------------
-\begin{frame}{Periodicity: The Cube Never Forgets Its Parity}
+\begin{frame}{Periodicity: The Random Walk on the Cube}
   \label{fr:cubeparity}
   \small
   % python3 numpy: cube P^10 row 000 = (.25,0,0,.25,0,.25,.25,0); P^11 row 000 = (0,.25,.25,0,.25,0,0,.25); P^n(000,000)=0 for odd n
@@ -1360,7 +1360,7 @@
         \end{align*}
         (order $000,100,010,110,001,101,011,111$; zeros exact; $p^{(10)}(000,000)=\tfrac14+\tfrac34\,3^{-10}$). The rows of $\PP^n$ do not converge: they alternate between two limits, while $\pi=(\tfrac18,\dots,\tfrac18)$ is stationary all along.
       \end{exampleblock}
-      \words{A memory of the starting time that never fades: $\pi$ exists, but the chain never settles into it.}
+      \words{Started at $000$, the parity of the number of $1$s in $X_n$ equals the parity of $n$; $\pi$ exists, but $X_n$ does not converge in distribution.}
     \end{column}
     \begin{column}{0.34\textwidth}
       \centering
@@ -1379,7 +1379,7 @@
   \end{columns}
   \begin{itemize}
     \item \textbf{Cycle} of length $L$: $d=2$ if $L$ is even, $d=1$ if $L$ is odd (round trips of lengths $2$ and $L$). \textbf{Ehrenfest}: $d=2$. \textbf{Weather}, \textbf{vowel/consonant}: $p(i,i)>0$, so $d=1$.
-    \item Cure for periodicity: a lazy version, $\PP'=\tfrac12(\mathbf I+\PP)$, stays put with probability $\tfrac12$, has the same $\pi$, and $d=1$.
+    \item The lazy chain $\PP'=\tfrac12(\mathbf I+\PP)$ has the same $\pi$ and period $1$, so it removes periodicity.
   \end{itemize}
 \end{frame}
 
@@ -1392,12 +1392,12 @@
   \begin{block}{Definition}
     The \textbf{return time} to $i$ is $T_i\colon\Omega\to\{1,2,\dots\}\cup\{\infty\}$, $T_i=\min\{n\ge1 : X_n=i\}$ ($\infty$ if there is no such $n$). State $i$ is \textbf{recurrent} if $\Prob_i(T_i<\infty)=1$ and \textbf{transient} if $\Prob_i(T_i<\infty)<1$. A recurrent state is \textbf{positive recurrent} if $\E_i[T_i]<\infty$ and \textbf{null recurrent} otherwise.
   \end{block}
-  \words{Recurrent: started at $i$, the chain is certain to come back; transient: with positive probability it never does.}
+  \words{A state is recurrent if the chain started there returns with probability one, and transient if with positive probability it never returns.}
   \begin{itemize}
-    \item $T_i$ is a row quantity: the first column after $0$ in which the path shows $i$. It is the waiting time of the Conditional Expectation lecture, and for the gambler it was the duration of the game.
-    \item Gambler's ruin: $0$ and $N$ are recurrent ($T_i=1$ surely); $1,\dots,N-1$ are transient, since the game ends with probability one and then never returns.
-    \item Random walk on $\Z$: state $0$ is recurrent iff $p=\tfrac12$ (slide~\ref{fr:walkZ}). Recurrent and yet $\E_0[T_0]=\infty$: the fair walk is null recurrent, the sharp form of ``ruin certain but $\E[T]=\infty$'' on slide~\ref{fr:regimes}.
-    \item Positive recurrence is what makes long-run frequencies meaningful: returns every $\E_i[T_i]$ steps on average, so a fraction $1/\E_i[T_i]$ of time is spent at $i$ (slide~\ref{fr:ergodic}).
+    \item $T_i$ is a row quantity, the first time after $0$ at which the path is in state $i$. It is a waiting time of the kind studied in the Conditional Expectation lecture; for the gambler, the duration $T$ of the game was such a time.
+    \item Gambler's ruin: $0$ and $N$ are recurrent ($T_i=1$ surely); $1,\dots,N-1$ are transient, since the game ends with probability one and the chain then never returns.
+    \item Random walk on $\Z$: state $0$ is recurrent iff $p=\tfrac12$ (slide~\ref{fr:walkZ}). For $p=\tfrac12$, $0$ is recurrent but $\E_0[T_0]=\infty$, so the fair walk is null recurrent; this is the statement ``ruin certain but $\E[T]=\infty$'' of slide~\ref{fr:regimes}.
+    \item For a positive recurrent state, returns occur every $\E_i[T_i]$ steps on average, so the long-run fraction of time spent at $i$ is $1/\E_i[T_i]$ (slide~\ref{fr:ergodic}).
   \end{itemize}
 \end{frame}
 
@@ -1427,13 +1427,13 @@
       \item[(b)] Every finite closed class is recurrent; every class that is not closed is transient. In particular a finite irreducible chain is recurrent, indeed positive recurrent, and its stationary distribution is unique with $\pi_i=1/\E_i[T_i]$.
     \end{enumerate}
   \end{block}
-  \words{In a finite chain the only way to avoid returning is to leave the class for good; inside a closed class the chain has nowhere else to go, and it returns on average every $1/\pi_i$ steps.}
+  \words{In a finite chain a state is transient only if its class can be left permanently; within a finite closed class every state is revisited, on average every $1/\pi_i$ steps.}
   \begin{block}{Proof sketch}
-    (a) If $i\leftrightarrow j$ with $p^{(a)}(i,j)p^{(b)}(j,i)>0$, then $p^{(a+n+b)}(i,i)\ge p^{(a)}(i,j)p^{(n)}(j,j)p^{(b)}(j,i)$, so the two series $\sum_np^{(n)}(i,i)$, $\sum_np^{(n)}(j,j)$ diverge together. (b) Started in a finite closed class, some state is visited infinitely often, so that state is recurrent, so all are by (a). Not closed: leaving is possible and permanent. The formula $\pi_i=1/\E_i[T_i]$ is the ergodic theorem, slide~\ref{fr:ergodic}. \hfill$\square$
+    (a) If $i\leftrightarrow j$ with $p^{(a)}(i,j)p^{(b)}(j,i)>0$, then $p^{(a+n+b)}(i,i)\ge p^{(a)}(i,j)p^{(n)}(j,j)p^{(b)}(j,i)$, so the two series $\sum_np^{(n)}(i,i)$, $\sum_np^{(n)}(j,j)$ diverge together. (b) Started in a finite closed class, some state is visited infinitely often, so that state is recurrent, so all are by (a). A class that is not closed can be left permanently. The formula $\pi_i=1/\E_i[T_i]$ is the ergodic theorem, slide~\ref{fr:ergodic}. \hfill$\square$
   \end{block}
   % python3: 1/pi_R = 13/3 = 4.333; 1/pi_0 (Ehrenfest N=4) = 16; V/C mean return to V = 1+0.8*2 = 13/5 = 1/pi_V
   \begin{itemize}
-    \item Weather: mean return time to $\st R$ is $1/\pi_{\st R}=\tfrac{13}3$ days. Vowel/consonant: mean return to $\st V$ is $1/\pi_{\st V}=\tfrac{13}5$, which first-step analysis confirms: $1+0.8\cdot2$, since from $\st C$ the wait for $\st V$ is geometric with mean $2$.
+    \item Weather: mean return time to $\st R$ is $1/\pi_{\st R}=\tfrac{13}3$ days. Vowel/consonant: mean return to $\st V$ is $1/\pi_{\st V}=\tfrac{13}5$, in agreement with first-step analysis: from $\st C$ the wait for $\st V$ is geometric with mean $2$, giving $1+0.8\cdot2$.
   \end{itemize}
 \end{frame}
 
@@ -1444,18 +1444,18 @@
   \begin{block}{Theorem}
     The simple random walk on $\Z$ is recurrent if $p=\tfrac12$ (null recurrent) and transient if $p\ne\tfrac12$.
   \end{block}
-  \words{Without drift the walk keeps coming home, at ever longer intervals; with any drift it eventually leaves for good.}
+  \words{Without drift the walk returns to $0$ infinitely often, with infinite mean return time; with drift it returns only finitely often.}
   % python3: C(2n,n)/4^n vs 1/sqrt(pi n): n=1: 0.5 vs 0.564; n=5: 0.246 vs 0.252; n=50: 0.0796 vs 0.0798; 4pq at p=0.6 is 0.96
   \begin{block}{Proof}
     Returns to $0$ take an even number of steps, $n$ up and $n$ down: $p^{(2n)}(0,0)=\binom{2n}{n}p^nq^n$ (slide~\ref{fr:distSn}). By Stirling's formula (not proved here) $\binom{2n}n\approx4^n/\sqrt{\pi n}$, the ratio tending to $1$, so
     \[
       p^{(2n)}(0,0)\approx\frac{(4pq)^n}{\sqrt{\pi n}} .
     \]
-    Fair: $4pq=1$ and $\sum_n(\pi n)^{-1/2}=\infty$: $0$ is recurrent by the visits criterion. Unfair: $4pq=1-(p-q)^2<1$, the series converges geometrically: transient. Null recurrence: $\E_0[T_0]=\infty$ by slide~\ref{fr:regimes}. \hfill$\square$
+    For $p=\tfrac12$, $4pq=1$ and $\sum_n(\pi n)^{-1/2}=\infty$, so $0$ is recurrent by the visits criterion. For $p\ne\tfrac12$, $4pq=1-(p-q)^2<1$ and the series converges, so $0$ is transient. Null recurrence: $\E_0[T_0]=\infty$ by slide~\ref{fr:regimes}. \hfill$\square$
   \end{block}
   \begin{itemize}
     % python3: sum_{n>=1} C(2n,n)(pq)^n at p=0.6 -> 4.000 (partial sum to n=4000); 1/sqrt(1-0.96)-1 = 4; f = 4/5 = 1-|p-q|
-    \item $p=0.6$: $4pq=0.96$ and $\E_0[V_0]=\sum_{n\ge1}\binom{2n}{n}(pq)^n=(1-4pq)^{-1/2}-1=4$, so $f=\tfrac45=1-|p-q|$ by the visits criterion: four returns on average, then gone for good.
+    \item $p=0.6$: $4pq=0.96$ and $\E_0[V_0]=\sum_{n\ge1}\binom{2n}{n}(pq)^n=(1-4pq)^{-1/2}-1=4$, so $f=\tfrac45=1-|p-q|$ by the visits criterion; the walk returns four times on average.
   \end{itemize}
 \end{frame}
 
@@ -1477,7 +1477,7 @@
     \]
     it solves it, and every solution $x$ with all $x_i\ge0$ has $x_i\ge h^A_i$ for all $i$.
   \end{block}
-  \words{Off the target the hitting probability is the row average of itself, one step ahead; if that system has several non-negative solutions, the smallest is the right one.}
+  \words{Off the target set, the hitting probability from $i$ is the $p(i,\cdot)$-weighted average of the hitting probabilities from the next states; if the system has several non-negative solutions, the hitting probability is the smallest.}
   \begin{itemize}
     \item $A$ is the fixed target set; $i$ is the starting state, the variable of $h^A$. Gambler's ruin: $S=\{0,\dots,N\}$, $A=\{N\}$ (next slide); the exit problem of slide~\ref{fr:firststep}: $A=\{-a,a\}$.
   \end{itemize}
@@ -1497,7 +1497,7 @@
   \end{block}
   \words{Any non-negative solution dominates the probability of hitting within $n$ steps for every $n$, hence dominates the probability of ever hitting.}
   \begin{itemize}
-    \item On a finite state space with $A$ reachable from everywhere, the system has a unique solution and minimality is automatic; at absorbing states outside $A$, and on infinite state spaces, it is what selects the answer.
+    \item On a finite state space in which $A$ can be reached from every state, the system has a unique solution and minimality plays no role; when there are absorbing states outside $A$, or the state space is infinite, minimality selects the correct solution.
   \end{itemize}
 \end{frame}
 
@@ -1506,12 +1506,12 @@
   \label{fr:hittingruin}
   \small
   \begin{exampleblock}{Finite ruin chain, $A=\{N\}$}
-    The system reads $h_N=1$; $h_i=p\,h_{i+1}+q\,h_{i-1}$ for $0<i<N$; and at the absorbing state $0$: $h_0=\sum_jp(0,j)h_j=h_0$, which says nothing. The general solution is $h_i=a+b\,r^i$ (or $a+bi$ if $p=q$) for $i\ge1$ with $h_0$ free; non-negative solutions exist with any $h_0\in[0,\ 1]$, and the \emph{minimal} one has $h_0=0$, giving slides~\ref{fr:ruinfair}--\ref{fr:ruinunfair}.
+    The system reads $h_N=1$; $h_i=p\,h_{i+1}+q\,h_{i-1}$ for $0<i<N$; and at the absorbing state $0$: $h_0=\sum_jp(0,j)h_j=h_0$, which imposes no constraint. The general solution is $h_i=a+b\,r^i$ (or $a+bi$ if $p=q$) for $i\ge1$ with $h_0$ free; non-negative solutions exist with any $h_0\in[0,\ 1]$, and the minimal one has $h_0=0$, which recovers slides~\ref{fr:ruinfair}--\ref{fr:ruinunfair}.
   \end{exampleblock}
-  \words{The boundary condition $h_0=0$ that we imposed by hand on slide~\ref{fr:ruineq} is what minimality supplies automatically: an absorbing state you cannot leave has hitting probability $0$ for any target that is not itself.}
+  \words{The boundary condition $h_0=0$ imposed on slide~\ref{fr:ruineq} is supplied here by minimality; an absorbing state has hitting probability $0$ for any target set not containing it.}
   \begin{itemize}
-    \item Every hitting probability of this lecture is one system: $A=\{N\}$ gives the chance of reaching the target, $A=\{0\}$ the chance of ruin, and $A=\{0,N\}$ gives $h\equiv1$ (the game ends).
-    \item Conversely, the ruin argument (condition on the first round, restart) \emph{is} the proof that $h^A$ solves the system; nothing new was needed for general chains except minimality.
+    \item The hitting probabilities of the ruin problem come from this system with different targets: $A=\{N\}$ gives the probability of reaching the target, $A=\{0\}$ the probability of ruin, and $A=\{0,N\}$ gives $h\equiv1$, so the game ends with probability one.
+    \item The ruin argument of slide~\ref{fr:ruineq}, conditioning on the first round and restarting, is the proof that $h^A$ solves the system; the only addition for general chains is minimality.
   \end{itemize}
 \end{frame}
 
@@ -1527,9 +1527,9 @@
     \end{itemize}
     $h\equiv1$ solves the system in every case; it is the answer only when it is the smallest non-negative solution.
   \end{exampleblock}
-  \words{The system alone cannot tell ``ruin certain'' from ``ruin probability $(q/p)^i$''; minimality does, and it agrees with the limit $N\to\infty$ of slide~\ref{fr:infinite}.}
+  \words{The system alone does not distinguish certain ruin from ruin with probability $(q/p)^i$; the minimality condition does, and the result agrees with the limit $N\to\infty$ on slide~\ref{fr:infinite}.}
   \begin{itemize}
-    \item The same happens for transient chains generally: on an infinite state space, a non-negative solution can be inflated by adding a positive solution of the homogeneous equation that vanishes on $A$; only the smallest is a probability.
+    \item The same occurs for transient chains in general: on an infinite state space, a non-negative solution can be inflated by adding a positive solution of the homogeneous equation that vanishes on $A$; only the smallest is the hitting probability.
   \end{itemize}
 \end{frame}
 
@@ -1543,12 +1543,12 @@
       k_i=0\ \ (i\in A),\qquad k_i=1+\sum_{j\in S}p(i,j)\,k_j\ \ (i\notin A).
     \]
   \end{block}
-  \words{Off the target, pay one step and add the row average of the remaining expected times; the exit-time and duration equations of slides~\ref{fr:firststep} and~\ref{fr:duration} are this system for the walk.}
+  \words{Off the target set, the expected hitting time is one step plus the weighted average of the expected hitting times from the next states; the exit-time and duration equations of slides~\ref{fr:firststep} and~\ref{fr:duration} are instances of this system.}
   \begin{block}{Proof}
     Solves it: off $A$, $T_A=1+T_A'$ where $T_A'$ is the hitting time of the chain restarted at $X_1$; take $\E_i$ and condition on $X_1$. Minimal: as before, any non-negative solution $x$ satisfies $x_i\ge\E_i[\min(T_A,n)]$ for all $n$, by induction. \hfill$\square$
   \end{block}
   \begin{itemize}
-    \item The system may have no finite non-negative solution at all; then $k^A_i=\infty$ for some $i$, which is what the fair walk on $\Z$ does. A finite solution, when the target is reachable from everywhere in a finite chain, is unique.
+    \item The system may have no finite non-negative solution; then $k^A_i=\infty$ for some $i$, as for the fair walk on $\Z$. A finite solution, when the target is reachable from everywhere in a finite chain, is unique.
     \item In matrix form on a finite chain: $(\mathbf I-\mathbf Q)\,k=\mathbf 1$ with $\mathbf Q$ the transitions among the states off $A$; slide~\ref{fr:absorbing} inverts it.
   \end{itemize}
 \end{frame}
@@ -1557,9 +1557,9 @@
 \begin{frame}{Expected Hitting Times: Corner to Opposite Corner on the Cube}
   \label{fr:cubehit}
   \small
-  How many steps does the random walk on the cube take, on average, to get from $000$ to $111$?
-  \begin{block}{Head-on}
-    $\E_{000}[T_{111}]=\sum_nn\,\Prob_{000}(T_{111}=n)$, a sum over paths on $8$ states of every length that avoid $111$ until the end. No column of the table answers it.
+  We compute the expected number of steps for the random walk on the cube to go from $000$ to $111$.
+  \begin{block}{Direct computation}
+    $\E_{000}[T_{111}]=\sum_nn\,\Prob_{000}(T_{111}=n)$, where each $\Prob_{000}(T_{111}=n)$ is a sum over paths of length $n$ that avoid $111$ until their last step; the quantity is not determined by the distribution of $X_n$ at any fixed time.
   \end{block}
   % python3 sympy: k3=0, k0=1+k1, k1=1+k0/3+2k2/3, k2=1+2k1/3 -> k0=10, k1=9, k2=7.  Adjacent target: 7, 9, 10.
   \begin{exampleblock}{Random walk on the cube: from $000$ to the opposite corner $111$}
@@ -1569,7 +1569,7 @@
     \]
     giving $k_1=7$, $k_2=9$, $k_3=10$: ten steps on average from a corner to the opposite corner.
   \end{exampleblock}
-  \words{Symmetry collapsed eight unknowns to three, and first-step analysis turned an infinite sum over paths into three linear equations.}
+  \words{Symmetry reduces the eight unknowns to three, and first-step analysis replaces the infinite sum over paths by three linear equations.}
   \begin{itemize}
     \item Check: from a neighbour of $000$ the expected time back to $000$ is $7$, so the mean return time to $000$ is $1+7=8=1/\pi_{000}$, as the ergodic theorem predicts (slide~\ref{fr:ergodic}).
   \end{itemize}
@@ -1594,9 +1594,9 @@
       \E_{\st R}[T_{\st R}]=1+0.2\,k_{\st S}+0.4\,k_{\st C}+0.4\cdot0=1+\tfrac43+2=\tfrac{13}3=\frac1{\pi_{\st R}} .
     \]
   \end{block}
-  \words{The three opening questions have each been answered by one operation on the transition table: a power, a left eigenvector, and a first-step linear system.}
+  \words{The three opening questions have been answered by a matrix power, a left eigenvector, and a first-step linear system respectively.}
   \begin{itemize}
-    \item Vowel/consonant, the same tool: expected letters until the first vowel is $2$ from $\st C$ (geometric) and $1+0.8\cdot2=2.6$ from $\st V$. Until the pattern $\st{VV}$: $k_{\st C}=15$, $k_{\st V}=13$.
+    \item For the vowel/consonant chain, the expected number of letters until the first vowel is $2$ from $\st C$ (a geometric waiting time) and $1+0.8\cdot2=2.6$ from $\st V$; until the first occurrence of $\st{VV}$ it is $k_{\st C}=15$ and $k_{\st V}=13$.
     % python3 sympy: kC = 2 + kV, kV = 1 + 0.8 kC -> kV = 13, kC = 15; checked via fundamental matrix of the 3-state pattern chain.
   \end{itemize}
 \end{frame}
@@ -1613,11 +1613,11 @@
     \]
     Equivalently, for every initial distribution $\lambda$, $\lambda\PP^n\to\pi$: every row of $\PP^n$ converges to $\pi$.
   \end{block}
-  \words{Run the chain long enough and where it is has almost the distribution $\pi$, whatever the starting point: the chain forgets where it began.}
+  \words{For large $n$ the distribution of $X_n$ is close to $\pi$, whatever the initial distribution.}
   \begin{itemize}
     \item Slide~\ref{fr:twobytwo}: rows of the vowel/consonant $\PP^n$ approaching $(\tfrac5{13},\tfrac8{13})$. Slide~\ref{fr:q1}: rows of the weather $\PP^7$ agreeing to two places. PageRank: $\PP^{30}$ has all rows equal to $\pi$ to four places, which is how $\pi$ is computed for $10^{10}$ pages.
-    \item The theorem is about \emph{columns} of the table of paths: the distribution at a late time. It says nothing about the path itself, which keeps moving; the ergodic theorem (slide~\ref{fr:ergodic}) is the row statement.
-    \item Two hypotheses, both necessary: irreducibility for uniqueness of $\pi$ and independence of the start; aperiodicity for the convergence itself. Next slide.
+    \item The theorem concerns the \emph{columns} of the table of paths, the distribution at a fixed late time. It does not describe an individual path, which continues to move; the ergodic theorem (slide~\ref{fr:ergodic}) is the corresponding statement about rows.
+    \item Both hypotheses are necessary: irreducibility for the uniqueness of $\pi$ and the independence of the limit from the start, aperiodicity for the convergence itself. Examples follow on the next slide.
   \end{itemize}
 \end{frame}
 
@@ -1631,10 +1631,10 @@
   \begin{block}{Periodic: the rows do not converge}
     The cube (slide~\ref{fr:cubeparity}): rows of $\PP^n$ alternate between two vectors, though $\pi=(\tfrac18,\dots,\tfrac18)$ is unique. Likewise the Ehrenfest urn and the cycle of even length.
   \end{block}
-  \begin{block}{Infinite $S$: there may be nothing to converge to}
+  \begin{block}{Infinite $S$: no stationary distribution}
     The fair walk on $\Z$ is irreducible, but has no stationary distribution (slide~\ref{fr:statexist}) and $p^{(2n)}(0,0)\approx1/\sqrt{\pi n}\to0$ (slide~\ref{fr:walkZ}): every entry of every row of $\PP^n$ tends to $0$, and the mass spreads out over ever more states.
   \end{block}
-  \words{Reducible: which limit depends on where you start; periodic: no limit at all; infinite: the limit may be zero everywhere.}
+  \words{Without irreducibility the limit depends on the starting state, without aperiodicity there may be no limit, and on an infinite state space the limit may be zero at every state.}
 \end{frame}
 
 % ---------------------------------------------------------------------------
@@ -1648,7 +1648,7 @@
       \big|p^{(n)}(i,j)-\pi_j\big|\le C\,|\lambda_2|^n,\quad |\lambda_2|=\max_{k\ge2}|\lambda_k|<1 .
     \]
   \end{block}
-  \words{Every term of $\PP^n$ after the limit $\mathbf 1\pi$ carries a factor of modulus below one, so the error shrinks geometrically at the rate of the second-largest eigenvalue.}
+  \words{Each term of $\PP^n$ other than $\mathbf 1\pi$ carries a factor $\lambda_k^n$ with $|\lambda_k|<1$, so the difference from the limit decreases geometrically at a rate set by the second-largest eigenvalue modulus.}
   \begin{block}{Proof}
     $\PP\mathbf 1=\mathbf 1$ (row sums) and $\pi\PP=\pi$, $\pi\mathbf 1=1$ give $\mathbf v_1=\mathbf 1$, $\mathbf u_1=\pi$. As $(\mathbf v_k\mathbf u_k)(\mathbf v_l\mathbf u_l)=(\mathbf u_k\mathbf v_l)\,\mathbf v_k\mathbf u_l$ vanishes for $k\ne l$, powers act termwise: $\big(\sum_k\lambda_k\mathbf v_k\mathbf u_k\big)^n=\sum_k\lambda_k^n\mathbf v_k\mathbf u_k$. Irreducibility rules out a second eigenvalue $1$ (a second stationary distribution), aperiodicity the other eigenvalues of modulus $1$ (the cube has $-1$); these two facts are not proved here. \hfill$\square$
   \end{block}
@@ -1675,7 +1675,7 @@
   \begin{block}{Where the hypotheses enter}
     The pair $(X_n,Y_n)$ is a Markov chain on $S\times S$ with transitions $p(i,i')p(j,j')$. Irreducibility and aperiodicity of $\PP$ make this pair chain irreducible (aperiodicity is needed: for the cube, a pair at different parities can never meet), hence recurrent on the finite $S\times S$, so it reaches the diagonal: $\Prob(\tau<\infty)=1$, i.e.\ $\Prob(\tau>n)\to0$. \hfill$\square$
   \end{block}
-  \words{The chain from $i$ and the chain from $\pi$ are indistinguishable after their first meeting, and they are certain to meet.}
+  \words{After the two chains first meet, the chain started at $i$ can be replaced by the chain started from $\pi$ without changing its distribution, and the two are certain to meet.}
 \end{frame}
 
 % ---------------------------------------------------------------------------
@@ -1691,9 +1691,9 @@
     \]
     Moreover $\pi_i=1/\E_i[T_i]$.
   \end{block}
-  \words{Along a single path, the fraction of time spent in $i$ settles to $\pi_i$, and time averages of any function equal its $\pi$-average.}
+  \words{Along a single path, the fraction of time spent in state $i$ converges to $\pi_i$, and the time average of any function of the state converges to its average under $\pi$.}
   \begin{itemize}
-    \item $V_i(n)/n$ is a \emph{row} quantity: read one path of the table and count. The theorem says almost every row has the same limiting frequencies, and they are $\pi$.
+    \item $V_i(n)/n$ is a \emph{row} quantity, computed by counting along one path. The theorem says that almost every row has the same limiting frequencies, namely $\pi$.
     \item $f$ is a reward per state: long-run average reward equals the $\pi$-weighted reward. With $f=\ind_{\{i\}}$ this is the first statement.
   \end{itemize}
 \end{frame}
@@ -1708,7 +1708,7 @@
   \begin{block}{Why the limit is $\pi$}
     Among the visits to $i$, a fraction $p(i,j)$ is followed by a step to $j$ (Markov property, LLN), so the fraction of times $k<n$ with $X_k=i$, $X_{k+1}=j$ tends to $\mu_i\,p(i,j)$. Summing over $i$ counts the visits to $j$ at times $1,\dots,n$, whose fraction tends to $\mu_j$: $\mu_j=\sum_i\mu_i\,p(i,j)$, i.e.\ $\mu\PP=\mu$, so $\mu=\pi$ by uniqueness (slide~\ref{fr:recclass}). \hfill$\square$
   \end{block}
-  \words{Long-run frequencies balance because every arrival at $j$ is a departure from some $i$.}
+  \words{The frequencies satisfy $\mu\PP=\mu$ because every arrival at $j$ is a departure from some $i$.}
   % python3: cube, f = number of 1s: sum_i pi_i f(i) = (0+3*1+3*2+3)/8 = 12/8 = 3/2; even-parity states: 4/8 = 1/2
   \begin{exampleblock}{The cube: a time average although the rows of $\PP^n$ never converge}
     $f(x)=$ number of $1$s in $x$. Along any path, with probability one, $\frac1n\sum_{k<n}f(X_k)\to\sum_i\pi_if(i)=\tfrac18(0+3\cdot1+3\cdot2+3)=\tfrac32$, and the fraction of time at even-parity corners tends to $\tfrac12$, although at each fixed time $n$ that probability is $1$ or $0$ (slide~\ref{fr:cubeparity}).
@@ -1732,13 +1732,13 @@
       statement & $\Prob(X_n=i)\to\pi_i$ & $V_i(n)/n\to\pi_i$ with probability one \\
       reads the table & down a column (late time) & along a row (one path) \\
       needs & irreducible, aperiodic, finite & irreducible, finite \\
-      fails for the cube? & yes: rows of $\PP^n$ alternate & no: $\tfrac18$ of the time at each corner \\
-      what $\pi_i$ means & where the chain is, eventually & how often the chain is there, on average \\
+      the cube ($d=2$) & does not apply: rows of $\PP^n$ alternate & applies: $\tfrac18$ of the time at each corner \\
+      what $\pi_i$ means & distribution of $X_n$ for large $n$ & long-run fraction of time at $i$ \\
       computes & $\PP^n$ for large $n$ & $\pi$ from $\pi\PP=\pi$, or $1/\E_i[T_i]$ \\
       \bottomrule
     \end{tabular}
   \end{center}
-  \words{Both theorems say $\pi$ is the long-run behaviour of the chain; the first in distribution at a fixed late time, the second in frequency along a single path.}
+  \words{Both theorems describe the long-run behaviour of the chain in terms of $\pi$: the first as the distribution at a fixed late time, the second as the frequencies along a single path.}
 \end{frame}
 
 
@@ -1762,7 +1762,7 @@
       (\mathbf N\mathbf R)_{ia}=\Prob_i(\text{absorbed at } a).
     \]
   \end{block}
-  \words{$\mathbf Q^n$ is the table of $n$-step transitions that avoid absorption, so summing over $n$ counts expected visits; row sums are expected times to absorption, and one more step into $\mathbf R$ gives where.}
+  \words{$\mathbf Q^n$ contains the $n$-step transition probabilities among the transient states, so its sum over $n$ gives expected numbers of visits; the row sums of $\mathbf N$ are expected times to absorption, and $\mathbf N\mathbf R$ gives the absorption probabilities.}
 \end{frame}
 
 % ---------------------------------------------------------------------------
@@ -1770,12 +1770,12 @@
   \label{fr:fundproof}
   \small
   \begin{block}{Proof sketch}
-    $(\mathbf Q^n)_{ij}=\Prob_i(X_n=j)$ for transient $j$ (paths through transient states only), so $\sum_n(\mathbf Q^n)_{ij}=\E_i[\text{visits to } j]$ by linearity, column by column. Absorption is certain and from a finite set of transient states happens geometrically fast, so $\mathbf Q^n\to0$ and the series converges, to $(\mathbf I-\mathbf Q)^{-1}$ since $(\mathbf I-\mathbf Q)\sum_{n<m}\mathbf Q^n=\mathbf I-\mathbf Q^m$. Time to absorption is the total number of transient visits: $\sum_j\mathbf N_{ij}$. Absorption at $a$: visit some $j$ then step to $a$: $\sum_j\mathbf N_{ij}\mathbf R_{ja}$. \hfill$\square$
+    $(\mathbf Q^n)_{ij}=\Prob_i(X_n=j)$ for transient $j$ (paths through transient states only), so $\sum_n(\mathbf Q^n)_{ij}=\E_i[\text{visits to } j]$ by linearity, column by column. Absorption is certain and from a finite set of transient states happens geometrically fast, so $\mathbf Q^n\to0$ and the series converges, to $(\mathbf I-\mathbf Q)^{-1}$ since $(\mathbf I-\mathbf Q)\sum_{n<m}\mathbf Q^n=\mathbf I-\mathbf Q^m$. Time to absorption is the total number of transient visits: $\sum_j\mathbf N_{ij}$. Absorption at $a$ occurs by a visit to some transient $j$ followed by a step to $a$, giving $\sum_j\mathbf N_{ij}\mathbf R_{ja}$. \hfill$\square$
   \end{block}
-  \words{Three quantities, one inverse: expected visits, expected time, and where the chain ends up all come from $(\mathbf I-\mathbf Q)^{-1}$.}
+  \words{The expected numbers of visits, the expected time to absorption and the absorption probabilities are all obtained from the single matrix $(\mathbf I-\mathbf Q)^{-1}$.}
   \begin{itemize}
     \item The hitting systems of slides~\ref{fr:hitting} and~\ref{fr:khit} are $(\mathbf I-\mathbf Q)\,k=\mathbf 1$ and $(\mathbf I-\mathbf Q)\,h=\mathbf R_{\cdot,a}$; the fundamental matrix is their solution operator.
-    \item Any chain becomes absorbing for the purpose of a hitting question: make the target states absorbing (replace their rows by point masses), which does not change the path up to the hitting time.
+    \item For a hitting question, any chain can be made absorbing by making the target states absorbing (replacing their rows by point masses), which does not change the path up to the hitting time.
   \end{itemize}
 \end{frame}
 
@@ -1798,10 +1798,10 @@
     \mathbf N\mathbf R=\begin{pmatrix}\tfrac34&\tfrac14\\ \tfrac12&\tfrac12\\ \tfrac14&\tfrac34\end{pmatrix}.
   \]
   \begin{exampleblock}{Reading it}
-    $\mathbf N\mathbf 1=(3,4,3)=i(4-i)$: the durations of slide~\ref{fr:duration}. Column $4$ of $\mathbf N\mathbf R$ is $(\tfrac14,\tfrac12,\tfrac34)=i/4$: slide~\ref{fr:ruinfair}. New information: $\mathbf N_{2,2}=2$ visits to fortune $2$ (counting the start) before the game ends when starting there, and $\mathbf N_{1,3}=\tfrac12$ visits to $3$ when starting from $1$.
+    $\mathbf N\mathbf 1=(3,4,3)=i(4-i)$: the durations of slide~\ref{fr:duration}. Column $4$ of $\mathbf N\mathbf R$ is $(\tfrac14,\tfrac12,\tfrac34)=i/4$: slide~\ref{fr:ruinfair}. The matrix also gives new information: $\mathbf N_{2,2}=2$ is the expected number of visits to fortune $2$ (counting the start) before the game ends when starting there, and $\mathbf N_{1,3}=\tfrac12$ the expected number of visits to $3$ when starting from $1$.
   \end{exampleblock}
   \begin{itemize}
-    \item $p=\tfrac25$: $\mathbf N\mathbf 1=(\tfrac{33}{13},\tfrac{50}{13},\tfrac{43}{13})$ and the target column of $\mathbf N\mathbf R$ is $(\tfrac8{65},\tfrac4{13},\tfrac{38}{65})$, agreeing with the closed forms of slides~\ref{fr:ruinunfair}--\ref{fr:duration}. One matrix inverse replaces both derivations and any boundary-condition bookkeeping.
+    \item $p=\tfrac25$: $\mathbf N\mathbf 1=(\tfrac{33}{13},\tfrac{50}{13},\tfrac{43}{13})$ and the target column of $\mathbf N\mathbf R$ is $(\tfrac8{65},\tfrac4{13},\tfrac{38}{65})$, agreeing with the closed forms of slides~\ref{fr:ruinunfair}--\ref{fr:duration}. The single matrix inverse gives both quantities at once.
   \end{itemize}
 \end{frame}
 
@@ -1813,7 +1813,7 @@
   \renewcommand{\arraystretch}{1.15}
   \begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash}p{3.7cm}>{\raggedright\arraybackslash}p{6.1cm}@{}}
     \toprule
-    object & type & one-glance meaning in the table \\
+    object & type & meaning in the table of paths \\
     \midrule
     process $(X_t)_{t\in T}$ & $X_t\colon\Omega\to\R$ for each $t$ & columns are random variables, rows are paths \\
     random walk $S_n$ & $\Omega\to\Z$ & sum of $\pm1$ steps; $\Var(S_n)=4npq$ ($=n$ if fair); restarts after each step \\
@@ -1822,11 +1822,11 @@
     transition matrix $\PP$ & $S\times S\to[0,1]$, rows sum to $1$ & row $i$ is the conditional pmf of $X_{n+1}$ given $X_n=i$ \\
     $n$-step $\PP^n$, law $\lambda\PP^n$ & matrix, row vector & Chapman--Kolmogorov: condition on the middle state \\
     stationary $\pi$ & $S\to[0,1]$, $\pi\PP=\pi$ & inflow equals outflow at every state; detailed balance if reversible \\
-    classes, period, recurrence & structure of $\PP$'s graph & who reaches whom, in steps of what length, and returns surely or not \\
+    classes, period, recurrence & structure of $\PP$'s graph & which states reach which, at what step lengths, and whether return is certain \\
     hitting $h^A$, $k^A$ & $S\to[0,1]$, $S\to[0,\infty]$ & minimal solutions of first-step systems; $\mathbf N\mathbf R$, $\mathbf N\mathbf 1$ \\
     convergence, ergodic & $\PP^n\to\mathbf 1\pi$; $V_i(n)/n\to\pi_i$ & the column limit and the row limit are both $\pi$ \\
     \bottomrule
   \end{tabular}
   \medskip
-  \words{One tool did most of the work: condition on the first step, and a question about paths of unbounded length becomes a finite linear system.}
+  \words{Most results follow from conditioning on the first step, turning a question about unbounded paths into a finite linear system.}
 \end{frame}

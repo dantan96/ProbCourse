@@ -23,7 +23,7 @@
 (b) $\{T_1\le t\}=\{\max_{s\le t}B_s\ge1\}$, so $\Prob(T_1\le t)=2\big(1-\Phi(1/\sqrt t)\big)$: $0.317$ at $t=1$; $2(1-\Phi(0.5))=0.617$ at $t=4$; $2(1-\Phi(0.1))=0.920$ at $t=100$.
 (c) $2(1-\Phi(1/\sqrt t))=\tfrac12$ iff $\Phi(1/\sqrt t)=\tfrac34$ iff $1/\sqrt t=0.674$: median $t=1/0.674^2=2.20$.
 (d) $\tfrac1a B_{a^2t}$ is a Brownian motion, and it reaches $1$ exactly when $B$ reaches $a$, at time $a^2$ times smaller; so $T_a$ has the distribution of $a^2T_1$ and median $2.20\,a^2$.
-(e) Half the paths reach $1$ within $2.2$ time units, but the tail is heavy: $\Prob(T_1>t)=2\Phi(1/\sqrt t)-1\approx\sqrt{2/(\pi t)}$, and $\int^\infty t^{-1/2}\dd t=\infty$. A typical wait is short; the rare long waits are long enough to make the mean infinite.
+(e) Half the paths reach $1$ within $2.2$ time units, but the tail is heavy: $\Prob(T_1>t)=2\Phi(1/\sqrt t)-1\approx\sqrt{2/(\pi t)}$, and $\int^\infty t^{-1/2}\dd t=\infty$. Most waits are short, but the rare long waits are long enough to make the mean infinite.
 % python3: 2(1-Phi(1))=0.3173; t=4: 0.6171; t=100: 0.9203; median 2.198
 \end{solution}
 
@@ -51,7 +51,7 @@
 (a) $\mathbf H=\begin{pmatrix}0&\tfrac12&\tfrac12\\0&0&1\\1&0&0\end{pmatrix}$, $\PP=\begin{pmatrix}0.05&0.475&0.475\\0.05&0.05&0.9\\0.9&0.05&0.05\end{pmatrix}$.
 (b) $\pi\PP=\pi$ with $\sum\pi=1$: $\pi_{\st A}=0.05+0.85\pi_{\st C}$, $\pi_{\st B}=0.05+0.425\pi_{\st A}$, $\pi_{\st C}=0.05+0.425\pi_{\st A}+0.85\pi_{\st B}$; solving, $\pi=(\tfrac{686}{1769},\tfrac{380}{1769},\tfrac{703}{1769})=(0.388,0.215,0.397)$: $\st C>\st A>\st B$. $\st A$'s one in-link is the \emph{only} link of the top page $\st C$, so it carries all of $\st C$'s weight; $\st B$'s in-link is one of two from $\st A$ and carries half of $\st A$'s.
 (c) $\pi\mathbf H=\pi$: $\pi_{\st A}=\pi_{\st C}$, $\pi_{\st B}=\tfrac12\pi_{\st A}$, $\pi_{\st C}=\tfrac12\pi_{\st A}+\pi_{\st B}$: $\pi=(\tfrac25,\tfrac15,\tfrac25)$.
-(d) Without damping, $\st D$ is absorbing: once the surfer arrives (which happens, since $\st C$ is visited again and again) it never leaves, and the only stationary distribution is $\pi=(0,0,0,1)$. With $d=0.85$, solving $\pi\PP=\pi$ gives $\pi=(0.101,0.080,0.148,0.671)$: $\st D$ still holds two thirds of the mass, because each visit lasts a geometric number of steps with mean $1/0.15=6.7$ and every jump lands on $\st D$ a quarter of the time. Damping makes the problem finite but does not neutralise a self-linking trap; real search engines treat such pages separately.
+(d) Without damping, $\st D$ is absorbing: once the surfer arrives (which happens, since $\st C$ is visited again and again) it never leaves, and the only stationary distribution is $\pi=(0,0,0,1)$. With $d=0.85$, solving $\pi\PP=\pi$ gives $\pi=(0.101,0.080,0.148,0.671)$: $\st D$ still holds two thirds of the mass, because each visit lasts a geometric number of steps with mean $1/0.15=6.7$ and every jump lands on $\st D$ a quarter of the time. Damping keeps every page's rank positive but does not remove the effect of a self-linking trap; search engines treat such pages separately.
 % python3 sympy: 3-page pi = (686,380,703)/1769; undamped (2/5,1/5,2/5); 4-page trap: undamped (0,0,0,1), damped (0.1006,0.0803,0.1485,0.6707)
 \end{solution}
 
@@ -60,14 +60,14 @@
 (b) Write the hitting system for $h_i=\Prob_i(\text{reach }\st W)$ and solve it; show $h_{\st D}=\dfrac{p^2}{p^2+q^2}$.
 (c) Write the system for $k_i=\E_i[\text{points until the game ends}]$ and show $k_{\st D}=\dfrac{2}{1-2pq}$.
 (d) Evaluate $h_{\st D}$ and $k_{\st D}$ for $p=0.5,0.55,0.6,0.7$. What does a $55/45$ edge per point become per game?
-(e) What is the head-on computation of $h_{\st D}$, and why does the first-step system avoid it?
+(e) Express $h_{\st D}$ as an infinite series by summing over the number of points played, and explain why the first-step system avoids the series.
 \begin{solution}
 (a) Order $\st D,\st I,\st O,\st W,\st L$:
 $\PP=\begin{pmatrix}0&p&q&0&0\\q&0&0&p&0\\p&0&0&0&q\\0&0&0&1&0\\0&0&0&0&1\end{pmatrix}$.
 (b) $h_{\st W}=1$, $h_{\st L}=0$, $h_{\st D}=ph_{\st I}+qh_{\st O}$, $h_{\st I}=p+qh_{\st D}$, $h_{\st O}=ph_{\st D}$. Substituting, $h_{\st D}=p^2+pq\,h_{\st D}+pq\,h_{\st D}$, so $h_{\st D}(1-2pq)=p^2$ and, as $1-2pq=p^2+q^2$, $h_{\st D}=\frac{p^2}{p^2+q^2}$. For $p=0.6$: $h_{\st D}=\tfrac9{13}$, $h_{\st I}=\tfrac{57}{65}$, $h_{\st O}=\tfrac{27}{65}$.
 (c) $k_{\st W}=k_{\st L}=0$, $k_{\st D}=1+pk_{\st I}+qk_{\st O}$, $k_{\st I}=1+qk_{\st D}$, $k_{\st O}=1+pk_{\st D}$. Then $k_{\st D}=1+p+q+2pq\,k_{\st D}=2+2pq\,k_{\st D}$, so $k_{\st D}=\frac2{1-2pq}$; for $p=0.6$, $k_{\st D}=\tfrac{50}{13}=3.85$ points.
-(d) $h_{\st D}=0.5,\ 0.599,\ 0.692,\ 0.845$ and $k_{\st D}=4,\ 3.96,\ 3.85,\ 3.45$. A $55/45$ point becomes a $60/40$ game from deuce; the edge compounds because the game only ends when one player is two points ahead.
-(e) The game ends after $2m$ more points with probability $(2pq)^{m-1}(p^2+q^2)$, and the server wins with probability $\sum_{m\ge1}(2pq)^{m-1}p^2$: an infinite series. The first-step system uses the restart at deuce to write $h_{\st D}$ in terms of itself.
+(d) $h_{\st D}=0.5,\ 0.599,\ 0.692,\ 0.845$ and $k_{\st D}=4,\ 3.96,\ 3.85,\ 3.45$. A $55/45$ point becomes a $60/40$ game from deuce; the advantage is amplified because the game ends only when one player is two points ahead.
+(e) The game ends after $2m$ more points with probability $(2pq)^{m-1}(p^2+q^2)$, and the server wins with probability $\sum_{m\ge1}(2pq)^{m-1}p^2$, an infinite series. The first-step system uses the restart at deuce to write $h_{\st D}$ in terms of itself, so the series is summed implicitly.
 % python3 sympy: p=0.6: h=(9/13,57/65,27/65), k=(50/13,33/13,43/13); table 0.5/4, 0.5990/3.9604, 0.6923/3.8462, 0.8448/3.4483
 \end{solution}
 \end{enumerate}

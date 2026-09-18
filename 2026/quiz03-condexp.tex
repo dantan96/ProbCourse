@@ -7,13 +7,13 @@
 % where it appears.
 \providecommand{\Var}{\operatorname{Var}}
 \providecommand{\Cov}{\operatorname{Cov}}
-\noindent Notation as in the Conditional Expectation lecture. Two dice are $Y$ (first), $Z$ (second), $X=Y+Z$: the two-dice table, rows the events $\{Y=y\}$; $D=Y-Z$.
+\noindent Notation as in the Conditional Expectation lecture: two dice $Y$ (first) and $Z$ (second), $X=Y+Z$ and $D=Y-Z$; the rows of the two-dice table are the events $\{Y=y\}$.
 
 \begin{enumerate}[series=quiz,label=\arabic*.,leftmargin=2.6em]
-\item A supplier's defect rate is unknown: model it as $\Theta$ uniform on $[0,\tfrac15]$. Given $\Theta=\theta$, the number $D$ of defective items in a sample of $10$ is binomial: $\E[D\mid\Theta=\theta]=10\theta$ and $\E[D^2\mid\Theta=\theta]=10\theta(1-\theta)+100\theta^2$. Compute $\E[D]$ and $\Var(D)$, and compare $\Var(D)$ with the variance $10\cdot0.1\cdot0.9$ of a binomial with the average defect rate $0.1$. Then compute $\Prob(D=0)$ head-on and compare with $0.9^{10}$.
+\item A supplier's defect rate is unknown: model it as $\Theta$ uniform on $[0,\tfrac15]$. Given $\Theta=\theta$, the number $D$ of defective items in a sample of $10$ is binomial: $\E[D\mid\Theta=\theta]=10\theta$ and $\E[D^2\mid\Theta=\theta]=10\theta(1-\theta)+100\theta^2$. Compute $\E[D]$ and $\Var(D)$, and compare $\Var(D)$ with the variance $10\cdot0.1\cdot0.9$ of a binomial with the average defect rate $0.1$. Then compute $\Prob(D=0)$ directly, by integrating over $\theta$, and compare with $0.9^{10}$.
 \begin{solution}
-$\E[D]=10\E[\Theta]=1$. $\E[D^2]=10\E[\Theta]+90\E[\Theta^2]=1+90\cdot\tfrac{1}{75}=\tfrac{11}5$ (as $\E[\Theta^2]=\int_0^{1/5}5\theta^2\dd\theta=\tfrac1{75}$), so $\Var(D)=\tfrac{11}5-1=\tfrac65=1.2>0.9$: not knowing the rate spreads $D$ out.
-Head-on: $\Prob(D=0)=\int_0^{1/5}5(1-\theta)^{10}\dd\theta=\tfrac5{11}\big(1-0.8^{11}\big)\approx0.416$, against $0.9^{10}\approx0.349$; each further value $\Prob(D=d)$ is another such integral, and $\E[D]$ would be assembled from eleven of them.
+$\E[D]=10\E[\Theta]=1$. $\E[D^2]=10\E[\Theta]+90\E[\Theta^2]=1+90\cdot\tfrac{1}{75}=\tfrac{11}5$ (as $\E[\Theta^2]=\int_0^{1/5}5\theta^2\dd\theta=\tfrac1{75}$), so $\Var(D)=\tfrac{11}5-1=\tfrac65=1.2>0.9$; uncertainty about the rate increases the variance of $D$.
+Directly, $\Prob(D=0)=\int_0^{1/5}5(1-\theta)^{10}\dd\theta=\tfrac5{11}\big(1-0.8^{11}\big)\approx0.416$, against $0.9^{10}\approx0.349$. Each further value $\Prob(D=d)$ is another such integral, and computing $\E[D]$ from the pmf would require all eleven.
 % python3: E[D]=1, E[D^2]=11/5, Var=6/5; P(D=0)=0.41550, 0.9^10=0.34868
 \end{solution}
 
@@ -23,16 +23,16 @@ Write $m_0,m_1,m_2$ for the expected number of further tosses from the states ``
 THH: $m_0=1+\tfrac12(m_0+m_1)$, $m_1=1+\tfrac12(m_1+m_2)$, $m_2=1+\tfrac12(0+m_1)$, so $(m_0,m_1,m_2)=(8,6,4)$.
 THT: the same first two equations, but $m_2=1+\tfrac12(0+m_0)$, so $(10,8,6)$.
 TTT: $m_0=1+\tfrac12(m_0+m_1)$, $m_1=1+\tfrac12(m_0+m_2)$, $m_2=1+\tfrac12(0+m_0)$, so $(14,12,8)$.
-So THH takes $8$ tosses on average, THT $10$, TTT $14$. The difference is what a failure leaves behind: after TH, a wrong toss for THH is T, which is the start of a new attempt; a wrong toss for THT is H, which is worth nothing; and for TTT a failing H at any stage throws away all progress.
+So THH takes $8$ tosses on average, THT $10$, TTT $14$. The difference lies in what remains after a failed attempt: after TH, the wrong toss for THH is a T, which begins a new attempt; the wrong toss for THT is an H, which contributes nothing; and for TTT a failing H at any stage discards all progress.
 % python3 sympy: THH (8,6,4); THT (10,8,6); TTT (14,12,8); Monte Carlo 7.97, 10.01, 13.98
 \end{solution}
 
-\item Two dice, $D=Y-Z$, $X=Y+Z$. (a) Show $\E[D\mid X]=0=\E[D]$ as a random variable: look at how the diagonal $\{X=x\}$ is placed relative to the main diagonal. (b) Show $\E[X\mid D]=7=\E[X]$ (which cells form $\{D=d\}$, and what is $X$ on them?). Deduce $\Cov(X,D)=0$. (c) Then show that $X$ and $D$ are \emph{not} independent, by comparing the parities of $X$ and $D$ or by computing $\Prob(D=5,X=7)$ against $\Prob(D=5)\Prob(X=7)$. Which lesson of the lecture is this an instance of?
+\item Two dice, $D=Y-Z$, $X=Y+Z$. (a) Show that $\E[D\mid X]=0=\E[D]$ as random variables, by considering how the diagonal $\{X=x\}$ lies relative to the main diagonal. (b) Show that $\E[X\mid D]=7=\E[X]$ (which cells form $\{D=d\}$, and what is $X$ on them?). Deduce $\Cov(X,D)=0$. (c) Show that $X$ and $D$ are nevertheless \emph{not} independent, by comparing the parities of $X$ and $D$ or by computing $\Prob(D=5,X=7)$ against $\Prob(D=5)\Prob(X=7)$. Which result of the lecture does this illustrate?
 \begin{solution}
-(a) On the diagonal $\{X=x\}$ the cells $(y,x-y)$ and $(x-y,y)$ both lie on it and have opposite values of $D$, so the row average of $D$ is $0$ on every row of this conditioning: $\E[D\mid X]=0$, a constant.
+(a) If the cell $(y,x-y)$ lies on the diagonal $\{X=x\}$ then so does $(x-y,y)$, and the two have opposite values of $D$; so the average of $D$ over each diagonal is $0$, and $\E[D\mid X]=0$, a constant.
 (b) $\{D=d\}$ is the diagonal of cells $(y,y-d)$ with both coordinates in $\{1,\dots,6\}$; on it $X=2y-d$ and $y$ runs over an interval symmetric about $\tfrac{7+d}2$, so the average of $X$ is $2\cdot\tfrac{7+d}2-d=7$. Hence $\E[X\mid D]=7$, and $\Cov(X,D)=\E[D\,\E[X\mid D]]-\E[X]\E[D]=7\E[D]-7\E[D]=0$.
 (c) Not independent: $X=D+2Z$, so $X$ and $D$ always have the same parity, and $\Prob(D\text{ odd},X\text{ even})=0\ne\Prob(D\text{ odd})\Prob(X\text{ even})$. Or: $\Prob(D=5,X=7)=\Prob(Y=6,Z=1)=\tfrac1{36}$, while $\Prob(D=5)\Prob(X=7)=\tfrac1{36}\cdot\tfrac6{36}$.
-This is ``equal row averages are not equal row distributions'': $\E[X\mid D]=\E[X]$ says every diagonal has average $7$, independence would say every diagonal has the distribution of $X$, and a diagonal with $3$ cells cannot.
+This illustrates the distinction between equal row averages and equal row distributions: $\E[X\mid D]=\E[X]$ says that every diagonal has average $7$, whereas independence would require every diagonal to carry the distribution of $X$, which a diagonal of $3$ cells cannot.
 % python3: E[D|X=x]=0 for all x; E[X|D=d]=7 for all d; E[XD]=0; P(D=5,X=7)=1/36 vs 1/216; P(D odd, X even)=0
 \end{solution}
 
@@ -41,7 +41,7 @@ This is ``equal row averages are not equal row distributions'': $\E[X\mid D]=\E[
 $N$ is geometric with success probability $\tfrac13$: $\E[N]=3$, $\mu\E[N]=10.5$, $\mu\E[N-1]=7$.
 (a) Condition on $X_1=k$. If $k\in\{5,6\}$: $S=k$. If $k\le4$: $S=k+S''$ with $S''$ a fresh copy of $S$. So $\E[S]=\tfrac16(5+6)+\tfrac16\sum_{k=1}^4(k+\E[S])=\tfrac{11}6+\tfrac{10}6+\tfrac46\E[S]$, giving $\E[S]=\tfrac{21}2=10.5=\mu\E[N]$.
 (b) Now $S'=0$ if $k\in\{5,6\}$ and $S'=k+S'''$ otherwise: $\E[S']=\tfrac{10}6+\tfrac46\E[S']$, so $\E[S']=5\ne7$.
-The random-sums theorem applies to neither sum, since $N$ depends on the $X_i$. In (a) the stopping rule never looks at a roll before deciding to count it, and the formula still holds (Wald's identity). In (b) the last roll is dropped \emph{because} it was large: $\E[S']=\E[S]-\E[X_N]=10.5-5.5=5$, and the dropped term has mean $5.5$, not $\mu$. The formula counts $N-1$ typical terms; the actual terms are the small ones.
+The random-sums theorem applies to neither sum, since $N$ depends on the $X_i$. In (a) the decision to stop after $n$ rolls depends only on the first $n$ rolls, and the formula still holds (Wald's identity). In (b) the last roll is excluded because it is large: $\E[S']=\E[S]-\E[X_N]=10.5-5.5=5$, and the excluded term has mean $5.5$, not $\mu$. The formula treats the $N-1$ terms as typical rolls, whereas they are the rolls that showed at most four.
 % python3 sympy: E[S]=21/2, E[S']=5, mu E[N]=10.5, mu E[N-1]=7, E[X_N]=5.5
 \end{solution}
 \end{enumerate}

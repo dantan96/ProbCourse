@@ -23,7 +23,7 @@
 (b) Order $\ell_1\le\ell_2\le\ell_3\le\ell_4$. If $\ell_1\ge2$ then $\sum2^{-\ell_i}\le4\cdot\tfrac14=1$ with equality only for $(2,2,2,2)$. If $\ell_1=1$, the other three sum to $\tfrac12$; $\ell_2=1$ is impossible (two words of length $1$ already fill the Kraft sum and leave nothing for $\ell_3,\ell_4$), and if $\ell_2\ge3$ they sum to at most $\tfrac38$, so $\ell_2=2$ and $2^{-\ell_3}+2^{-\ell_4}=\tfrac14$ with $\ell_3,\ell_4\ge3$, forcing $(3,3)$. Hence $(1,2,3,3)$.
 (c) An optimal code has one of the two profiles of (b). For $(1,2,3,3)$, $L=\ell_1p_{(1)}+\ell_2p_{(2)}+3p_{(3)}+3p_{(4)}$ is smallest when the shortest words go to the most probable symbols (swapping two assignments that violate this can only lower $L$). So $L^*=\min\big(2,\ p_{(1)}+2p_{(2)}+3p_{(3)}+3p_{(4)}\big)$ with $p_{(1)}\ge\dots\ge p_{(4)}$.
 (d) $(0.45,0.25,0.15,0.15)$: $L(1,2,3,3)=0.45+0.5+0.45+0.45=1.85<2$, so $0,10,110,111$ is optimal, $L^*=1.85$, while $H=1.840$. $(0.3,0.3,0.2,0.2)$: $L(1,2,3,3)=0.3+0.6+0.6+0.6=2.1>2$, so the fixed-length code is optimal, $L^*=2$, $H=1.971$.
-The theorem only says $H\le L^*<H+1$, i.e.\ $L^*\in[1.84,2.84)$ and $[1.97,2.97)$: both candidates lie in the window. Deciding needs the enumeration of full trees, not the entropy bound.
+The theorem says only that $H\le L^*<H+1$, i.e.\ $L^*\in[1.84,2.84)$ and $[1.97,2.97)$; both candidates lie in each window, and the choice requires the enumeration in (b).
 % python3: H(.45,.25,.15,.15)=1.8395, L=1.85; H(.3,.3,.2,.2)=1.9710, L(1,2,3,3)=2.1
 \end{solution}
 
@@ -35,7 +35,7 @@ The theorem only says $H\le L^*<H+1$, i.e.\ $L^*\in[1.84,2.84)$ and $[1.97,2.97)
 \begin{solution}
 (a) $\Prob(X=\mathsf H)=\tfrac12\cdot0.9+\tfrac12\cdot0.5=0.7$; $H(X)=h(0.7)=0.881$ bits.
 (b) $h(0.9)=0.469$, $h(0.5)=1$, $H(X\mid C)=\tfrac12(0.469+1)=0.734$.
-(c) $H(X)=0.881>0.734=H(X\mid C)$: the entropy of a mixture exceeds the average of the entropies, which is the concavity of $h$: $h(\tfrac{0.9+0.5}2)\ge\tfrac12h(0.9)+\tfrac12h(0.5)$. The difference $I(X;C)=0.147$ bits is what one toss tells you about which coin was chosen.
+(c) $H(X)=0.881>0.734=H(X\mid C)$: the entropy of a mixture exceeds the average of the entropies, which is the concavity of $h$: $h(\tfrac{0.9+0.5}2)\ge\tfrac12h(0.9)+\tfrac12h(0.5)$. The difference $I(X;C)=0.147$ bits is the information one toss carries about which coin was chosen.
 (d) $\Prob(\mathsf A\mid\mathsf H)=\frac{0.45}{0.7}=\tfrac9{14}=0.643$, $\Prob(\mathsf A\mid\mathsf T)=\frac{0.05}{0.3}=\tfrac16$. $H(C\mid X)=0.7\,h(\tfrac9{14})+0.3\,h(\tfrac16)=0.7\cdot0.940+0.3\cdot0.650=0.853$, and $H(C)-H(C\mid X)=1-0.853=0.147=I(X;C)$.
 % python3: h(.7)=0.8813, H(X|C)=0.7345, I=0.1468, H(C|X)=0.8532
 \end{solution}
@@ -48,8 +48,8 @@ The theorem only says $H\le L^*<H+1$, i.e.\ $L^*\in[1.84,2.84)$ and $[1.97,2.97)
 \begin{solution}
 (a) $\tfrac12\sum_xP_1(x)\log\frac1{Q(x)}+\tfrac12\sum_xP_2(x)\log\frac1{Q(x)}=\sum_x\bar P(x)\log\frac1{Q(x)}$: cross-entropy is linear in its first argument. $\bar P=(\tfrac5{16},\tfrac3{16},\tfrac3{16},\tfrac5{16})$.
 (b) By Gibbs, $H(\bar P,Q)\ge H(\bar P)$ with equality iff $Q=\bar P$. Minimal cost $H(\bar P)=2\cdot\tfrac5{16}\log\tfrac{16}5+2\cdot\tfrac3{16}\log\tfrac{16}3=1.049+0.906=1.954$ bits. Old code: $\tfrac12(1.75+2.625)=2.1875$. Fixed-length: $2$. Known mission: $1.75$.
-(c) The average waste is $H(\bar P,\bar P)-\tfrac12H(P_1)-\tfrac12H(P_2)=H(\bar P)-\tfrac12\big(H(P_1)+H(P_2)\big)$. With $M$ uniform, $X$ has pmf $\bar P$ and $H(X\mid M=m)=H(P_m)$, so this is $H(X)-H(X\mid M)=I(M;X)=1.954-1.75=0.204$ bits: what one instruction reveals about the mission, and exactly the price of not knowing it.
-(d) Profile $(2,2,2,2)$: cost $2$. Profile $(1,2,3,3)$ with the short words on the two probable symbols: $\tfrac5{16}\cdot1+\tfrac5{16}\cdot2+\tfrac3{16}\cdot3+\tfrac3{16}\cdot3=\tfrac{33}{16}=2.0625$. The fixed-length code wins. To approach $1.954$, code blocks of instructions with lengths built for $\bar P$ (block coding theorem).
+(c) The average waste is $H(\bar P,\bar P)-\tfrac12H(P_1)-\tfrac12H(P_2)=H(\bar P)-\tfrac12\big(H(P_1)+H(P_2)\big)$. With $M$ uniform, $X$ has pmf $\bar P$ and $H(X\mid M=m)=H(P_m)$, so this is $H(X)-H(X\mid M)=I(M;X)=1.954-1.75=0.204$ bits, the information one instruction carries about the mission, which is also the average waste from not knowing it.
+(d) Profile $(2,2,2,2)$: cost $2$. Profile $(1,2,3,3)$ with the short words on the two probable symbols: $\tfrac5{16}\cdot1+\tfrac5{16}\cdot2+\tfrac3{16}\cdot3+\tfrac3{16}\cdot3=\tfrac{33}{16}=2.0625$. The fixed-length code is the better of the two. To approach $1.954$, code blocks of instructions with lengths built for $\bar P$ (block coding theorem).
 % python3: Pbar=(5,3,3,5)/16, H(Pbar)=1.9544, avg waste 0.2044, old code 2.1875, integer (1,2,3,3) 33/16=2.0625
 \end{solution}
 
@@ -61,10 +61,10 @@ The theorem only says $H\le L^*<H+1$, i.e.\ $L^*\in[1.84,2.84)$ and $[1.97,2.97)
 (e) What does a compressor built on the monographic model pay per symbol on this text, and how much of it is waste?
 \begin{solution}
 (a) Balance $0\to1$ against $1\to0$: $0.1\pi_0=0.3\pi_1$, so $\pi=(\tfrac34,\tfrac14)$.
-(b) Rate $=\tfrac34h(0.1)+\tfrac14h(0.3)=0.75\cdot0.469+0.25\cdot0.881=0.572$ bits per symbol; $H(\pi)=h(\tfrac14)=0.811$. The difference $0.239=I(X_i;X_{i+1})$ is what the previous symbol tells you about the next.
+(b) Rate $=\tfrac34h(0.1)+\tfrac14h(0.3)=0.75\cdot0.469+0.25\cdot0.881=0.572$ bits per symbol; $H(\pi)=h(\tfrac14)=0.811$. The difference $0.239=I(X_i;X_{i+1})$ is the mutual information of consecutive symbols.
 (c) Chain rule with the Markov property: $H(\pi)+2\cdot0.572=1.955$. Listing: $\pi(a)Q(a,b)Q(b,c)$ over the eight triples is $0.6075,\,0.0675,\,0.0225,\,0.0525,\,0.0675,\,0.0075,\,0.0525,\,0.1225$ (for $000,001,010,011,100,101,110,111$), whose entropy is $1.955$.
 (d) $2^{0.572}=1.49$; $2^{0.811}=1.75$; $2^1=2$.
-(e) Its cost is $\sum_x\pi(x)\log\frac1{\pi(x)}=H(\pi)=0.811$ bits per symbol, since the symbol frequencies really are $\pi$; the waste is $0.811-0.572=0.239$ bits per symbol, the mutual information of (b).
+(e) Its cost is $\sum_x\pi(x)\log\frac1{\pi(x)}=H(\pi)=0.811$ bits per symbol, since the symbol frequencies are $\pi$; the waste is $0.811-0.572=0.239$ bits per symbol, the mutual information of (b).
 % python3: rate 0.5721, h(1/4)=0.8113, I=0.2392, H3=1.9554 (brute force agrees), 2^rate=1.487, 2^h=1.755
 \end{solution}
 \end{enumerate}

@@ -26,7 +26,7 @@
   \begin{block}{Definition}
     A \textbf{random variable} is a function $X\colon\Omega\to\R$ such that $\ev{X(\omega)\le x}\in\F$ for every $x\in\R$.
   \end{block}
-  \words{$X$ is a number determined by the outcome $\omega$. The condition says that ``$X\le x$'' is an event, so it has a probability.}
+  \words{$X$ is a number determined by the outcome $\omega$; the condition says that ``$X\le x$'' is an event, so it has a probability.}
   \begin{block}{Notation}
     For a statement about $X$, we write the event and its probability without $\omega$:
     \[
@@ -49,7 +49,7 @@
       \ind_A(\omega)=\begin{cases}1 & \omega\in A,\\ 0 & \omega\notin A.\end{cases}
     \]
   \end{block}
-  \words{$\ind_A$ turns the event $A$ into a number: it is $1$ exactly when $A$ occurs. Its only values are $0$ and $1$, with $\Prob(\ind_A=1)=\Prob(A)$.}
+  \words{$\ind_A$ records as a number whether $A$ occurs: it equals $1$ when $A$ occurs and $0$ otherwise, so $\Prob(\ind_A=1)=\Prob(A)$.}
   \begin{itemize}
     \item $\ind_{A\cap B}=\ind_A\,\ind_B$, \qquad $\ind_{A^c}=1-\ind_A$, \qquad $\ind_{A\cup B}=\ind_A+\ind_B-\ind_A\ind_B$.
     \item If $X$ is the number of the events $A_1,\dots,A_n$ that occur, then $X=\ind_{A_1}+\dots+\ind_{A_n}$.
@@ -64,7 +64,7 @@
       F_X(x)=\Prob(X\le x).
     \]
   \end{block}
-  \words{$F_X(x)$ is the probability that $X$ lands at or below $x$. It exists for every random variable, discrete or continuous.}
+  \words{$F_X(x)$ is the probability that $X$ is at most $x$; it exists for every random variable, discrete or continuous.}
   \begin{itemize}
     \item $F_X$ is non-decreasing, $F_X(x)\to0$ as $x\to-\infty$ and $F_X(x)\to1$ as $x\to\infty$.
     \item $\Prob(a<X\le b)=F_X(b)-F_X(a)$.
@@ -80,7 +80,7 @@
       p_X(x)=\Prob(X=x).
     \]
   \end{block}
-  \words{$p_X$ lists the probability of each possible value. Everything about $X$ follows by adding these up.}
+  \words{$p_X$ gives the probability of each possible value, and every probability $\Prob(X\in A)$ is a sum of these.}
   \begin{itemize}
     \item $\sum_x p_X(x)=1$, the sum running over the values of $X$.
     \item $\Prob(X\in A)=\sum_{x\in A}p_X(x)$; in particular $F_X(x)=\sum_{t\le x}p_X(t)$.
@@ -97,10 +97,10 @@
           \Prob(a\le X\le b)=\int_a^b f_X(x)\dd x\qquad\text{for all } a\le b .
         \]
       \end{block}
-      \words{Probability is area under $f_X$. The height $f_X(x)$ is probability per unit length near $x$, not a probability.}
+      \words{Probability is area under $f_X$; the height $f_X(x)$ is probability per unit length near $x$, not a probability.}
       \begin{itemize}
         \item $\int_{-\infty}^{\infty}f_X(x)\dd x=1$, \quad $F_X(x)=\int_{-\infty}^x f_X(t)\dd t$, \quad $f_X=F_X'$ where $F_X$ is differentiable.
-        \item $\Prob(X=x)=\int_x^x f_X=0$ for every $x$, so $f_X(x)$ may exceed $1$: uniform on $[0,\tfrac12]$ has $f_X=2$ there.
+        \item $\Prob(X=x)=\int_x^x f_X=0$ for every $x$, and $f_X(x)$ may exceed $1$; the uniform distribution on $[0,\tfrac12]$ has $f_X=2$ there.
       \end{itemize}
     \end{column}
     \begin{column}{0.36\textwidth}
@@ -232,7 +232,7 @@
   \end{block}
   \words{The density of $X$ when $Y=y$ is known: slice the surface $f_{X,Y}$ along the line $Y=y$ and rescale the slice to area $1$.}
   \begin{itemize}
-    \item Two arguments, two roles: $y$ is the \emph{observed} value, allowed only where $f_Y(y)>0$; $x$ is the variable of the resulting density.
+    \item The two arguments play different roles: $y$ is the \emph{observed} value, restricted to where $f_Y(y)>0$, and $x$ is the variable of the resulting density.
     \item For each fixed $y\in S_Y$, the function $x\mapsto f_{X\mid Y}(x\mid y)$, $\R\to[0,\infty)$, is a pdf: it is $\ge0$ and integrates to $f_Y(y)/f_Y(y)=1$.
   \end{itemize}
 \end{frame}
