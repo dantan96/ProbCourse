@@ -9,141 +9,65 @@
 \providecommand{\PP}{\mathbf{P}}
 \providecommand{\st}[1]{\mathsf{#1}}
 
-\noindent Notation as in the Stochastic Processes lecture. $B$ is a standard Brownian motion, so $B_t$ has the $N(0,t)$ distribution. $\Prob_i$ and $\E_i$ refer to a chain started at state $i$. In the gambler's ruin, $p$ is the probability of winning a round, $q=1-p$, and $r=q/p$. $\PP=(p(i,j))$ is the transition matrix; row $i$ is the conditional pmf of the next state given the current state $i$. $\pi$ is a stationary distribution, $\pi\PP=\pi$. For a target set $A$, $h_i=\Prob_i(\text{reach }A)$ is the hitting probability and $k_i=\E_i[\text{number of steps until }A\text{ is reached}]$ is the expected hitting time; both satisfy the first-step systems of the lecture. $\Phi$ is the cdf of $N(0,1)$; the values needed below are
-\[
-\Phi(0.100)=0.540,\qquad\Phi(0.500)=0.691,\qquad\Phi(0.674)=0.750,\qquad\Phi(1.000)=0.841.
-\]
+\noindent Notation as in the Stochastic Processes lecture: $B$ is a standard Brownian motion; $\Prob_i,\E_i$ refer to a start at $i$; $p=1-q$ is the probability of winning a round, $r=q/p$. $\PP=(p(i,j))$ is the transition matrix, row $i$ the conditional pmf of the next state given the current state $i$; $\pi$ is a stationary distribution; $h_i=\Prob_i(\text{reach the target})$ and $k_i=\E_i[\text{time to absorption}]$ are hitting probabilities and times. $\Phi$ is the $N(0,1)$ cdf; values used below: $\Phi(0.100)=0.540$, $\Phi(0.500)=0.691$, $\Phi(0.674)=0.750$, $\Phi(1.000)=0.841$.
 
 \begin{enumerate}[resume*=quiz]
-\item Hitting times of Brownian motion. The reflection principle states that for $a>0$ and $t>0$,
-\[
-\Prob\big(\max_{s\le t}B_s\ge a\big)=2\,\Prob(B_t\ge a).
-\]
-For $a>0$ let $T_a=\min\{s\ge0:B_s=a\}$ be the first time $B$ reaches the level $a$. The event $\{T_a\le t\}$ is the same as the event $\{\max_{s\le t}B_s\ge a\}$.
-\begin{enumerate}[label=(\alph*),leftmargin=2em]
-\item Compute $\Prob\big(\max_{s\le4}B_s\ge2\big)$.
-\item Write $\Prob(T_1\le t)$ in terms of $\Phi$. Evaluate it at $t=1$, $t=4$ and $t=100$.
-\item The median of $T_1$ is the value $t$ with $\Prob(T_1\le t)=\tfrac12$. Find it.
-\item The scaling property of the lecture states that $\big(\tfrac1aB_{a^2t}\big)_{t\ge0}$ is again a Brownian motion. Use it to show that $T_a$ has the same distribution as $a^2T_1$. Give the median of $T_a$.
-\item The lecture showed that $\E[T_1]=\infty$. Explain in at most three sentences how an infinite mean is consistent with the median found in (c). You may use the approximation $\Prob(T_1>t)\approx\sqrt{2/(\pi t)}$ for large $t$, from the lecture.
-\end{enumerate}
+\item The reflection principle for Brownian motion: $\Prob(\max_{s\le t}B_s\ge a)=2\Prob(B_t\ge a)$. Let $T_1$ be the first time $B$ reaches $1$.
+(a) Compute $\Prob(\max_{s\le4}B_s\ge2)$.
+(b) Write $\Prob(T_1\le t)$ in terms of $\Phi$ and evaluate it at $t=1,4,100$.
+(c) Find the median of $T_1$ (the $t$ with $\Prob(T_1\le t)=\tfrac12$).
+(d) By scaling, what is the median of $T_a$?
+(e) The lecture showed $\E[T_1]=\infty$. Reconcile this with a median of about $2$.
 \begin{solution}
-(a) By the reflection principle, $\Prob(\max_{s\le4}B_s\ge2)=2\,\Prob(B_4\ge2)$. Since $B_4\sim N(0,4)$, $\Prob(B_4\ge2)=\Prob(N(0,1)\ge1)=1-\Phi(1)$. So the probability is $2(1-\Phi(1))$.
-\ans{$\Prob(\max_{s\le4}B_s\ge2)=0.317$ (the three-place table value $\Phi(1)=0.841$ gives $0.318$; the values below are exact to three places).}
-
-(b) $\Prob(T_1\le t)=\Prob(\max_{s\le t}B_s\ge1)=2\,\Prob(B_t\ge1)$. Since $B_t\sim N(0,t)$, $\Prob(B_t\ge1)=1-\Phi(1/\sqrt t)$. So
-$\Prob(T_1\le t)=2\big(1-\Phi(1/\sqrt t)\big)$.
-\ans{At $t=1$: $2(1-\Phi(1))=0.317$. At $t=4$: $2(1-\Phi(0.5))=0.617$. At $t=100$: $2(1-\Phi(0.1))=0.920$.}
-
-(c) $2\big(1-\Phi(1/\sqrt t)\big)=\tfrac12$ holds if and only if $\Phi(1/\sqrt t)=\tfrac34$, that is $1/\sqrt t=0.674$, that is $t=1/0.674^2$.
-\ans{The median of $T_1$ is $2.20$.}
-
-(d) Let $\tilde B_t=\tfrac1aB_{a^2t}$, a Brownian motion by the scaling property. $\tilde B$ reaches $1$ at time $t$ exactly when $B$ reaches $a$ at time $a^2t$. So the first time $\tilde B$ reaches $1$ is $T_a/a^2$, and this time has the distribution of $T_1$ because $\tilde B$ is a Brownian motion. Hence $T_a$ has the distribution of $a^2T_1$.
-\ans{The median of $T_a$ is $2.20\,a^2$.}
-
-(e) Half of the paths reach $1$ by time $2.2$, but the waiting time of the other half has a heavy tail: $\Prob(T_1>t)=2\Phi(1/\sqrt t)-1\approx\sqrt{2/(\pi t)}$ decays only like $t^{-1/2}$. The mean is $\E[T_1]=\int_0^\infty\Prob(T_1>t)\dd t$, and $\int^\infty t^{-1/2}\dd t=\infty$. A median of $2.2$ and an infinite mean are consistent because the rare long waits are long enough to make the integral diverge.
+(a) $2\Prob(B_4\ge2)=2\Prob(N(0,1)\ge1)=2(1-\Phi(1))=0.317$.
+(b) $\{T_1\le t\}=\{\max_{s\le t}B_s\ge1\}$, so $\Prob(T_1\le t)=2\big(1-\Phi(1/\sqrt t)\big)$: $0.317$ at $t=1$; $2(1-\Phi(0.5))=0.617$ at $t=4$; $2(1-\Phi(0.1))=0.920$ at $t=100$.
+(c) $2(1-\Phi(1/\sqrt t))=\tfrac12$ iff $\Phi(1/\sqrt t)=\tfrac34$ iff $1/\sqrt t=0.674$: median $t=1/0.674^2=2.20$.
+(d) $\tfrac1a B_{a^2t}$ is a Brownian motion, and it reaches $1$ exactly when $B$ reaches $a$, at a time smaller by the factor $a^2$; so $T_a$ has the distribution of $a^2T_1$ and median $2.20\,a^2$.
+(e) Half the paths reach $1$ within $2.2$ time units, but the tail is heavy: $\Prob(T_1>t)=2\Phi(1/\sqrt t)-1\approx\sqrt{2/(\pi t)}$, and $\int^\infty t^{-1/2}\dd t=\infty$. The median depends only on $\Prob(T_1\le t)$ for $t\le2.2$; the mean equals $\int_0^\infty\Prob(T_1>t)\dd t$, which diverges.
 % python3: 2(1-Phi(1))=0.3173; t=4: 0.6171; t=100: 0.9203; median 2.198
 \end{solution}
 
-\item Bold play. A gambler wins each round with probability $p=0.4$ and loses it with probability $q=0.6$, so $r=q/p=1.5$. The fortune starts at $\pounds3$ and the target is $\pounds10$; the game ends when the fortune reaches $\pounds0$ or $\pounds10$. Two strategies are compared.
-Timid play stakes $\pounds1$ per round. From the lecture, with $N=10$ and starting fortune $i$,
-\[
-h_i=\frac{r^i-1}{r^N-1},\qquad
-\E_i[T]=\frac{i}{q-p}-\frac{N}{q-p}\cdot\frac{1-r^i}{1-r^N},
-\]
-where $T$ is the number of rounds until the game ends.
-Bold play stakes, from fortune $i$, the amount $\min(i,10-i)$: as much as possible without overshooting the target. A win adds the stake to the fortune and a loss removes it. So the fortune moves from $3$ to $6$ (win) or $0$ (loss); from $6$ to $10$ or $2$; from $2$ to $4$ or $0$; from $4$ to $8$ or $0$; from $8$ to $10$ or $6$.
-\begin{enumerate}[label=(\alph*),leftmargin=2em]
-\item Timid play: compute $h_3$ and $\E_3[T]$ from the two formulas above.
-\item Bold play: draw the chain on the states $\{0,2,3,4,6,8,10\}$ with the transition probabilities. Write the first-step system for $h_i=\Prob_i(\text{reach }10)$.
-\item Solve the system of (b) for $h_3$. Compare with the timid $h_3$ of (a).
-\item Bold play: write the first-step system for $k_i=\E_i[\text{number of bets until the game ends}]$ and solve it for $k_3$. Compare with the timid $\E_3[T]$ of (a).
-\item Now let the game be fair, $p=q=\tfrac12$. Solve the bold-play system of (b) for $h_3$. For timid play the lecture gives $h_3=\tfrac3{10}$. Explain in at most three sentences why the two values agree.
-\end{enumerate}
+\item Bold play. $p=0.4$, fortune $\pounds3$, target $\pounds10$.
+(a) Timid play ($\pounds1$ per round): compute $h_3$ and $\E_3[T]$ from the lecture's ruin formulas.
+(b) Bold play: each round stake $\min(i,10-i)$, so the fortune moves from $3$ to $6$ or $0$, from $6$ to $10$ or $2$, from $2$ to $4$ or $0$, from $4$ to $8$ or $0$, from $8$ to $10$ or $6$. Draw the chain on $\{0,2,3,4,6,8,10\}$ and write the hitting system for $h_i=\Prob_i(\text{reach }10)$.
+(c) Solve it and compare $h_3$ with (a).
+(d) Compute the expected number of bets under bold play from $\pounds3$.
+(e) Repeat (c) for the fair game $p=\tfrac12$. Why is the answer the same as for timid play there?
 \begin{solution}
-(a) With $r=1.5$: $h_3=\frac{1.5^3-1}{1.5^{10}-1}=\frac{2.375}{56.665}=0.042$. And $\E_3[T]=\frac{3}{0.2}-\frac{10}{0.2}\cdot\frac{1-1.5^3}{1-1.5^{10}}=15-50\cdot\frac{-2.375}{-56.665}=15-2.10=12.9$.
-\ans{Timid play from $\pounds3$: $h_3=0.042$ and $\E_3[T]=12.9$ rounds.}
-
-(b) The chain: $3\to6$ with probability $p$, $3\to0$ with probability $q$; $6\to10$ ($p$), $6\to2$ ($q$); $2\to4$ ($p$), $2\to0$ ($q$); $4\to8$ ($p$), $4\to0$ ($q$); $8\to10$ ($p$), $8\to6$ ($q$); $0$ and $10$ are absorbing. The first-step system is
-\ans{$h_0=0$, $h_{10}=1$, $h_3=ph_6$, $h_6=p+qh_2$, $h_2=ph_4$, $h_4=ph_8$, $h_8=p+qh_6$.}
-
-(c) From $h_2=ph_4=p^2h_8$ we get $h_6=p+qp^2h_8$, and then $h_8=p+qh_6=p+qp+q^2p^2h_8$. So
-$h_8=\frac{p(1+q)}{1-q^2p^2}=\frac{0.4\cdot1.6}{1-0.0576}=\frac{0.64}{0.9424}=\frac{400}{589}=0.679$.
-Then $h_6=p+qp^2h_8=\frac{274}{589}=0.465$, $h_4=ph_8=\frac{160}{589}=0.272$, $h_2=ph_4=\frac{64}{589}=0.109$, and $h_3=ph_6=\frac{548}{2945}$.
-\ans{Bold play from $\pounds3$: $h_3=0.186$, about four and a half times the timid $0.042$.}
-
-(d) Each bet costs one step, so
-$k_0=k_{10}=0$, $k_3=1+pk_6$, $k_6=1+qk_2$, $k_2=1+pk_4$, $k_4=1+pk_8$, $k_8=1+qk_6$.
-Substituting $k_8$ into $k_4$, then into $k_2$, then into $k_6$: $k_6=1+q+qp+qp^2+q^2p^2k_6$, so $k_6=\frac{1+q+qp+qp^2}{1-q^2p^2}=\frac{1.936}{0.9424}=\frac{1210}{589}$, and $k_3=1+pk_6=1+\frac{484}{589}=\frac{1073}{589}$.
-\ans{Bold play from $\pounds3$: $k_3=1.82$ bets, against $12.9$ rounds of timid play.}
-
-(e) With $p=q=\tfrac12$ the formula of (c) gives $h_8=\frac{\frac12\cdot\frac32}{1-\frac1{16}}=\frac45$, then $h_2=\tfrac14h_8=\tfrac15$, $h_6=\tfrac12+\tfrac12\cdot\tfrac15=\tfrac35$ and $h_3=\tfrac12h_6=\tfrac3{10}$.
-\ans{Bold play in the fair game: $h_3=\tfrac3{10}$, the same as timid play.}
-Every round of a fair game has expected gain $0$ whatever the stake, so the expected fortune when the game ends equals the starting fortune: $\E[X_T]=3$. The final fortune is $10$ with probability $h_3$ and $0$ otherwise, so $\E[X_T]=10h_3$. Hence $h_3=\tfrac3{10}$ for every strategy that stops only at $0$ or $10$.
+(a) $r=1.5$: $h_3=\frac{1.5^3-1}{1.5^{10}-1}=0.042$; $\E_3[T]=\frac{3}{0.2}-\frac{10}{0.2}\cdot\frac{1-1.5^3}{1-1.5^{10}}=12.9$ rounds.
+(b) $h_0=0$, $h_{10}=1$, $h_3=ph_6$, $h_6=p+qh_2$, $h_2=ph_4$, $h_4=ph_8$, $h_8=p+qh_6$.
+(c) From $h_8=p+qh_6$ and $h_6=p+qh_2=p+qp^2h_8$: $h_8=p+qp+q^2p^2h_8$, so $h_8=\frac{p(1+q)}{1-q^2p^2}=\frac{0.64}{0.9424}=\frac{400}{589}=0.679$; then $h_6=\frac{274}{589}=0.465$, $h_4=\frac{160}{589}=0.272$, $h_2=\frac{64}{589}=0.109$, and $h_3=ph_6=\frac{548}{2945}=0.186$: about $4.4$ times the timid-play value $0.042$.
+(d) $k_0=k_{10}=0$, $k_3=1+pk_6$, $k_6=1+qk_2$, $k_2=1+pk_4$, $k_4=1+pk_8$, $k_8=1+qk_6$: $k_3=\frac{1073}{589}=1.82$ bets, against $12.9$ rounds of timid play.
+(e) With $p=\tfrac12$ the system gives $h_3=\tfrac3{10}$, the timid value. A fair game preserves expected fortune whatever the stakes, so $\E[X_T]=3=10h_3$ for every strategy that stops at $0$ or $10$.
 % python3 sympy: bold h = (64,548/5,160,274,400)/589 for i=2,3,4,6,8 -> h3=548/2945=0.1861; k3=1073/589=1.822; timid 0.04191, 12.90; fair bold h3=3/10
 \end{solution}
 
-\item PageRank. A random surfer on $n$ pages moves as follows: with probability $d=0.85$ it follows a uniformly chosen link out of the current page, and with probability $1-d=0.15$ it jumps to a uniformly chosen page. Its transition matrix is
-\[
-\PP=d\,\mathbf H+\frac{1-d}{n}\,\mathbf J,
-\]
-where $\mathbf H_{ij}$ is $1/(\text{number of links out of }i)$ if page $i$ links to page $j$ and $0$ otherwise, and $\mathbf J$ is the matrix of ones. The PageRank of a page is its entry in the stationary distribution $\pi$ of $\PP$.
-\begin{enumerate}[label=(\alph*),leftmargin=2em]
-\item Three pages with links $\st A\to\st B$, $\st A\to\st C$, $\st B\to\st C$, $\st C\to\st A$. Write $\mathbf H$ and $\PP=0.85\,\mathbf H+0.05\,\mathbf J$.
-\item Solve $\pi\PP=\pi$, $\pi_{\st A}+\pi_{\st B}+\pi_{\st C}=1$, and rank the three pages.
-\item Pages $\st A$ and $\st B$ each have a single in-link. Explain in at most two sentences why $\pi_{\st A}>\pi_{\st B}$.
-\item Find the stationary distribution of $\mathbf H$ itself, that is, without damping ($d=1$).
-\item Add a fourth page $\st D$ with the links $\st C\to\st D$ (so $\st C$ now links to both $\st A$ and $\st D$) and $\st D\to\st D$, and no other links out of $\st D$. Find the stationary distribution without damping ($d=1$) and with $d=0.85$ (now $n=4$, so $\PP=0.85\,\mathbf H+0.0375\,\mathbf J$).
-\item Describe in at most three sentences what the page $\st D$ does to the surfer when $d=1$, and what the damping changes.
-\end{enumerate}
+\item PageRank with damping $d=0.85$.
+(a) Three pages: $\st A\to\st B$, $\st A\to\st C$, $\st B\to\st C$, $\st C\to\st A$. Write $\mathbf H$ and $\PP=0.85\,\mathbf H+0.05\,\mathbf J$.
+(b) Solve $\pi\PP=\pi$ and rank the pages. $\st A$ and $\st B$ have one in-link each; why does $\st A$ rank higher?
+(c) Find $\pi$ without damping ($d=1$).
+(d) Add a page $\st D$ with links $\st C\to\st D$ (so $\st C$ now links to $\st A$ and $\st D$) and $\st D\to\st D$ only. Find $\pi$ without damping, and with $d=0.85$. Describe the effect of $\st D$ on the surfer's long-run behaviour, and the effect of damping on it.
 \begin{solution}
-(a) $\st A$ has two out-links, $\st B$ and $\st C$ one each:
-\ans{$\mathbf H=\begin{pmatrix}0&\tfrac12&\tfrac12\\0&0&1\\1&0&0\end{pmatrix}$, so $\PP=\begin{pmatrix}0.05&0.475&0.475\\0.05&0.05&0.9\\0.9&0.05&0.05\end{pmatrix}$.}
-
-(b) The columns of $\pi\PP=\pi$ read
-$\pi_{\st A}=0.05+0.85\pi_{\st C}$, $\pi_{\st B}=0.05+0.425\pi_{\st A}$, $\pi_{\st C}=0.05+0.425\pi_{\st A}+0.85\pi_{\st B}$
-(using $\pi_{\st A}+\pi_{\st B}+\pi_{\st C}=1$ to collect the $0.05$ terms). Substituting the first two into the third and solving,
-$\pi=(\tfrac{686}{1769},\tfrac{380}{1769},\tfrac{703}{1769})=(0.388,0.215,0.397)$.
-\ans{Ranking: $\st C$ first, $\st A$ second, $\st B$ third.}
-
-(c) The in-link of $\st A$ is the only link out of $\st C$, the top-ranked page, so $\st A$ receives all of $\st C$'s link mass. The in-link of $\st B$ is one of two links out of $\st A$, so $\st B$ receives only half of $\st A$'s link mass.
-
-(d) $\pi\mathbf H=\pi$ reads $\pi_{\st A}=\pi_{\st C}$, $\pi_{\st B}=\tfrac12\pi_{\st A}$, $\pi_{\st C}=\tfrac12\pi_{\st A}+\pi_{\st B}$, with $\pi_{\st A}+\pi_{\st B}+\pi_{\st C}=1$.
-\ans{Without damping, $\pi=(\tfrac25,\tfrac15,\tfrac25)$.}
-
-(e) Without damping, $\st D$ is an absorbing state: $\mathbf H_{\st D\st D}=1$. The surfer returns to $\st C$ repeatedly, and on each visit it moves to $\st D$ with probability $\tfrac12$, so it reaches $\st D$ with probability $1$ and then never leaves. The only stationary distribution is $\pi=(0,0,0,1)$.
-\ans{With $d=0.85$, solving $\pi\PP=\pi$ with $\sum\pi=1$ gives $\pi=(0.101,0.080,0.148,0.671)$ for $(\st A,\st B,\st C,\st D)$.}
-
-(f) When $d=1$, $\st D$ is absorbing: the surfer eventually enters $\st D$ and stays there, and every other page has rank $0$. With damping, each visit to $\st D$ lasts a geometric number of steps with mean $1/0.15=6.7$, and each random jump lands on $\st D$ with probability $\tfrac14$, so $\st D$ still holds two thirds of the mass. Damping keeps every rank positive but does not remove the advantage of a self-linking page; search engines treat such pages separately.
+(a) $\mathbf H=\begin{pmatrix}0&\tfrac12&\tfrac12\\0&0&1\\1&0&0\end{pmatrix}$, $\PP=\begin{pmatrix}0.05&0.475&0.475\\0.05&0.05&0.9\\0.9&0.05&0.05\end{pmatrix}$.
+(b) $\pi\PP=\pi$ with $\sum\pi=1$: $\pi_{\st A}=0.05+0.85\pi_{\st C}$, $\pi_{\st B}=0.05+0.425\pi_{\st A}$, $\pi_{\st C}=0.05+0.425\pi_{\st A}+0.85\pi_{\st B}$; solving, $\pi=(\tfrac{686}{1769},\tfrac{380}{1769},\tfrac{703}{1769})=(0.388,0.215,0.397)$: $\st C>\st A>\st B$. $\st A$'s one in-link is the \emph{only} link of the top page $\st C$, so it carries all of $\st C$'s weight; $\st B$'s in-link is one of two from $\st A$ and carries half of $\st A$'s.
+(c) $\pi\mathbf H=\pi$: $\pi_{\st A}=\pi_{\st C}$, $\pi_{\st B}=\tfrac12\pi_{\st A}$, $\pi_{\st C}=\tfrac12\pi_{\st A}+\pi_{\st B}$: $\pi=(\tfrac25,\tfrac15,\tfrac25)$.
+(d) Without damping, $\st D$ is absorbing: once the surfer arrives (which happens with probability $1$: every visit to $\st C$ leads to $\st D$ with probability $\tfrac12$) it never leaves, and the only stationary distribution is $\pi=(0,0,0,1)$. With $d=0.85$, solving $\pi\PP=\pi$ gives $\pi=(0.101,0.080,0.148,0.671)$: $\st D$ still holds two thirds of the mass, because the surfer stays on $\st D$ until the next teleport, a geometric number of steps with mean $1/0.15=6.7$, and every teleport lands on $\st D$ a quarter of the time. Damping keeps every page's rank positive but does not remove the effect of a self-linking trap; search engines treat such pages separately.
 % python3 sympy: 3-page pi = (686,380,703)/1769; undamped (2/5,1/5,2/5); 4-page trap: undamped (0,0,0,1), damped (0.1006,0.0803,0.1485,0.6707)
 \end{solution}
 
-\item Tennis at deuce. From deuce, the server wins each point with probability $p$ and loses it with probability $q=1-p$, independently of the other points. The game is won by the first player to lead by two points. The states are $\st D$ (deuce), $\st I$ (advantage server), $\st O$ (advantage receiver), $\st W$ (game won by the server) and $\st L$ (game lost by the server). From $\st D$ the next state is $\st I$ or $\st O$; from $\st I$ it is $\st W$ or $\st D$; from $\st O$ it is $\st D$ or $\st L$; $\st W$ and $\st L$ are absorbing.
-\begin{enumerate}[label=(\alph*),leftmargin=2em]
-\item Write the transition matrix, with the states in the order $\st D,\st I,\st O,\st W,\st L$.
-\item Write the first-step system for $h_i=\Prob_i(\text{reach }\st W)$. Solve it and show that $h_{\st D}=\dfrac{p^2}{p^2+q^2}$.
-\item Write the first-step system for $k_i=\E_i[\text{number of points until the game ends}]$. Solve it and show that $k_{\st D}=\dfrac{2}{1-2pq}$.
-\item Evaluate $h_{\st D}$ and $k_{\st D}$ for $p=0.5$, $0.55$, $0.6$ and $0.7$. For $p=0.55$, state $h_{\st D}$ as a percentage.
-\item Let $m\ge1$. The game ends after exactly $2m$ further points if the first $m-1$ pairs of points return to deuce and the $m$-th pair does not. Write $h_{\st D}$ as an infinite series by summing over $m$. Then explain in at most two sentences why the first-step system of (b) gives $h_{\st D}$ without summing a series.
-\end{enumerate}
+\item Tennis at deuce. From deuce the server wins each point with probability $p$, independently. States: $\st D$ (deuce), $\st I$ (advantage server), $\st O$ (advantage receiver), $\st W$ (game won), $\st L$ (game lost). From $\st D$ the next state is $\st I$ or $\st O$; from $\st I$ it is $\st W$ or $\st D$; from $\st O$ it is $\st D$ or $\st L$.
+(a) Write the transition matrix.
+(b) Write the hitting system for $h_i=\Prob_i(\text{reach }\st W)$ and solve it; show $h_{\st D}=\dfrac{p^2}{p^2+q^2}$.
+(c) Write the system for $k_i=\E_i[\text{points until the game ends}]$ and show $k_{\st D}=\dfrac{2}{1-2pq}$.
+(d) Evaluate $h_{\st D}$ and $k_{\st D}$ for $p=0.5,0.55,0.6,0.7$. What does a $55/45$ edge per point become per game?
+(e) Express $h_{\st D}$ as an infinite series by summing over the number of points played, and explain why the first-step system avoids the series.
 \begin{solution}
-(a) In the order $\st D,\st I,\st O,\st W,\st L$:
-\ans{$\PP=\begin{pmatrix}0&p&q&0&0\\q&0&0&p&0\\p&0&0&0&q\\0&0&0&1&0\\0&0&0&0&1\end{pmatrix}$.}
-
-(b) $h_{\st W}=1$, $h_{\st L}=0$, $h_{\st D}=ph_{\st I}+qh_{\st O}$, $h_{\st I}=p+qh_{\st D}$, $h_{\st O}=ph_{\st D}$.
-Substituting the last two equations into the third: $h_{\st D}=p(p+qh_{\st D})+q\,ph_{\st D}=p^2+2pq\,h_{\st D}$, so $h_{\st D}(1-2pq)=p^2$. Since $p+q=1$, $1-2pq=(p+q)^2-2pq=p^2+q^2$.
-\ans{$h_{\st D}=\dfrac{p^2}{p^2+q^2}$. For $p=0.6$: $h_{\st D}=\tfrac9{13}$, $h_{\st I}=\tfrac{57}{65}$, $h_{\st O}=\tfrac{27}{65}$.}
-
-(c) $k_{\st W}=k_{\st L}=0$, $k_{\st D}=1+pk_{\st I}+qk_{\st O}$, $k_{\st I}=1+qk_{\st D}$, $k_{\st O}=1+pk_{\st D}$.
-Substituting: $k_{\st D}=1+p(1+qk_{\st D})+q(1+pk_{\st D})=1+p+q+2pq\,k_{\st D}=2+2pq\,k_{\st D}$.
-\ans{$k_{\st D}=\dfrac2{1-2pq}$. For $p=0.6$: $k_{\st D}=\tfrac{50}{13}=3.85$ points.}
-
-(d) For $p=0.5,\ 0.55,\ 0.6,\ 0.7$: $h_{\st D}=0.5,\ 0.599,\ 0.692,\ 0.845$ and $k_{\st D}=4,\ 3.96,\ 3.85,\ 3.45$.
-\ans{For $p=0.55$, the server wins the game from deuce with probability $60\%$: a $55/45$ edge per point becomes a $60/40$ edge per game, because the game ends only when one player is two points ahead.}
-
-(e) A pair of points returns to deuce with probability $2pq$ (one point each, in either order) and ends the game with probability $p^2+q^2$, of which $p^2$ is a win for the server. So the server wins after exactly $2m$ points with probability $(2pq)^{m-1}p^2$, and
-\ans{$h_{\st D}=\sum_{m\ge1}(2pq)^{m-1}p^2=\dfrac{p^2}{1-2pq}$, the same value as in (b).}
-The first-step system uses the return to deuce to write $h_{\st D}$ in terms of itself, in the equation $h_{\st D}=p^2+2pq\,h_{\st D}$. Solving this one equation performs the summation of the geometric series implicitly.
+(a) Order $\st D,\st I,\st O,\st W,\st L$:
+$\PP=\begin{pmatrix}0&p&q&0&0\\q&0&0&p&0\\p&0&0&0&q\\0&0&0&1&0\\0&0&0&0&1\end{pmatrix}$.
+(b) $h_{\st W}=1$, $h_{\st L}=0$, $h_{\st D}=ph_{\st I}+qh_{\st O}$, $h_{\st I}=p+qh_{\st D}$, $h_{\st O}=ph_{\st D}$. Substituting, $h_{\st D}=p^2+pq\,h_{\st D}+pq\,h_{\st D}$, so $h_{\st D}(1-2pq)=p^2$ and, as $1-2pq=p^2+q^2$, $h_{\st D}=\frac{p^2}{p^2+q^2}$. For $p=0.6$: $h_{\st D}=\tfrac9{13}$, $h_{\st I}=\tfrac{57}{65}$, $h_{\st O}=\tfrac{27}{65}$.
+(c) $k_{\st W}=k_{\st L}=0$, $k_{\st D}=1+pk_{\st I}+qk_{\st O}$, $k_{\st I}=1+qk_{\st D}$, $k_{\st O}=1+pk_{\st D}$. Then $k_{\st D}=1+p+q+2pq\,k_{\st D}=2+2pq\,k_{\st D}$, so $k_{\st D}=\frac2{1-2pq}$; for $p=0.6$, $k_{\st D}=\tfrac{50}{13}=3.85$ points.
+(d) $h_{\st D}=0.5,\ 0.599,\ 0.692,\ 0.845$ and $k_{\st D}=4,\ 3.96,\ 3.85,\ 3.45$. A $55/45$ point becomes a $60/40$ game from deuce; the advantage is amplified because the game ends only when one player is two points ahead.
+(e) The game ends after $2m$ more points with probability $(2pq)^{m-1}(p^2+q^2)$, and the server wins with probability $\sum_{m\ge1}(2pq)^{m-1}p^2$, an infinite series. The first-step system uses the restart at deuce to write $h_{\st D}$ in terms of itself, so the series is summed implicitly.
 % python3 sympy: p=0.6: h=(9/13,57/65,27/65), k=(50/13,33/13,43/13); table 0.5/4, 0.5990/3.9604, 0.6923/3.8462, 0.8448/3.4483
 \end{solution}
 \end{enumerate}

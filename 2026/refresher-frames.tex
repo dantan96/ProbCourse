@@ -230,7 +230,7 @@
       f_{X\mid Y}(x\mid y)=\frac{f_{X,Y}(x,y)}{f_Y(y)} .
     \]
   \end{block}
-  \words{The density of $X$ when $Y=y$ is known: slice the surface $f_{X,Y}$ along the line $Y=y$ and rescale the slice to area $1$.}
+  \words{The density of $X$ when $Y=y$ is known: the function $x\mapsto f_{X,Y}(x,y)$, divided by $f_Y(y)$ so that it integrates to $1$.}
   \begin{itemize}
     \item The two arguments play different roles: $y$ is the \emph{observed} value, restricted to where $f_Y(y)>0$, and $x$ is the variable of the resulting density.
     \item For each fixed $y\in S_Y$, the function $x\mapsto f_{X\mid Y}(x\mid y)$, $\R\to[0,\infty)$, is a pdf: it is $\ge0$ and integrates to $f_Y(y)/f_Y(y)=1$.

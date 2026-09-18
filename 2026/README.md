@@ -7,9 +7,9 @@ Beamer decks and homework for lectures 5 and 6, written in the notation of the
 | File | Content | Slides / pages |
 |---|---|---|
 | `refresher.pdf` | Refresher shown at the start of lecture 5: random variables, indicators, cdf, pmf, pdf, joint pdf, expectation, conditional probability, conditional density | 12 |
-| `condexp.pdf` | Lecture 5: conditional expectation, built on the two-dice table (rows are the events {Y = y}) | 35 |
-| `entropy.pdf` | Section 2: information, entropy, codes, joint and conditional entropy, mutual information, cross-entropy, relative entropy, models of text | 56 |
-| `stochproc.pdf` | Lecture 6: stochastic processes, Bernoulli process and random walk, Brownian motion, risk of ruin, Markov chains | 78 |
+| `condexp.pdf` | Lecture 5: conditional expectation, built on the two-dice table (rows are the events {Y = y}) | 36 |
+| `entropy.pdf` | Section 2: information, entropy, codes, joint and conditional entropy, mutual information, cross-entropy, relative entropy, models of text | 57 |
+| `stochproc.pdf` | Lecture 6: stochastic processes, Bernoulli process and random walk, Brownian motion, risk of ruin, Markov chains | 80 |
 | `quiz03.pdf` | Quiz 3 (homework for lectures 5 and 6), 12 problems numbered 1-12: Part A conditional expectation, Part B entropy, Part C stochastic processes | 3 |
 | `quiz03_solutions.pdf` | Quiz 3 with solutions | 5 |
 

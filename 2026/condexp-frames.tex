@@ -209,42 +209,42 @@
 \end{frame}
 
 % ---------------------------------------------------------------------------
-\begin{frame}{The Continuous Case: Rows Become Slices}
+\begin{frame}{The Continuous Case: The Row $\{Y=y\}$ Becomes a Line}
   \small
   \begin{block}{Definition (continuous case)}
     Let $X,Y$ have joint pdf $f_{X,Y}\colon\R^2\to[0,\infty)$, let $S_Y=\{y : f_Y(y)>0\}$, and define the \textbf{conditional pdf of $X$ given $Y$}
     \[
       f_{X\mid Y}\colon\R\times S_Y\to[0,\infty),\qquad f_{X\mid Y}(x\mid y)=\frac{f_{X,Y}(x,y)}{f_Y(y)},
     \]
-    where $x$ is a value of $X$ and $y$ names the slice. The \textbf{conditional expectation of $X$ given $Y=y$} is the function
+    where $x$ is a value of $X$ and $y$ is the observed value of $Y$. The \textbf{conditional expectation of $X$ given $Y=y$} is the function
     \[
       g\colon S_Y\to\R,\qquad g(y)=\E[X\mid Y=y]=\int_{-\infty}^{\infty}x\,f_{X\mid Y}(x\mid y)\dd x .
     \]
   \end{block}
-  \words{The row $\{Y=y\}$ is now a horizontal line through the plane, and the slice of $f_{X,Y}$ along it, rescaled to area $1$, plays the part of the row's conditional pmf.}
+  \words{The row $\{Y=y\}$ is now the horizontal line at height $y$, and the function $x\mapsto f_{X,Y}(x,y)/f_Y(y)$, which integrates to $1$, plays the part of the row's conditional pmf.}
   \begin{itemize}
     \item For fixed $y\in S_Y$, $f_{X\mid Y}(\,\cdot\mid y)$ is a pdf in $x$: $\int f_{X\mid Y}(x\mid y)\dd x=f_Y(y)/f_Y(y)=1$.
     \item $\Prob(Y=y)=0$, so $\Prob(\,\cdot\mid Y=y)$ cannot be defined by dividing probabilities; the ratio of densities is the limit of conditioning on $\{y\le Y\le y+\delta\}$ as $\delta\to0$.
-    \item The procedure is otherwise unchanged: fix $y$, take the slice, rescale it to area $1$, and average.
+    \item The procedure is otherwise unchanged: fix $y$, divide $f_{X,Y}(\cdot,y)$ by $f_Y(y)$, and integrate $x$ against the result.
   \end{itemize}
 \end{frame}
 
 % ---------------------------------------------------------------------------
-\begin{frame}{The Two-Stage Point: Horizontal and Vertical Slices}
+\begin{frame}{The Two-Stage Point: Conditioning on $Y=y$ and on $X=x$}
   \small
   \begin{columns}[T]
     \begin{column}{0.66\textwidth}
       $Y$ uniform on $[0,1]$; given $Y=y$, $X$ uniform on $[0,y]$. So $f_Y=1$ on $(0,1]$, $f_{X\mid Y}(x\mid y)=\tfrac1y$ on $[0,y]$, and $f_{X,Y}(x,y)=f_{X\mid Y}(x\mid y)f_Y(y)=\tfrac1y$ on the triangle $0<x<y<1$.
-      \begin{exampleblock}{Given $Y=y$: a horizontal slice}
-        $S_Y=(0,1]$, the slice is uniform on $[0,y]$, and
+      \begin{exampleblock}{Given $Y=y$: the horizontal line at height $y$}
+        $S_Y=(0,1]$, $f_{X\mid Y}(\cdot\mid y)$ is uniform on $[0,y]$, and
         $\E[X\mid Y=y]=\int_0^y x\,\tfrac1y\dd x=\tfrac y2$.
       \end{exampleblock}
-      \begin{exampleblock}{Given $X=x$: a vertical slice}
+      \begin{exampleblock}{Given $X=x$: the vertical line at $x$}
         $f_X(x)=\int_x^1\tfrac1y\dd y=-\ln x$ on $S_X=(0,1)$, so $f_{Y\mid X}(y\mid x)=\dfrac{1/y}{-\ln x}$ for $x<y<1$ and
         $\E[Y\mid X=x]=\displaystyle\int_x^1\frac{y}{y}\,\frac{\dd y}{-\ln x}=\frac{1-x}{-\ln x}$.
       \end{exampleblock}
       \begin{itemize}
-        \item The vertical slice is not uniform: $f_{Y\mid X}(y\mid x)\propto\tfrac1y$ gives more weight to small $y$, so $\E[Y\mid X=x]$ lies below the midpoint $\tfrac{1+x}2$ of the slice; at $x=\tfrac12$ it is $0.7213$ against $0.75$.
+        \item Given $X=x$ the density is not uniform: $f_{Y\mid X}(y\mid x)\propto\tfrac1y$ gives more weight to small $y$, so $\E[Y\mid X=x]$ lies below the midpoint $\tfrac{1+x}2$ of $[x,1]$; at $x=\tfrac12$ it is $0.7213$ against $0.75$.
       \end{itemize}
     \end{column}
     \begin{column}{0.32\textwidth}
@@ -310,7 +310,7 @@
           \text{continuous:}&\quad \E[X]=\int_{S_Y}\E[X\mid Y=y]\,f_Y(y)\dd y .
         \end{align*}
       \end{block}
-      \words{Average each row, then average the row averages weighted by the row probabilities; because the rows cover the table exactly once, this is the overall average.}
+      \words{Average each row, then average the row averages weighted by the row probabilities; because the rows partition the table, this is the overall average.}
     \end{column}
     \begin{column}{0.40\textwidth}
       \centering
@@ -368,9 +368,8 @@
 \end{frame}
 
 % ---------------------------------------------------------------------------
-\begin{frame}{Total Expectation at Work (2): The Two-Stage Point, and Variance}
+\begin{frame}{Total Expectation at Work (2): The Two-Stage Point}
   \small
-  \label{variance}%
   $Y$ uniform on $[0,1]$; given $Y=y$, $X$ uniform on $[0,y]$. Find $\E[X]$.
   \begin{block}{By conditioning}
     $\E[X\mid Y=y]=\tfrac y2$ and $f_Y=1$ on $(0,1]$, so
@@ -380,6 +379,13 @@
     Without conditioning, one first finds the pdf of $X$ by integrating out $y$: $f_X(x)=\int_x^1 f_{X,Y}(x,y)\dd y=\int_x^1\tfrac{\dd y}{y}=-\ln x$ for $0<x<1$.
     Then $\E[X]=\int_0^1 x(-\ln x)\dd x$, which is evaluated by integration by parts and equals $\tfrac14$.
   \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Total Expectation at Work (3): Variance}
+  \small
+  \label{variance}%
+  The two-stage point again: $Y$ uniform on $[0,1]$; given $Y=y$, $X$ uniform on $[0,y]$. Find $\Var(X)$.
   \begin{block}{Definition (variance)}
     For $X\colon\Omega\to\R$ with $\E[X^2]<\infty$: \quad $\Var(X)=\E\big[(X-\E[X])^2\big]=\E[X^2]-\E[X]^2$.
   \end{block}
@@ -390,7 +396,7 @@
 \end{frame}
 
 % ===========================================================================
-\begin{frame}{$\E[X\mid Y]$: Paint Every Row With Its Average}
+\begin{frame}{$\E[X\mid Y]$: Every Cell of Row $y$ Takes the Value $\E[X\mid Y=y]$}
   \small
   \begin{columns}[T]
     \begin{column}{0.54\textwidth}
@@ -425,7 +431,7 @@
     \begin{tabular}{@{}c@{\quad}c@{\quad}c@{}}
       $X$ & $\E[X\mid Y]$ & $\E[X]$ \\[2pt]
       \dicetable[0.48]{0}{X} & \dicetable[0.48]{0}{G} & \dicetable[0.48]{0}{E} \\[4pt]
-      the outcome is known & only the row is known & nothing is known
+      the outcome $\omega$ is known & only the row $Y(\omega)$ is known & neither is known
     \end{tabular}
   \end{center}
   \words{Each table is obtained from the one to its left by averaging over what is not known.}
@@ -452,11 +458,11 @@
 \end{frame}
 
 % ===========================================================================
-\begin{frame}{Property 1: Tower. The Painted Table Has the Same Average}
+\begin{frame}{Property 1: Tower. The Table of Row Averages Has the Same Average}
   \small
   \begin{columns}[T]
     \begin{column}{0.54\textwidth}
-      Painting a row with its average does not change the row's total. So the painted table has the same overall average as the original:
+      Replacing every entry of a row by the row average does not change the row's total. So the table of row averages has the same overall average as the original:
       \begin{block}{Theorem (tower property)}
         $\E\big[\E[X\mid Y]\big]=\E[X]$.
       \end{block}
@@ -683,7 +689,7 @@
       \toprule
       property & \text{statement} & reason \\
       \midrule
-      tower & \E[\E[X\mid Y]]=\E[X] & painting rows with their averages keeps the total \\
+      tower & \E[\E[X\mid Y]]=\E[X] & replacing each row by its average keeps the total \\
       linearity & \E[aX+bX'\mid Y]=a\E[X\mid Y]+b\E[X'\mid Y] & averages are linear, row by row \\
       taking out what is known & \E[h(Y)X\mid Y]=h(Y)\E[X\mid Y] & $h(Y)$ is constant on a row \\
       known variables & \E[h(Y)\mid Y]=h(Y),\ \ \E[X\mid X]=X & the average of a constant is that constant \\
@@ -825,7 +831,7 @@
         Y=\begin{cases}1&\text{toss 1 is T}\\2&\text{tosses 1,2 are H,T}\\3&\text{tosses 1,2 are H,H}\end{cases}
       \]
       with $p_Y(1)=\tfrac12$, $p_Y(2)=p_Y(3)=\tfrac14$.
-      Every outcome falls in exactly one case, so there are three rows.
+      The three cases are disjoint and cover $\Omega$, so $Y$ is defined at every outcome and there are three rows.
       \medskip
 
       \textbf{Row averages.} Rows 1 and 2 are the events $A_1=\{\text{T}\}$ and $A_2=\{\text{HT}\}$ (restart); row 3 is finished:
@@ -869,7 +875,7 @@
     \item \textbf{Waiting for a T}, $T_{\mathrm T}$: the same equation with $\tfrac12$ for $\tfrac16$ gives $\E[T_{\mathrm T}]=2$.
     \item \textbf{Pattern HT}, $T_{\mathrm{HT}}$: after the first H, wait for a T. \ $\E[T_{\mathrm{HT}}]=\tfrac12\big(1+\E[T_{\mathrm{HT}}]\big)+\tfrac12\big(1+\E[T_{\mathrm T}]\big)$, so $\E[T_{\mathrm{HT}}]=4<6$. When an attempt at HT fails (with HH), the final H begins a new attempt; when an attempt at HH fails (with HT), no progress is kept.
     \item \textbf{Pattern HHH:} $14$. \ \textbf{Two sixes in a row:} $42$. The equations have the same form, with more rows.
-    \item \textbf{No memory:} $\E[T_6\mid T_6>3]=3+\E[T_6]=9$, by the restart property at $k=3$.
+    \item \textbf{Conditioning on three failures:} $\E[T_6\mid T_6>3]=3+\E[T_6]=9$, by the restart property at $k=3$.
   \end{itemize}
   \begin{block}{Finiteness of $\E[T]$}
     Solving $\E[T]=\tfrac34\E[T]+\tfrac32$ presumes $\E[T]<\infty$. Each block of two tosses is HH with probability $\tfrac14$, so $\Prob(T>2m)\le(\tfrac34)^m$, and $\E[T]=\sum_{n\ge0}\Prob(T>n)<\infty$ (tail-sum formula for $\{0,1,2,\dots\}$-valued $T$; standard, not proved here).

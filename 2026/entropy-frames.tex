@@ -58,9 +58,9 @@
   \smallskip
   \renewcommand{\arraystretch}{1.25}
   \begin{tabular}{@{}r@{\ \ }>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{8.6cm}@{}}
-    1. & \textbf{Codes} & Prefix-free codes are binary trees; a codeword of length $\ell$ consumes $2^{-\ell}$ of the tree (Kraft). \\
-    2. & \textbf{Information} $-\log p$ & The ideal codeword length: the number of halvings from $1$ down to $p$. \\
-    3. & \textbf{Entropy} $H$ & Expected information; the area under stacked bars. \\
+    1. & \textbf{Codes} & Prefix-free codes are binary trees; a codeword of length $\ell$ excludes the fraction $2^{-\ell}$ of all strings (Kraft). \\
+    2. & \textbf{Information} $-\log p$ & The ideal codeword length: the number $k$ with $2^{-k}=p$. \\
+    3. & \textbf{Entropy} $H$ & Expected information; in the bar chart, the total area of bars of width $p_i$ and height $\log(1/p_i)$. \\
     4. & \textbf{Source coding theorem} & $H\le$ best average code length $<H+1$. \\
     5. & \textbf{Cross-entropy, relative entropy} & The cost of coding for the wrong distribution, and the waste. Gibbs' inequality. \\
     6. & \textbf{Why the loss is a logarithm} & An honest penalty must be $-\log q$; cross-entropy loss; prediction and compression are equivalent. \\
@@ -83,7 +83,7 @@
   \end{exampleblock}
   \begin{block}{Questions we cannot yet answer}
     \begin{enumerate}
-      \item Can a cleverer encoding average fewer than $2$ bits per instruction?
+      \item Can a different encoding average fewer than $2$ bits per instruction?
       \item If so, how low can the average go? Is there a floor, and what is it?
       \item The rover's mission changes and \rgt\ becomes the common instruction, but the code installed on board stays. What does that cost?
     \end{enumerate}
@@ -109,7 +109,7 @@
       \Prob(X_1=x_1,\dots,X_m=x_m)=p_X(x_1)\cdots p_X(x_m)\qquad\text{for every $m$ and all } x_1,\dots,x_m\in S .
     \]
   \end{block}
-  \words{A source is a die with $n$ faces, rolled again and again; we are charged for reporting the outcomes.}
+  \words{A source is a sequence of independent random variables with one common pmf, like repeated rolls of one $n$-sided die.}
   \begin{itemize}
     \item The rover: $S=\{\up,\down,\lft,\rgt\}$, $p_X=(\tfrac12,\tfrac14,\tfrac18,\tfrac18)$, $S_X=S$, and $X_i$ is the $i$-th instruction.
   \end{itemize}
@@ -143,14 +143,14 @@
   \small
   \begin{columns}[T]
     \begin{column}{0.5\textwidth}
-      Read a codeword as a path from the root: $0$ = left, $1$ = right. Then $c(x)$ is a prefix of $c(x')$ exactly when the node of $c(x)$ lies on the path to $c(x')$; so a code is prefix-free exactly when \textbf{every codeword is a leaf}.
+      Read a codeword as a path from the root: $0$ = left, $1$ = right. Then $c(x)$ is a prefix of $c(x')$ if and only if the node of $c(x)$ lies on the path to $c(x')$; so a code is prefix-free if and only if \textbf{every codeword is a leaf}.
       \medskip
 
-      Choosing $0$ as a codeword consumes the entire left subtree, so that half of all strings, of every length, can no longer be codewords. Choosing $10$ consumes a quarter; $110$ and $111$ an eighth each:
+      Choosing $0$ as a codeword excludes every string beginning with $0$, half of all strings of every length. Choosing $10$ excludes a quarter; $110$ and $111$ an eighth each:
       \[
         \tfrac12+\tfrac14+\tfrac18+\tfrac18=1 .
       \]
-      \words{A codeword of length $\ell$ uses up the fraction $2^{-\ell}$ of the space of codewords, and in the rover's code these fractions coincide with the probabilities.}
+      \words{A codeword of length $\ell$ excludes the fraction $2^{-\ell}$ of all strings, and in the rover's code these fractions coincide with the probabilities.}
       \medskip
 
       \textbf{Not prefix-free:} $\up\mapsto0$, $\down\mapsto1$, $\lft\mapsto01$, $\rgt\mapsto10$. This map is injective and averages $1.5$ bits, but it cannot be decoded, since $01$ reads as \up\,\down\ or as \lft. Here $0$ and $1$ are not leaves.
@@ -180,9 +180,9 @@
         \node[above left=1pt,accent] at (c) {$10$: \down};
         \node[below,accent] at (e) {$110$: \lft};
         \node[below,accent] at (f) {$111$: \rgt};
-        \node[soft] at (-2.2,-3.8) {consumed $\tfrac12$};
-        \node[soft] at (0.4,-3.8) {consumed $\tfrac14$};
-        \node[soft] at (2.6,-3.8) {consumed $\tfrac18$, $\tfrac18$};
+        \node[soft] at (-2.2,-3.8) {excluded $\tfrac12$};
+        \node[soft] at (0.4,-3.8) {excluded $\tfrac14$};
+        \node[soft] at (2.6,-3.8) {excluded $\tfrac18$, $\tfrac18$};
         % unit interval of codeword space
         \begin{scope}[yshift=-4.75cm,xshift=-0.1cm]
           \draw (-3.2,0) rectangle (3.4,0.45);
@@ -210,7 +210,7 @@
     \]
     Conversely, for any positive integers $\ell_1,\dots,\ell_n$ with $\sum_i2^{-\ell_i}\le1$ there is a prefix-free code with exactly these lengths.
   \end{block}
-  \words{The fractions of codeword space consumed by the codewords must fit inside $1$; and any lengths that fit can be realised.}
+  \words{The fractions $2^{-\ell_i}$ excluded by the codewords sum to at most $1$; and any lengths whose fractions sum to at most $1$ can be realised.}
   \begin{columns}[T]
     \begin{column}{0.55\textwidth}
       \begin{itemize}
@@ -253,14 +253,14 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
   \end{block}
   \words{Each codeword owns a disjoint block of the $2^L$ strings of the longest length, and the blocks cannot total more than $2^L$.}
   \begin{itemize}
-    \item The converse applied to the lengths $(1,2,3,4)$: take $0$; then $00,01$ lie beneath $0$, so take $10$; then $110$; then $1110$. Consumed $\tfrac{15}{16}$; the node $1111$ stays free.
+    \item The converse applied to the lengths $(1,2,3,4)$: take $0$; then $00,01$ lie beneath $0$, so take $10$; then $110$; then $1110$. Excluded $\tfrac{15}{16}$; the node $1111$ stays free.
   \end{itemize}
 \end{frame}
 
 % ===========================================================================
 \begin{frame}{Information}
   \small
-  In the rover's code, \up\ costs $1$ bit, \down\ $2$, \lft\ and \rgt\ $3$; and $\tfrac12=2^{-1}$, $\tfrac14=2^{-2}$, $\tfrac18=2^{-3}$. The codeword length is the number of times $1$ must be halved to reach the probability.
+  In the rover's code, \up\ costs $1$ bit, \down\ $2$, \lft\ and \rgt\ $3$; and $\tfrac12=2^{-1}$, $\tfrac14=2^{-2}$, $\tfrac18=2^{-3}$. In each case the probability equals $2^{-\ell}$, where $\ell$ is the codeword length.
   \begin{block}{Definition}
     The \textbf{information} (surprisal) of an event is the function $I\colon\{A\in\F:\Prob(A)>0\}\to[0,\infty)$,
     \[
@@ -268,7 +268,7 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
     \]
     For a random variable $X$ with pmf $p_X$, the \textbf{information function} is $I_X\colon S_X\to[0,\infty)$, $I_X(x)=-\log p_X(x)$; composing it with $X$ gives the random variable $I_X(X)\colon\Omega\to[0,\infty)$, $\omega\mapsto-\log p_X(X(\omega))$.
   \end{block}
-  \words{$I(A)$ is the number of halvings from certainty down to $\Prob(A)$, or equivalently the number of fair coin tosses whose outcome is as improbable as $A$.}
+  \words{$I(A)$ is the number $k$ with $2^{-k}=\Prob(A)$, which is the number of fair coin tosses for which one specified sequence of outcomes has probability $\Prob(A)$.}
   \begin{exampleblock}{Examples}
     Rover: $I_X(\up)=1$, $I_X(\down)=2$, $I_X(\lft)=I_X(\rgt)=3$ bits, the codeword lengths. \quad
     A six: $\log6=2.585$ bits. \quad Double six: $\log36=5.170=2.585+2.585$ bits. \quad Any specific sequence of $20$ coin tosses: $20$ bits, regardless of which sequence it is.
@@ -327,10 +327,10 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
 \end{frame}
 
 % ---------------------------------------------------------------------------
-\begin{frame}{Back to the Rover: The Coded Stream Is Fair Coin Flips}
+\begin{frame}{Back to the Rover: The Coded Stream Has the Distribution of Fair Coin Tosses}
   \small
   Send instructions with the code $0,10,110,111$ and look at the stream of bits, one at a time.
-  \begin{block}{Each bit is a fair coin flip}
+  \begin{block}{Each bit is a fair coin toss}
     \begin{align*}
       \Prob(\text{1st bit}=0)&=\Prob(\up)=\tfrac12,\\
       \Prob(\text{2nd bit}=0\mid\text{1st bit}=1)&=\frac{\Prob(\down)}{\Prob(\down)+\Prob(\lft)+\Prob(\rgt)}=\frac{1/4}{1/2}=\tfrac12,\\
@@ -338,9 +338,9 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
     \end{align*}
     Every internal node of the tree splits the probability beneath it in half, and after a codeword ends the next instruction is independent of everything before; so every bit of the stream is $0$ with probability $\tfrac12$, independently of all earlier bits.
   \end{block}
-  \words{An optimally coded stream has the statistics of fair coin flips, and a sequence of fair coin flips cannot be coded in fewer than one bit per flip.}
+  \words{An optimally coded stream has the distribution of a sequence of fair coin tosses, and such a sequence cannot be coded in fewer than one bit per toss.}
   \begin{itemize}
-    \item Applying a second compression to the rover's coded stream gains nothing, since the stream has no remaining regularity to exploit.
+    \item Applying a second compression to the rover's coded stream gains nothing: the stream is a sequence of independent fair bits, whose entropy is one bit per bit.
   \end{itemize}
   % P(bit1=0)=1/2, P(bit2=0|1)=1/2, P(bit3=0|11)=1/2  (deck_numbers.py)
 \end{frame}
@@ -639,11 +639,11 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
 % ---------------------------------------------------------------------------
 \begin{frame}{Cross-Entropy: Two Coins}
   \small
-  \begin{exampleblock}{A uniform code on a lopsided truth}
+  \begin{exampleblock}{A uniform code on a non-uniform truth}
     $Q=(\tfrac12,\tfrac12)$, $P=(0.9,0.1)$. Lengths $\log2=1$ and $1$:
     $H(P,Q)=0.9\cdot1+0.1\cdot1=1$ bit. This holds for every $P$, since equal lengths cost $1$ bit whatever the truth; as $H(P)=h(0.1)=0.469$, the waste is $0.531$ bits per symbol.
   \end{exampleblock}
-  \begin{exampleblock}{A lopsided code on a fair truth}
+  \begin{exampleblock}{A non-uniform code on a uniform truth}
     $Q=(0.9,0.1)$, $P=(\tfrac12,\tfrac12)$. Lengths $\log\frac1{0.9}=0.152$ and $\log\frac1{0.1}=3.322$:
     \[
       H(P,Q)=\tfrac12\cdot0.152+\tfrac12\cdot3.322=1.737\ \text{bits},
@@ -661,7 +661,7 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
       \bottomrule
     \end{tabular}
   \end{center}
-  \words{The uniform code wastes half a bit on the lopsided truth; the lopsided code wastes three quarters of a bit on the uniform truth, since its $3.3$-bit codeword is used half the time.}
+  \words{The uniform code wastes half a bit on the non-uniform truth; the non-uniform code wastes three quarters of a bit on the uniform truth, since its $3.3$-bit codeword is used with probability $\tfrac12$.}
   % CE(.9/.1 ; .5/.5)=1, h(.1)=0.4690; CE(.5/.5 ; .9/.1)=1.7370; -log2 .9=0.1520, -log2 .1=3.3219 (deck_numbers.py)
 \end{frame}
 
@@ -679,7 +679,7 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
   \begin{exampleblock}{The rover}
     $D(P\|Q)=2.625-1.75=0.875$ bits per instruction wasted by keeping the old code. Bar by bar, $P(x)\big[\log\frac1{Q(x)}-\log\frac1{P(x)}\big]$:
     $\tfrac18(1-3)+\tfrac18(2-3)+\tfrac14(3-2)+\tfrac12(3-1)=-0.25-0.125+0.25+1=0.875$.
-    Two bars became cheaper and two dearer; the dearer ones are the more probable, so the total is positive.
+    Two terms are negative and two positive; the positive ones belong to the more probable symbols, so the total is positive.
   \end{exampleblock}
   \begin{itemize}
     \item Two coins: $D\big((0.9,0.1)\,\|\,(\tfrac12,\tfrac12)\big)=0.531$ and $D\big((\tfrac12,\tfrac12)\,\|\,(0.9,0.1)\big)=0.737$, the waste column of the previous table.
@@ -753,7 +753,7 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
       property & fails at & numbers \\
       \midrule
       symmetry & $P=(\tfrac12,\tfrac12)$, $Q=(\tfrac14,\tfrac34)$ &
-        $D(P\|Q)=1.2075-1=0.2075$: the $2$-bit codeword comes half the time instead of a quarter. \newline
+        $D(P\|Q)=1.2075-1=0.2075$: the $2$-bit codeword is used with probability $\tfrac12$ instead of $\tfrac14$. \newline
         $D(Q\|P)=1-0.8113=0.1887$: $1$ bit always, against the $0.811$ needed. \\
       triangle inequality & $P=(\tfrac12,\tfrac12)$, $Q=(0.9,0.1)$, $R=(0.99,0.01)$ &
         $D(P\|Q)+D(Q\|R)=0.737+0.208=0.945<2.329=D(P\|R)$. \\
@@ -778,7 +778,7 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
   \end{block}
   \begin{block}{Proof}
     Take $p$ with every $p_y>0$. Then $q=p$ is a minimiser in the interior of $\Delta_n$, so Lagrange applies there: $p_y\,f'(p_y)=\lambda$ for all $y$, i.e.\ $t\,f'(t)$ takes the same value at every coordinate $t=p_y$.
-    For $s,t>0$ with $s+t<1$ use $p=\big(s,t,\tfrac{1-s-t}{n-2},\dots,\tfrac{1-s-t}{n-2}\big)$ (possible as $n\ge3$): $s\,f'(s)=t\,f'(t)$. For $s+t\ge1$ compare both with a small $u$.
+    For $s,t>0$ with $s+t<1$ use $p=\big(s,t,\tfrac{1-s-t}{n-2},\dots,\tfrac{1-s-t}{n-2}\big)$ (possible as $n\ge3$): $s\,f'(s)=t\,f'(t)$. For $s+t\ge1$ compare both with a small $u$: $s\,f'(s)=u\,f'(u)=t\,f'(t)$ once $s+u<1$ and $t+u<1$.
     So $t\,f'(t)=-c$ is constant on $(0,1)$, $f(t)=-c\ln t+d$, and decreasing means $c>0$. \hfill$\square$
   \end{block}
   \words{If the penalty is to be minimised by reporting the true distribution, it must be the logarithm of the probability assigned to the outcome that occurred, up to scale and shift.}
@@ -788,7 +788,7 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
 \begin{frame}{What Goes Wrong With Any Other Penalty}
   \small
   \begin{exampleblock}{Linear penalty $f(t)=1-t$}
-    Expected penalty $1-\sum_yp_yq_y$, smallest when all of $q$ sits on the most probable class: for $p=(0.5,0.3,0.2)$ the minimiser is $q=(1,0,0)$, penalty $0.5$, while reporting $q=p$ costs $0.62$. The penalty is smallest when the probable class is overstated.
+    Expected penalty $1-\sum_yp_yq_y$, smallest when $q$ puts probability $1$ on the most probable class: for $p=(0.5,0.3,0.2)$ the minimiser is $q=(1,0,0)$, penalty $0.5$, while reporting $q=p$ costs $0.62$. The penalty is smallest when the probable class is overstated.
   \end{exampleblock}
   \begin{exampleblock}{Squared penalty on the realised probability, $f(t)=(1-t)^2$}
     Lagrange: $-2p_y(1-q_y)=\lambda$, so $q_y=1+\lambda/(2p_y)$. For $p=(0.5,0.3,0.2)$: $q=(0.613,0.355,0.032)\ne p$. Again the probable class is overstated and the improbable one understated. (The Brier score penalises the entire vector $q$ rather than $q_y$ alone, and is honest.)
@@ -863,7 +863,7 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
   \small
   Wordle: a five-letter answer is drawn from a list of $2315$ words. Each guess returns five colours, \cG\ right letter in the right place, \cY\ right letter in the wrong place, \cB\ letter absent: one of $3^5=243$ patterns.
   \begin{block}{Uncertainty before the first guess}
-    Before the first guess the answer is uniform on $2315$ words, an uncertainty of $\log2315=11.18$ bits. A natural measure of a guess is the amount by which it reduces this, but the reduction depends on which of the $243$ patterns comes back.
+    Before the first guess the answer is uniform on $2315$ words, an uncertainty of $\log2315=11.18$ bits. A natural measure of a guess is the amount by which it reduces this, but the reduction depends on which of the $243$ patterns is returned.
   \end{block}
   \begin{block}{Questions we cannot yet answer}
     \begin{enumerate}
@@ -892,7 +892,7 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
   \end{block}
   \words{A guess sorts the remaining answers into buckets, one per pattern, and the pattern returned identifies the bucket that contains the answer.}
   \begin{itemize}
-    \item Seeing pattern $\pi$ shrinks the candidate list from $N$ to $|\text{bucket of }\pi|=N\,p_\Pi(\pi)$. The information of the pattern is $I_\Pi(\pi)=\log\frac1{p_\Pi(\pi)}=\log\frac{N}{|\text{bucket}|}$: the number of halvings of the list.
+    \item Seeing pattern $\pi$ shrinks the candidate list from $N$ to $|\text{bucket of }\pi|=N\,p_\Pi(\pi)$. The information of the pattern is $I_\Pi(\pi)=\log\frac1{p_\Pi(\pi)}=\log\frac{N}{|\text{bucket}|}$: the logarithm of the factor by which the list shrinks.
     \item The guess is fully described by its pattern distribution $p_\Pi$: a bar chart with $243$ bars. Two guesses with the same bar chart are equally informative, whatever the letters.
     \item A pattern with a bucket of size $1$ carries $\log N$ bits and ends the game next turn; the all-grey pattern usually has a large bucket and carries little information.
   \end{itemize}
@@ -947,7 +947,7 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
 \begin{frame}{The Entropy of a Guess Is Its Expected Information}
   \small
   \begin{block}{Definition}
-    The \textbf{entropy of the guess} $g$ is the entropy of its pattern, $H(\Pi)=\sum_\pi p_\Pi(\pi)\log\frac1{p_\Pi(\pi)}=\E[I_\Pi(\Pi)]$, the expected number of halvings of the list.
+    The \textbf{entropy of the guess} $g$ is the entropy of its pattern, $H(\Pi)=\sum_\pi p_\Pi(\pi)\log\frac1{p_\Pi(\pi)}=\E[I_\Pi(\Pi)]$, the expected logarithm of the factor by which the list shrinks.
   \end{block}
   \words{The expected information over the patterns that might be returned, evaluated before the guess is made.}
   \begin{exampleblock}{Toy Wordle}
@@ -958,7 +958,7 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
       \textsf{NO} or \textsf{ON} & $1,1,1,1,1,1$ & $\log6=2.585$ bits, the maximum: each pattern names the answer \\
       \textsf{OF} or \textsf{TO} & $2,2,1,1$ & $2\cdot\tfrac26\cdot1.585+2\cdot\tfrac16\cdot2.585=1.918$ bits \\
       \textsf{IN} & $3,1,1,1$ & $\tfrac36\cdot1+3\cdot\tfrac16\cdot2.585=1.792$ bits \\
-      \textsf{AM} & $5,1$ & $\tfrac56\cdot0.263+\tfrac16\cdot2.585=0.650$ bits; little learned five times in six \\
+      \textsf{AM} & $5,1$ & $\tfrac56\cdot0.263+\tfrac16\cdot2.585=0.650$ bits; $0.263$ bits with probability $\tfrac56$ \\
       \bottomrule
     \end{tabular}
   \end{exampleblock}
@@ -969,9 +969,9 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
 \end{frame}
 
 % ---------------------------------------------------------------------------
-\begin{frame}{Back to the Openers: Two Guesses Almost Never Finish}
+\begin{frame}{Back to the Openers: $\Prob(G\le2)\le0.105$ for Every Strategy}
   \small
-  Let $G\colon\Omega\to\{1,2,\dots\}$ be the number of guesses a strategy takes to hit the answer; the score of the strategy is $\E[G]$.
+  Let $G\colon\Omega\to\{1,2,\dots\}$ be the number of guesses a strategy takes to reach the answer; the score of the strategy is $\E[G]$.
   \begin{block}{Claim}
     For every strategy, $\Prob(G\le2)\le\tfrac{243}{2315}=0.105$, and hence $\E[G]\ge3-2\Prob(G=1)-\Prob(G=2)\ge3-\tfrac{244}{2315}=2.89$.
   \end{block}
@@ -1248,7 +1248,7 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
 % ===========================================================================
 \begin{frame}{Motivation: Why Thirty Letters Break a Substitution Cipher}
   \small
-  A \textbf{substitution cipher} replaces each letter by another under a fixed bijection $k$ of the alphabet: $26!\approx4\cdot10^{26}$ keys, $\log26!=88.4$ bits, so exhaustive search is infeasible. Yet a ciphertext of twenty-five to thirty letters usually has a unique sensible decryption, and a longer one can be broken by frequency counts in minutes.
+  A \textbf{substitution cipher} replaces each letter by another under a fixed bijection $k$ of the alphabet: $26!\approx4\cdot10^{26}$ keys, $\log26!=88.4$ bits, so exhaustive search is infeasible. Yet a ciphertext of twenty-five to thirty letters usually has a unique decryption that is English text, and a longer one can be broken by frequency counts in minutes.
   \begin{block}{Questions we cannot yet answer}
     \begin{enumerate}
       \item How many bits does one letter of English carry? The count $\log27=4.75$ (26 letters and a space) is too large by a factor of four or five.
@@ -1287,7 +1287,7 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
 \begin{frame}{Entropy Rate of a Markov Model}
   \small
   \begin{block}{Definition}
-    A pmf $\pi$ on $S$ is \textbf{stationary} for $Q$ if $\sum_x\pi(x)Q(x,x')=\pi(x')$ for all $x'$: letter frequencies do not drift. For the Markov model started from $\pi$, the \textbf{entropy rate} is
+    A pmf $\pi$ on $S$ is \textbf{stationary} for $Q$ if $\sum_x\pi(x)Q(x,x')=\pi(x')$ for all $x'$, so that $X_i$ has pmf $\pi$ for every $i$. For the Markov model started from $\pi$, the \textbf{entropy rate} is
     \[
       H(X_{i+1}\mid X_i)=\sum_{x\in S}\pi(x)\,H(X_{i+1}\mid X_i=x)=\sum_{x\in S}\pi(x)\,H\big(Q(x,\cdot)\big)\qquad\text{bits per letter},
     \]
@@ -1296,7 +1296,18 @@ Repeat for $i=1,\dots,n$. \hfill$\square$
   \words{The bits needed for the next letter when the previous one is known, obtained as for $H(X\mid Y)$ by averaging the row entropies of the transition table.}
   \begin{itemize}
     \item \textbf{What it is not.} It differs from $H(\pi)$, the entropy of a letter seen alone, and from the entropy of any single row; it is the average of the row entropies, and equals $H(X_{i+1}\mid X_i)$ for every $i$ because $\pi$ is stationary.
-    \item $n$ letters have entropy $H(X_1,\dots,X_n)=H(\pi)+(n-1)H(X_{i+1}\mid X_i)$, by the chain rule for $n$ variables (by induction) and the Markov property $H(X_{k+1}\mid X_1,\dots,X_k)=H(X_{k+1}\mid X_k)$: each letter depends on the past only through the last letter (stated without proof). Per letter this tends to the entropy rate, the lower bound for compressing the model's text (Section 4 applied to blocks).
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Entropy Rate: The Entropy of $n$ Letters}
+  \small
+  \begin{block}{Fact}
+    For the Markov model started from $\pi$, $n$ letters have entropy $H(X_1,\dots,X_n)=H(\pi)+(n-1)H(X_{i+1}\mid X_i)$, by the chain rule for $n$ variables (by induction) and the Markov property $H(X_{k+1}\mid X_1,\dots,X_k)=H(X_{k+1}\mid X_k)$: each letter depends on the past only through the last letter (stated without proof).
+  \end{block}
+  \words{The first letter costs $H(\pi)$ bits and each later letter costs the entropy rate, so per letter the entropy of $n$ letters tends to the entropy rate.}
+  \begin{itemize}
+    \item The entropy rate is therefore the lower bound for compressing the model's text (Section 4 applied to blocks of $n$ letters).
   \end{itemize}
 \end{frame}
 

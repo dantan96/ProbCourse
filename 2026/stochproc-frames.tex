@@ -158,7 +158,7 @@
   \words{A coin is tossed repeatedly and a running score is kept, $+1$ for each head and $-1$ for each tail; $S_n$ is the score after $n$ tosses.}
   \begin{itemize}
     \item The table on slide~\ref{fr:table} is this process up to $n=3$. Each row is a path $n\mapsto S_n(\omega)$ that moves by $\pm1$ at each step.
-    \item \textbf{Independent increments}: for $m<n$, $S_n-S_m=\xi_{m+1}+\dots+\xi_n$ depends only on tosses after $m$, so it is independent of $(S_0,\dots,S_m)$ and has the same distribution as $S_{n-m}$. After time $m$ the walk behaves as a fresh walk started from $S_m$.
+    \item \textbf{Independent increments}: for $m<n$, $S_n-S_m=\xi_{m+1}+\dots+\xi_n$ depends only on tosses after $m$, so it is independent of $(S_0,\dots,S_m)$ and has the same distribution as $S_{n-m}$. After time $m$, the process $(S_{m+k}-S_m)_{k\ge0}$ is a simple random walk independent of $(S_0,\dots,S_m)$.
   \end{itemize}
 \end{frame}
 
@@ -281,7 +281,7 @@
     $\Prob_i(\tau=n)$ is found by counting the paths that stay strictly inside $(-a,a)$ for $n-1$ steps and exit at step $n$; then $\sum_n n\,\Prob_i(\tau=n)$. These counts have no simple closed form.
   \end{block}
   \begin{block}{First-step analysis}
-    Condition on the first step, as for the waiting time for $\st{HH}$ (Conditional Expectation lecture, Application 2). After one step the walk is at $i\pm1$ and, by independent increments, the rest of the walk is a fresh walk from there:
+    Condition on the first step, as for the waiting time for $\st{HH}$ (Conditional Expectation lecture, Application 2). After one step the walk is at $i\pm1$ and, by independent increments, the remaining steps $\xi_2,\xi_3,\dots$ form a simple random walk independent of $\xi_1$, so the expected exit time from that point is $m_{i\pm1}$:
     \[
       m_i=1+\tfrac12 m_{i+1}+\tfrac12 m_{i-1}\quad(-a<i<a),\qquad m_{-a}=m_a=0 .
     \]
@@ -325,7 +325,7 @@
     \begin{column}{0.56\textwidth}
       A particle takes a fair $\pm1$ step every $\tfrac1n$ seconds, each of size $\tfrac1{\sqrt n}$. We ask what its path looks like when $n$ is large, and with what probability it is above $0$ at time $t=1$ and again at time $t=2$.
       \begin{block}{Rescaling}
-        Position at time $t$ is $B^{(n)}_t=\tfrac1{\sqrt n}S_{\lfloor nt\rfloor}$. By slide~\ref{fr:distSn}, $\E[B^{(n)}_t]=0$ and $\Var(B^{(n)}_t)=\tfrac{\lfloor nt\rfloor}{n}\to t$; by the central limit theorem (CLT: for i.i.d.\ $\xi_k$ with mean $0$ and variance $1$, $\Prob(S_m/\sqrt m\le x)\to\Phi(x)$ for every $x$, with $\Phi\colon\R\to[0,1]$ the $N(0,1)$ cdf), $\Prob\big(B^{(n)}_t\le x\big)\to\Phi\big(x/\sqrt t\big)$: \ $B^{(n)}_t\to N(0,t)$ in distribution.
+        Position at time $t$ is $B^{(n)}_t=\tfrac1{\sqrt n}S_{\lfloor nt\rfloor}$. By slide~\ref{fr:distSn}, $\E[B^{(n)}_t]=0$ and $\Var(B^{(n)}_t)=\tfrac{\lfloor nt\rfloor}{n}\to t$. The central limit theorem (CLT) states: for i.i.d.\ $\xi_k$ with mean $0$ and variance $1$, $\Prob(S_m/\sqrt m\le x)\to\Phi(x)$ for every $x$, with $\Phi\colon\R\to[0,1]$ the $N(0,1)$ cdf. Applied with $m=\lfloor nt\rfloor$ it gives $\Prob\big(B^{(n)}_t\le x\big)\to\Phi\big(x/\sqrt t\big)$: \ $B^{(n)}_t\to N(0,t)$ in distribution.
         Increments over disjoint time intervals are sums of disjoint blocks of steps, so they are independent, with variance equal to the length of the interval.
       \end{block}
       \words{Division by $\sqrt n$ is the scaling under which the variance at time $t$ has a finite non-zero limit; the limiting process has normal marginals and independent increments.}
@@ -420,7 +420,7 @@
     \begin{column}{0.58\textwidth}
       \footnotesize
       \renewcommand{\arraystretch}{1.3}
-      \begin{tabular}{@{}lll@{}}
+      \begin{tabular}{@{}ll>{\raggedright\arraybackslash}p{2.4cm}@{}}
         \toprule
         & walk $S_n$ & Brownian $B_t$ \\
         \midrule
@@ -430,7 +430,7 @@
         increment over $(s,t]$ & sum of $t-s$ steps & $N(0,t-s)$ \\
         $\Var$ of increment & $t-s$ (fair) & $t-s$ \\
         disjoint increments & independent & independent \\
-        path & moves by $\pm1$ & continuous, rough \\
+        path & moves by $\pm1$ & continuous, nowhere differentiable \\
         \bottomrule
       \end{tabular}
     \end{column}
@@ -567,13 +567,26 @@
 \begin{frame}{Why the Paths Are Nowhere Differentiable}
   \label{fr:bmrough}
   \small
-  \begin{block}{Theorem (the paths are rough)}
-    With probability one, $t\mapsto B_t(\omega)$ is nowhere differentiable (Paley, Wiener, Zygmund, 1933; not proved here). For $t>0$ and $\Delta_k=B_{kt/n}-B_{(k-1)t/n}$, $k=1,\dots,n$:
+  \begin{block}{Theorem (nowhere differentiable paths)}
+    With probability one, $t\mapsto B_t(\omega)$ is nowhere differentiable (Paley, Wiener, Zygmund, 1933; not proved here).
+  \end{block}
+  \words{No path of $B$ has a derivative at any time.}
+  \begin{block}{Why}
+    By property (iii) of the definition (slide~\ref{fr:bmdef}), $\frac{B_{t+h}-B_t}{h}\sim N\big(0,\tfrac1h\big)$: the difference quotient has standard deviation $1/\sqrt h\to\infty$ as $h\to0$, so it cannot converge.
+  \end{block}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{The Squared Increments Sum to $t$}
+  \label{fr:bmqv}
+  \small
+  \begin{block}{Theorem}
+    For $t>0$ and $\Delta_k=B_{kt/n}-B_{(k-1)t/n}$, $k=1,\dots,n$:
     \ $\E\big[\sum_{k=1}^n\Delta_k^2\big]=t$ and $\Var\big(\sum_{k=1}^n\Delta_k^2\big)=\dfrac{2t^2}{n}\to0$.
     % python3 comment: Var of (N(0,v))^2 = 2v^2, so var of the sum is n*2*(t/n)^2 = 2t^2/n
   \end{block}
-  \begin{block}{Why}
-    By (iii), $\frac{B_{t+h}-B_t}{h}\sim N\big(0,\tfrac1h\big)$: the difference quotient has standard deviation $1/\sqrt h\to\infty$ as $h\to0$, so it cannot converge. The $\Delta_k$ are independent $N(0,\tfrac tn)$ with $\E[\Delta_k^2]=\tfrac tn$ and $\Var(\Delta_k^2)=2(\tfrac tn)^2$; sum over $k$.
+  \begin{block}{Proof}
+    The $\Delta_k$ are independent $N(0,\tfrac tn)$ with $\E[\Delta_k^2]=\tfrac tn$ and $\Var(\Delta_k^2)=2(\tfrac tn)^2$; sum over $k$. \hfill$\square$
   \end{block}
   \words{The squared increments of a Brownian path over $[0,t]$ sum to about $t$; for a differentiable function they tend to $0$ as $n\to\infty$.}
   % python3: E|N(0,t/n)| = sqrt(2t/(pi n)); n of them: sqrt(2tn/pi) -> inf. Walk: sum of squared steps = n exactly; scaled by 1/sqrt n: n*(1/n)=1.
@@ -650,7 +663,7 @@
     \[
       h_i=\Prob_i(X_T=N\mid\xi_1=+1)\,p+\Prob_i(X_T=N\mid\xi_1=-1)\,q .
     \]
-    On the row $\{\xi_1=+1\}$ the fortune is $i+1$ after round one and, by independent increments, the remaining rounds $\xi_2,\xi_3,\dots$ are a fresh Bernoulli process: the conditional probability of reaching $N$ is $h_{i+1}$. Likewise $h_{i-1}$ on the other row. \hfill$\square$
+    On the row $\{\xi_1=+1\}$ the fortune is $i+1$ after round one and, by independent increments, the remaining rounds $\xi_2,\xi_3,\dots$ form a Bernoulli process independent of $\xi_1$: the conditional probability of reaching $N$ is $h_{i+1}$. Likewise $h_{i-1}$ on the other row. \hfill$\square$
   \end{block}
   \begin{itemize}
     \item This is the argument of the Conditional Expectation lecture (Application 2) and of slide~\ref{fr:firststep}, applied to a probability; it gives $N-1$ linear equations in $h_1,\dots,h_{N-1}$.
@@ -721,18 +734,17 @@
 
 
 % ===========================================================================
-\begin{frame}{The Casino's Edge in Numbers, and Why Doubling Fails}
+\begin{frame}{The Casino's Edge in Numbers}
   \label{fr:casino}
   \small
-  \begin{columns}[T]
-    \begin{column}{0.5\textwidth}
+  \begin{center}
       % python3 fractions, win() and dur() above:
       % (50,100,1/2): 0.5, 2500   (50,100,49/100): 0.1192, 1904   (50,100,18/38): 0.00513, 940
       % (10,20,18/38): 0.2585, 91.8  (5,10,18/38): 0.3713, 24.5   (1,2,18/38): 0.4737, 1
       \renewcommand{\arraystretch}{1.25}
       \begin{tabular}{@{}lccc@{}}
         \toprule
-        $i\to N$ (stake $\pounds1$) & $p$ & $\Prob(\text{target})$ & $\E[T]$ \\
+        $i\to N$ (in units of one stake) & $p$ & $\Prob(\text{target})$ & $\E[T]$ \\
         \midrule
         $50\to100$ & $0.5$ & $0.500$ & $2500$ \\
         $50\to100$ & $0.49$ & $0.119$ & $1904$ \\
@@ -742,12 +754,16 @@
         $1\to2$ & $18/38$ & $0.474$ & $1$ \\
         \bottomrule
       \end{tabular}
-      \par\smallskip
-      \words{At a $1\%$ disadvantage, doubling $\pounds50$ one pound at a time succeeds about one time in eight; the last three rows are the same goal with stakes of $\pounds5$, $\pounds10$ and $\pounds50$, and with fewer rounds the disadvantage accumulates less.}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+  \end{center}
+  \words{At a $1\%$ disadvantage, doubling $\pounds50$ one pound at a time succeeds with probability about $0.12$; the last three rows are $\pounds50\to\pounds100$ with stakes of $\pounds5$, $\pounds10$ and $\pounds50$, and with fewer rounds the disadvantage accumulates less.}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+\begin{frame}{Why Doubling Fails}
+  \label{fr:doubling}
+  \small
       \begin{block}{Doubling (the ``martingale'' system)}
-        Bet $1$; after each loss double the stake; after a win pocket the net $\pounds1$ and restart. With capital $2^k-1$ the gambler can absorb $k-1$ consecutive losses; $k$ losses in a row exhaust the capital.
+        Bet $1$; after each loss double the stake; after a win collect the net gain of $\pounds1$ and restart. With capital $2^k-1$ the gambler can absorb $k-1$ consecutive losses; $k$ losses in a row exhaust the capital.
         Per cycle: gain $+1$ with probability $1-q^k$, lose $2^k-1$ with probability $q^k$:
         \[
           \E[\text{gain}]=(1-q^k)-q^k(2^k-1)=1-(2q)^k .
@@ -758,12 +774,11 @@
       \begin{itemize}
         \item Roulette, $k=7$ (capital $\pounds127$): win $\pounds1$ with probability $0.989$, lose $\pounds127$ with probability $0.011$; mean $-\pounds0.43$ per cycle.
       \end{itemize}
-    \end{column}
-  \end{columns}
+  \words{Doubling produces many small wins and a rare large loss; the mean gain per cycle is negative whenever each bet has negative mean.}
 \end{frame}
 
 % ---------------------------------------------------------------------------
-\begin{frame}{The Infinite Target: Playing Against a Casino That Cannot Be Broken}
+\begin{frame}{The Infinite Target: An Opponent With Unlimited Capital}
   \label{fr:infinite}
   \small
   Let $N\to\infty$ with $i$ fixed: the gambler plays on until ruin or forever.
@@ -786,14 +801,15 @@
   \small
   % python3: (2/3)^5 = 0.1317; i/(q-p) for i=50, p=18/38: 950
   \begin{center}
-    \renewcommand{\arraystretch}{1.4}
-    \begin{tabular}{@{}lccl@{}}
+    \footnotesize
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabular}{@{}lcc>{\raggedright\arraybackslash}p{5.8cm}@{}}
       \toprule
       game & $\Prob(\text{ruin})$ from $i$ & $\E[\text{time to ruin}]$ & the walk $i+S_n$ \\
       \midrule
-      unfavourable, $p<q$ & $1$ & $\dfrac{i}{q-p}<\infty$ & drifts down; reaches $0$ \\
-      fair, $p=q$ & $1$ & $\infty$ & no drift; reaches $0$ eventually \\
-      favourable, $p>q$ & $(q/p)^i<1$ & $\infty$ (may never be ruined) & drifts up; may never reach $0$ \\
+      unfavourable, $p<q$ & $1$ & $\dfrac{i}{q-p}<\infty$ & $\E[\xi_n]<0$: reaches $0$ with probability $1$, in finite mean time \\
+      fair, $p=q$ & $1$ & $\infty$ & $\E[\xi_n]=0$: reaches $0$ with probability $1$, but with infinite mean time \\
+      favourable, $p>q$ & $(q/p)^i<1$ & $\infty$ & $\E[\xi_n]>0$: reaches $0$ with probability $(q/p)^i<1$ \\
       \bottomrule
     \end{tabular}
   \end{center}
@@ -828,7 +844,7 @@
   \end{center}
   \begin{itemize}
     \item Doubling $\pounds50$ at $\pounds1$ a spin succeeds with probability about $1/195$, and the game lasts about $940$ spins on average. Staking all $\pounds50$ on a single spin succeeds with probability $\tfrac{18}{38}\approx0.474$.
-    \item The plan ``win $\pounds1$ and stop'' fails one time in ten, and each failure costs $\pounds50$; the mean gain is $0.8995\cdot1-0.1005\cdot50\approx-\pounds4.12$, which equals $(p-q)\,\E[T]=-\tfrac2{38}\cdot78.4$. No staking plan has positive mean gain, since every plan is a sum of bets each of mean $-\tfrac2{38}$ per pound staked.
+    \item The plan ``win $\pounds1$ and stop'' fails with probability $0.1005$, and each failure costs $\pounds50$; the mean gain is $0.8995\cdot1-0.1005\cdot50\approx-\pounds4.12$, which equals $(p-q)\,\E[T]=-\tfrac2{38}\cdot78.4$. No staking plan has positive mean gain, since every plan is a sum of bets each of mean $-\tfrac2{38}$ per pound staked.
   \end{itemize}
   \words{The entries are the values of $h_{50}$ and $D_{50}$ given by the formulas of slides~\ref{fr:ruinunfair} and~\ref{fr:duration} for each target $N$.}
 \end{frame}
@@ -1284,7 +1300,7 @@
     \end{column}
   \end{columns}
   \begin{itemize}
-    \item The jump is needed because a page with no out-links, or a group of pages with no exits, traps the surfer, and the chain with matrix $\mathbf H$ alone may have no unique $\pi$ or may fail to converge (slides~\ref{fr:classes}--\ref{fr:convwhy}). With $d<1$ every entry of $\PP$ is positive, so the results below apply.
+    \item The jump is needed because from a page with no out-links, or a group of pages with no exits, a surfer following links alone can never leave, and the chain with matrix $\mathbf H$ alone may have no unique $\pi$ or may fail to converge (slides~\ref{fr:classes}--\ref{fr:convwhy}). With $d<1$ every entry of $\PP$ is positive, so the results below apply.
   \end{itemize}
 \end{frame}
 
@@ -1325,7 +1341,7 @@
     \item $i\to j$ iff there is a path $i=i_0,i_1,\dots,i_n=j$ with every $p(i_{k-1},i_k)>0$: a directed path in the graph whose edges are the positive entries of $\PP$. The classes are the strongly connected components of that graph.
     \item Weather, vowel/consonant, Ehrenfest, cycle, cube, PageRank with $d<1$: irreducible.
     \item Gambler's ruin: three classes, $\{0\}$ and $\{N\}$ closed (absorbing states), $\{1,\dots,N-1\}$ not closed. Four-page web without damping: $\{\st A,\st B,\st C\}$ closed, $\{\st D\}$ not closed.
-    \item A state in a class that is not closed is left for good with positive probability at each visit, so it is visited only finitely often (next slides).
+    \item A state in a class that is not closed is left permanently with positive probability at each visit, so it is visited only finitely often (next slides).
   \end{itemize}
 \end{frame}
 
@@ -1412,13 +1428,14 @@
     \]
     Hence $i$ is recurrent iff $\sum_n p^{(n)}(i,i)=\infty$ iff $\Prob_i(V_i=\infty)=1$; transient iff $\sum_n p^{(n)}(i,i)<\infty$ iff $V_i<\infty$ with probability one.
   \end{block}
+  \words{The number of returns to $i$ is geometric with parameter $f$, so it is infinite with probability one in the recurrent case and has finite mean in the transient case.}
   \begin{block}{Proof}
     Each time the chain is at $i$ it restarts (Markov property), and returns once more with probability $f$, independently of the past; so $V_i\ge k$ requires $k$ successive returns: $f^k$. Then $\E_i[V_i]=\sum_{k\ge1}\Prob_i(V_i\ge k)=\sum_kf^k$, and also $\E_i[V_i]=\sum_n\E_i[\ind\{X_n=i\}]=\sum_np^{(n)}(i,i)$ by linearity, column by column. \hfill$\square$
   \end{block}
 \end{frame}
 
 % ---------------------------------------------------------------------------
-\begin{frame}{Recurrence: Class Property, Finite Chains, and the Walk on $\Z$}
+\begin{frame}{Recurrence: Class Property and Finite Chains}
   \label{fr:recclass}
   \small
   \begin{block}{Theorem}
@@ -1596,7 +1613,7 @@
   \end{block}
   \words{The three opening questions have been answered by a matrix power, a left eigenvector, and a first-step linear system respectively.}
   \begin{itemize}
-    \item For the vowel/consonant chain, the expected number of letters until the first vowel is $2$ from $\st C$ (a geometric waiting time) and $1+0.8\cdot2=2.6$ from $\st V$; until the first occurrence of $\st{VV}$ it is $k_{\st C}=15$ and $k_{\st V}=13$.
+    \item For the vowel/consonant chain, the expected number of letters until the first vowel is $2$ from $\st C$ (a geometric waiting time) and $1+0.8\cdot2=2.6$ from $\st V$; until the first occurrence of $\st{VV}$ it is $k_{\st C}=15$ and $k_{\st V}=13$, from the first-step system $k_{\st C}=2+k_{\st V}$, $k_{\st V}=1+0.8\,k_{\st C}$.
     % python3 sympy: kC = 2 + kV, kV = 1 + 0.8 kC -> kV = 13, kC = 15; checked via fundamental matrix of the 3-state pattern chain.
   \end{itemize}
 \end{frame}
@@ -1683,7 +1700,7 @@
   \label{fr:ergodic}
   \small
   \begin{block}{Theorem}
-    Let $\PP$ be irreducible on a finite $S$ with stationary distribution $\pi$ (no aperiodicity required). Let $V_i(n)\colon\Omega\to\{0,\dots,n\}$, $V_i(n)=\sum_{k=0}^{n-1}\ind\{X_k=i\}$, be the number of visits to $i$ before time $n$ (time $0$ included, unlike $V_i$ of slide~\ref{fr:visits}: $V_i(n)\to V_i+\ind\{X_0=i\}$). Then, whatever the initial distribution, with probability one
+    Let $\PP$ be irreducible on a finite $S$ with stationary distribution $\pi$ (no aperiodicity required). Let $V_i(n)\colon\Omega\to\{0,\dots,n\}$, $V_i(n)=\sum_{k=0}^{n-1}\ind\{X_k=i\}$, be the number of visits to $i$ before time $n$. Unlike $V_i$ of slide~\ref{fr:visits}, this count includes time $0$, so $V_i(n)\to V_i+\ind\{X_0=i\}$. Then, whatever the initial distribution, with probability one
     \[
       \frac{V_i(n)}{n}\ \xrightarrow{\ n\to\infty\ }\ \pi_i\quad\text{for every } i,
       \qquad\text{and}\qquad
