@@ -7,41 +7,125 @@
 % where it appears.
 \providecommand{\Var}{\operatorname{Var}}
 \providecommand{\Cov}{\operatorname{Cov}}
-\noindent Notation as in the Conditional Expectation lecture: two dice $Y$ (first) and $Z$ (second), $X=Y+Z$ and $D=Y-Z$; the rows of the two-dice table are the events $\{Y=y\}$.
+\noindent Notation as in the Conditional Expectation lecture. For random variables $X,Y$ on $(\Omega,\F,\Prob)$, $\E[X\mid Y=y]$ is the average of $X$ over the row $\{Y=y\}$, and $\E[X\mid Y]$ is the random variable that takes the value $\E[X\mid Y=y]$ on the event $\{Y=y\}$. The results used below are the law of total expectation, the tower property, ``taking out what is known'', and the restart property.
 
 \begin{enumerate}[series=quiz,label=\arabic*.,leftmargin=2.6em]
-\item A supplier's defect rate is unknown: model it as $\Theta$ uniform on $[0,\tfrac15]$. Given $\Theta=\theta$, the number $D$ of defective items in a sample of $10$ is binomial: $\E[D\mid\Theta=\theta]=10\theta$ and $\E[D^2\mid\Theta=\theta]=10\theta(1-\theta)+100\theta^2$. Compute $\E[D]$ and $\Var(D)$, and compare $\Var(D)$ with the variance $10\cdot0.1\cdot0.9$ of a binomial with the average defect rate $0.1$. Then compute $\Prob(D=0)$ directly, by integrating over $\theta$, and compare with $0.9^{10}$.
+\item A supplier's defect rate is unknown. Model it as a random variable $\Theta$ with the uniform distribution on $[0,\tfrac15]$; its pdf is $f_\Theta(\theta)=5$ for $0\le\theta\le\tfrac15$. A sample of $10$ items is inspected. Let $D$ be the number of defective items in the sample. Given $\Theta=\theta$, $D$ is binomial with parameters $10$ and $\theta$. Take the following three facts about the binomial distribution as given:
+\begin{align*}
+\E[D\mid\Theta=\theta]&=10\theta,\\
+\E[D^2\mid\Theta=\theta]&=10\theta(1-\theta)+100\theta^2,\\
+\Prob(D=0\mid\Theta=\theta)&=(1-\theta)^{10}.
+\end{align*}
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item Compute $\E[D]$.
+\item Compute $\E[D^2]$ and $\Var(D)$.
+\item A binomial random variable with parameters $10$ and $0.1$ has variance $10\cdot0.1\cdot0.9=0.9$. State whether $\Var(D)$ is larger or smaller than $0.9$. Give the reason in one sentence.
+\item Compute $\Prob(D=0)$ by integrating $\Prob(D=0\mid\Theta=\theta)$ against the pdf of $\Theta$. Compare the result with $0.9^{10}$.
+\end{enumerate}
 \begin{solution}
-$\E[D]=10\E[\Theta]=1$. $\E[D^2]=10\E[\Theta]+90\E[\Theta^2]=1+90\cdot\tfrac{1}{75}=\tfrac{11}5$ (as $\E[\Theta^2]=\int_0^{1/5}5\theta^2\dd\theta=\tfrac1{75}$), so $\Var(D)=\tfrac{11}5-1=\tfrac65=1.2>0.9$; uncertainty about the rate increases the variance of $D$.
-Directly, $\Prob(D=0)=\int_0^{1/5}5(1-\theta)^{10}\dd\theta=\tfrac5{11}\big(1-0.8^{11}\big)\approx0.416$, against $0.9^{10}\approx0.349$. Each further value $\Prob(D=d)$ is another such integral, and computing $\E[D]$ from the pmf would require all eleven.
+(a) By the law of total expectation, $\E[D]=\int_0^{1/5}\E[D\mid\Theta=\theta]\,f_\Theta(\theta)\dd\theta=10\,\E[\Theta]$. The mean of the uniform distribution on $[0,\tfrac15]$ is the midpoint, $\E[\Theta]=\tfrac1{10}$.
+$\E[D]=1$.
+
+(b) First $\E[\Theta^2]=\int_0^{1/5}5\theta^2\dd\theta=\tfrac53\cdot\tfrac1{125}=\tfrac1{75}$. By total expectation, $\E[D^2]=\E\big[10\Theta(1-\Theta)+100\Theta^2\big]=10\,\E[\Theta]+90\,\E[\Theta^2]=1+\tfrac{90}{75}=\tfrac{11}5$. Then $\Var(D)=\E[D^2]-\E[D]^2=\tfrac{11}5-1=\tfrac65$.
+$\E[D^2]=2.2$ and $\Var(D)=1.2$.
+
+(c) $\Var(D)=1.2$ is larger than $0.9$. The defect rate is itself random, and this second source of randomness adds to the variance of $D$.
+
+(d) By the law of total probability,
+$\Prob(D=0)=\int_0^{1/5}\Prob(D=0\mid\Theta=\theta)\,f_\Theta(\theta)\dd\theta=\int_0^{1/5}5(1-\theta)^{10}\dd\theta=\tfrac5{11}\big(1-0.8^{11}\big)$.
+$\Prob(D=0)\approx0.416$, against $0.9^{10}\approx0.349$: a random rate makes a defect-free sample more likely than a fixed rate of $0.1$ does.
+Remark: each value $\Prob(D=d)$ is another such integral, so computing $\E[D]$ from the pmf of $D$ would need eleven integrals; the law of total expectation in (a) needed one.
 % python3: E[D]=1, E[D^2]=11/5, Var=6/5; P(D=0)=0.41550, 0.9^10=0.34868
 \end{solution}
 
-\item Toss a fair coin until the pattern THH first appears; then the same for THT and for TTT. Compute the three expected waiting times by conditioning on the first toss from each of the three states ``no progress'', ``T'', ``TH'' (respectively ``TT''). Which pattern arrives soonest, and why are three patterns of the same length not equally quick?
+\item Toss a fair coin repeatedly. Fix a pattern of three letters, for example THH. Let $T$ be the number of the toss on which the pattern is first completed. Example: for the tosses H, T, H, H, the pattern THH is completed on toss $4$, so $T=4$. The aim is $\E[T]$ for each of the three patterns THH, THT and TTT.
+
+The method is the one used for HH in the lecture (Application 2). At every moment the game is in one of three states, which record how much of the pattern the most recent tosses have completed.
+For THH and for THT the states are: state $0$, no progress; state $1$, the last toss is T; state $2$, the last two tosses are TH.
+For TTT the states are: state $0$, no progress; state $1$, the last toss is T; state $2$, the last two tosses are TT.
+Let $m_j$ be the expected number of further tosses until the pattern is completed, starting from state $j$. Then $\E[T]=m_0$.
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item For the pattern THH, condition on the next toss to write one equation for each of $m_0,m_1,m_2$. Solve the three equations.
+\item Do the same for THT.
+\item Do the same for TTT.
+\item State which of the three patterns has the smallest $\E[T]$.
+\item The three patterns have the same length. Explain in at most three sentences why their expected waiting times differ. Hint: when an attempt at the pattern fails, how much of the pattern is still in place?
+\end{enumerate}
 \begin{solution}
-Write $m_0,m_1,m_2$ for the expected number of further tosses from the states ``no progress'', ``T'', and ``T then the second letter''. Conditioning on the next toss:
-THH: $m_0=1+\tfrac12(m_0+m_1)$, $m_1=1+\tfrac12(m_1+m_2)$, $m_2=1+\tfrac12(0+m_1)$, so $(m_0,m_1,m_2)=(8,6,4)$.
-THT: the same first two equations, but $m_2=1+\tfrac12(0+m_0)$, so $(10,8,6)$.
-TTT: $m_0=1+\tfrac12(m_0+m_1)$, $m_1=1+\tfrac12(m_0+m_2)$, $m_2=1+\tfrac12(0+m_0)$, so $(14,12,8)$.
-So THH takes $8$ tosses on average, THT $10$, TTT $14$. The difference lies in what remains after a failed attempt: after TH, the wrong toss for THH is a T, which begins a new attempt; the wrong toss for THT is an H, which contributes nothing; and for TTT a failing H at any stage discards all progress.
+(a) THH. From state $0$, a T moves to state $1$ and an H stays in state $0$. From state $1$, an H moves to state $2$ and a T stays in state $1$. From state $2$, an H completes the pattern and a T moves back to state $1$. Each toss costs $1$, so
+$m_0=1+\tfrac12(m_0+m_1)$, $m_1=1+\tfrac12(m_1+m_2)$, $m_2=1+\tfrac12(0+m_1)$.
+The third equation gives $m_2=1+\tfrac12m_1$. The second gives $m_1=2+m_2=3+\tfrac12m_1$, so $m_1=6$ and $m_2=4$. The first gives $m_0=2+m_1=8$.
+$(m_0,m_1,m_2)=(8,6,4)$, so $\E[T]=8$ for THH.
+
+(b) THT. The equations for $m_0$ and $m_1$ are the same as in (a). From state $2$, a T completes the pattern and an H gives THH, which contains no start of THT, so the game returns to state $0$: $m_2=1+\tfrac12(0+m_0)$.
+Then $m_1=2+m_2=3+\tfrac12m_0$ and $m_0=2+m_1=5+\tfrac12m_0$, so $m_0=10$, $m_1=8$, $m_2=6$.
+$(m_0,m_1,m_2)=(10,8,6)$, so $\E[T]=10$ for THT.
+
+(c) TTT. From state $0$, a T moves to state $1$ and an H stays. From state $1$, a T moves to state $2$ and an H returns to state $0$. From state $2$, a T completes the pattern and an H returns to state $0$:
+$m_0=1+\tfrac12(m_0+m_1)$, $m_1=1+\tfrac12(m_0+m_2)$, $m_2=1+\tfrac12(0+m_0)$.
+The first gives $m_0=2+m_1$. Substituting $m_2=1+\tfrac12m_0$ into the second, $m_1=\tfrac32+\tfrac34m_0$. Then $m_0=\tfrac72+\tfrac34m_0$, so $m_0=14$, $m_1=12$, $m_2=8$.
+$(m_0,m_1,m_2)=(14,12,8)$, so $\E[T]=14$ for TTT.
+
+(d) THH has the smallest expected waiting time: $8$ tosses, against $10$ for THT and $14$ for TTT.
+
+(e) The patterns differ in what survives a failed attempt. For THH, the toss that spoils TH is a T, and that T is the first letter of a new attempt; for THT, the spoiling toss is an H, which is not the first letter, so the game returns to state $0$; for TTT, an H at any stage returns the game to state $0$. The less progress a failure destroys, the shorter the expected wait.
 % python3 sympy: THH (8,6,4); THT (10,8,6); TTT (14,12,8); Monte Carlo 7.97, 10.01, 13.98
 \end{solution}
 
-\item Two dice, $D=Y-Z$, $X=Y+Z$. (a) Show that $\E[D\mid X]=0=\E[D]$ as random variables, by considering how the diagonal $\{X=x\}$ lies relative to the main diagonal. (b) Show that $\E[X\mid D]=7=\E[X]$ (which cells form $\{D=d\}$, and what is $X$ on them?). Deduce $\Cov(X,D)=0$. (c) Show that $X$ and $D$ are nevertheless \emph{not} independent, by comparing the parities of $X$ and $D$ or by computing $\Prob(D=5,X=7)$ against $\Prob(D=5)\Prob(X=7)$. Which result of the lecture does this illustrate?
+\item Two fair dice are rolled. $Y$ is the first die and $Z$ the second. Let $X=Y+Z$ and $D=Y-Z$. The two-dice table has $36$ cells $(y,z)$ with $y,z\in\{1,\dots,6\}$, each of probability $\tfrac1{36}$. Recall $\E[X]=7$ and $\E[D]=0$.
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item Fix $x\in\{2,\dots,12\}$. The event $\{X=x\}$ is the set of cells $(y,z)$ with $y+z=x$. Show that if the cell $(y,z)$ belongs to $\{X=x\}$ then so does the cell $(z,y)$, and that $D$ takes opposite values on these two cells. Deduce that $\E[D\mid X=x]=0$ for every $x$, so that $\E[D\mid X]=0$.
+\item Fix $d\in\{-5,\dots,5\}$. The event $\{D=d\}$ is the set of cells $(y,z)$ with $y-z=d$. List these cells and the value of $X$ on each. Show that $\E[X\mid D=d]=7$ for every $d$, so that $\E[X\mid D]=7$.
+\item Use (b), ``taking out what is known'' and the tower property to show that $\E[XD]=0$. Deduce that $\Cov(X,D)=0$.
+\item Show that $X$ and $D$ are not independent. Use either of the following two methods. Method 1: show that $X$ and $D$ always have the same parity, then compare $\Prob(D\text{ odd},X\text{ even})$ with $\Prob(D\text{ odd})\,\Prob(X\text{ even})$. Method 2: compute $\Prob(D=5,X=7)$ and compare it with $\Prob(D=5)\,\Prob(X=7)$.
+\item The lecture states (Property 3, ``What Independence Does Not Say'') that $\E[X\mid D]=\E[X]$ does not imply $X\indep D$. Explain in at most three sentences how (b) and (d) together give an example of this.
+\end{enumerate}
 \begin{solution}
-(a) If the cell $(y,x-y)$ lies on the diagonal $\{X=x\}$ then so does $(x-y,y)$, and the two have opposite values of $D$; so the average of $D$ over each diagonal is $0$, and $\E[D\mid X]=0$, a constant.
-(b) $\{D=d\}$ is the diagonal of cells $(y,y-d)$ with both coordinates in $\{1,\dots,6\}$; on it $X=2y-d$ and $y$ runs over an interval symmetric about $\tfrac{7+d}2$, so the average of $X$ is $2\cdot\tfrac{7+d}2-d=7$. Hence $\E[X\mid D]=7$, and $\Cov(X,D)=\E[D\,\E[X\mid D]]-\E[X]\E[D]=7\E[D]-7\E[D]=0$.
-(c) Not independent: $X=D+2Z$, so $X$ and $D$ always have the same parity, and $\Prob(D\text{ odd},X\text{ even})=0\ne\Prob(D\text{ odd})\Prob(X\text{ even})$. Or: $\Prob(D=5,X=7)=\Prob(Y=6,Z=1)=\tfrac1{36}$, while $\Prob(D=5)\Prob(X=7)=\tfrac1{36}\cdot\tfrac6{36}$.
-This illustrates the distinction between equal row averages and equal row distributions: $\E[X\mid D]=\E[X]$ says that every diagonal has average $7$, whereas independence would require every diagonal to carry the distribution of $X$, which a diagonal of $3$ cells cannot.
+(a) If $y+z=x$ then $z+y=x$, so $(z,y)$ belongs to $\{X=x\}$ whenever $(y,z)$ does. On $(y,z)$ the value of $D$ is $y-z$; on $(z,y)$ it is $z-y=-(y-z)$. The cells of $\{X=x\}$ therefore pair off into cells with opposite values of $D$ (a cell with $y=z$ pairs with itself and has $D=0$), and all cells have the same probability. So the average of $D$ over the row $\{X=x\}$ is $0$.
+$\E[D\mid X=x]=0$ for every $x$, hence $\E[D\mid X]=0$.
+
+(b) The cells of $\{D=d\}$ are $(y,y-d)$ for those $y$ with both $y$ and $y-d$ in $\{1,\dots,6\}$; on such a cell $X=y+(y-d)=2y-d$. For $d\ge0$, $y$ runs over $d+1,\dots,6$; for $d<0$, over $1,\dots,6+d$. In both cases the values of $y$ form a block of consecutive integers whose midpoint is $\tfrac{(d+1)+6}2=\tfrac{7+d}2$ (for $d\ge0$) or $\tfrac{1+(6+d)}2=\tfrac{7+d}2$ (for $d<0$). The cells have equal probability, so the average of $y$ over the row is $\tfrac{7+d}2$, and the average of $X=2y-d$ is $2\cdot\tfrac{7+d}2-d=7$. Example, $d=5$: the single cell $(6,1)$, where $X=7$.
+$\E[X\mid D=d]=7$ for every $d$, hence $\E[X\mid D]=7$.
+
+(c) By the tower property, $\E[XD]=\E\big[\E[XD\mid D]\big]$. Taking out what is known, $\E[XD\mid D]=D\,\E[X\mid D]=7D$ by (b). So $\E[XD]=\E[7D]=7\,\E[D]=0$.
+$\Cov(X,D)=\E[XD]-\E[X]\,\E[D]=0-7\cdot0=0$.
+
+(d) Method 1: $X=D+2Z$, so $X-D=2Z$ is even and $X$, $D$ have the same parity. Hence $\Prob(D\text{ odd},X\text{ even})=0$, while $\Prob(D\text{ odd})>0$ and $\Prob(X\text{ even})>0$, so the product is positive and independence fails.
+Method 2: $\{D=5,X=7\}$ is the single cell $(6,1)$, so $\Prob(D=5,X=7)=\tfrac1{36}$; but $\Prob(D=5)\,\Prob(X=7)=\tfrac1{36}\cdot\tfrac6{36}=\tfrac1{216}$.
+$X$ and $D$ are not independent.
+
+(e) By (b), every row $\{D=d\}$ has the same average $7=\E[X]$, which is the statement $\E[X\mid D]=\E[X]$. Independence would require every row to have the same distribution as $X$, which is impossible for a row of fewer than $11$ cells, and (d) confirms that the distributions differ. Equal row averages are a weaker condition than equal row distributions.
 % python3: E[D|X=x]=0 for all x; E[X|D=d]=7 for all d; E[XD]=0; P(D=5,X=7)=1/36 vs 1/216; P(D odd, X even)=0
 \end{solution}
 
-\item Let $X_1,X_2,\dots$ be independent, each uniform on $\{1,\dots,6\}$, $\mu=\E[X_i]=3.5$, and let $N$ be the index of the first roll showing $5$ or $6$; $N$ is determined by the $X_i$ and not independent of them. (a) Let $S=X_1+\dots+X_N$ include the stopping roll. Compute $\E[S]$ by conditioning on the first roll, and compare with $\mu\,\E[N]$. (b) Let $S'=X_1+\dots+X_{N-1}$ exclude it. Compute $\E[S']$ the same way and compare with $\mu\,\E[N-1]$. Explain the two comparisons.
+\item Roll a fair die repeatedly. Let $X_1,X_2,\dots$ be the rolls: independent, each uniform on $\{1,\dots,6\}$, with $\mu=\E[X_i]=3.5$. Let $N$ be the number of the first roll that shows $5$ or $6$. Example: the rolls $2,4,1,6,\dots$ give $N=4$. Since each roll shows $5$ or $6$ with probability $\tfrac13$, $N$ is geometric with success probability $\tfrac13$, and $\E[N]=3$. The value of $N$ is determined by the rolls, so $N$ is not independent of the $X_i$, and the random-sums theorem of the lecture does not apply. Define
+\begin{align*}
+S&=X_1+\dots+X_N&&\text{(the stopping roll included)},\\
+S'&=X_1+\dots+X_{N-1}&&\text{(the stopping roll excluded; $S'=0$ if $N=1$)}.
+\end{align*}
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+\item Compute $\E[S]$ by conditioning on the first roll $X_1$. Hint: on the event $\{X_1=k\}$ with $k\le4$, the rolls $X_2,X_3,\dots$ are again a sequence of fair rolls, so $X_2+\dots+X_N$ has the same distribution as $S$ (restart property).
+\item Compute $\mu\,\E[N]$. State whether it equals $\E[S]$.
+\item Compute $\E[S']$ by the method of (a).
+\item Compute $\mu\,\E[N-1]$. State whether it equals $\E[S']$.
+\item Compute $\E[X_N]$, the mean of the stopping roll. Then explain in at most three sentences why the product ``$\mu$ times the expected number of terms'' gives the correct value in (b) but not in (d).
+\end{enumerate}
 \begin{solution}
-$N$ is geometric with success probability $\tfrac13$: $\E[N]=3$, $\mu\E[N]=10.5$, $\mu\E[N-1]=7$.
-(a) Condition on $X_1=k$. If $k\in\{5,6\}$: $S=k$. If $k\le4$: $S=k+S''$ with $S''$ a fresh copy of $S$. So $\E[S]=\tfrac16(5+6)+\tfrac16\sum_{k=1}^4(k+\E[S])=\tfrac{11}6+\tfrac{10}6+\tfrac46\E[S]$, giving $\E[S]=\tfrac{21}2=10.5=\mu\E[N]$.
-(b) Now $S'=0$ if $k\in\{5,6\}$ and $S'=k+S'''$ otherwise: $\E[S']=\tfrac{10}6+\tfrac46\E[S']$, so $\E[S']=5\ne7$.
-The random-sums theorem applies to neither sum, since $N$ depends on the $X_i$. In (a) the decision to stop after $n$ rolls depends only on the first $n$ rolls, and the formula still holds (Wald's identity). In (b) the last roll is excluded because it is large: $\E[S']=\E[S]-\E[X_N]=10.5-5.5=5$, and the excluded term has mean $5.5$, not $\mu$. The formula treats the $N-1$ terms as typical rolls, whereas they are the rolls that showed at most four.
+(a) Condition on $X_1=k$, each value having probability $\tfrac16$. If $k\in\{5,6\}$, the game stops and $S=k$. If $k\le4$, then $S=k+S''$ where $S''=X_2+\dots+X_N$ has the distribution of $S$ by the restart property, so $\E[S\mid X_1=k]=k+\E[S]$. By total expectation,
+$\E[S]=\tfrac16(5+6)+\tfrac16\sum_{k=1}^4\big(k+\E[S]\big)=\tfrac{11}6+\tfrac{10}6+\tfrac46\E[S]$.
+Solving, $\tfrac26\E[S]=\tfrac{21}6$.
+$\E[S]=\tfrac{21}2=10.5$.
+
+(b) $\mu\,\E[N]=3.5\cdot3=10.5$. It equals $\E[S]$.
+
+(c) Condition on $X_1=k$ again. If $k\in\{5,6\}$ then $N=1$ and $S'=0$. If $k\le4$ then $S'=k+S'''$ with $S'''$ distributed as $S'$, so $\E[S'\mid X_1=k]=k+\E[S']$. Hence
+$\E[S']=\tfrac16\sum_{k=1}^4\big(k+\E[S']\big)=\tfrac{10}6+\tfrac46\E[S']$, so $\tfrac26\E[S']=\tfrac{10}6$.
+$\E[S']=5$.
+
+(d) $\mu\,\E[N-1]=3.5\cdot2=7$. It does not equal $\E[S']=5$.
+
+(e) The stopping roll $X_N$ is $5$ or $6$, each with probability $\tfrac12$, so $\E[X_N]=5.5$; consistently, $\E[S']=\E[S]-\E[X_N]=10.5-5.5=5$.
+In (b) the decision to stop after roll $n$ depends only on rolls $1,\dots,n$, and for such stopping rules the formula $\E[S]=\mu\,\E[N]$ still holds (Wald's identity, mentioned in the lecture). In (d) the last roll is excluded because of its value, so the $N-1$ terms of $S'$ are not typical rolls but rolls that showed at most $4$, with mean $2.5$ rather than $\mu$. The formula treats them as typical rolls, which is why it gives $7$ instead of $5$.
 % python3 sympy: E[S]=21/2, E[S']=5, mu E[N]=10.5, mu E[N-1]=7, E[X_N]=5.5
 \end{solution}
 \end{enumerate}
